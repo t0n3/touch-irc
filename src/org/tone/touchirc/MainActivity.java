@@ -1,15 +1,33 @@
 package org.tone.touchirc;
 
-import android.os.Bundle;
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.Menu;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    @Override
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        
+        // Delete this when we will have thread
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy); 
+		setContentView(R.layout.activity_main);
+		
+		
+        // Lets go Irc connection
+        MyIrcBot irc = new MyIrcBot(getApplicationContext());
+
+        
+        TextView textview = (TextView) findViewById(R.id.textview);
+        textview.setText(irc.getNick());  
+        
     }
 
 
@@ -19,5 +37,6 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+    
     
 }
