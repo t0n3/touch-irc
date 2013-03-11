@@ -1,4 +1,4 @@
 touch-irc
 =========
 
-Touch IRC is a irc client for Android devices
+Touch IRC is an IRC Client for Android devices
