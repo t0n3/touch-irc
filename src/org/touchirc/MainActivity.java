@@ -1,4 +1,6 @@
-package org.tone.touchirc;
+package org.touchirc;
+
+import org.touchirc.R;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

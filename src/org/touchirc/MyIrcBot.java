@@ -1,4 +1,4 @@
-package org.tone.touchirc;
+package org.touchirc;
 
 import java.io.IOException;
 
