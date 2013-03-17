@@ -21,3 +21,7 @@ local.properties
 
 # project property
 project.properties
+
+
+# NEVER PUSH THIS THING "MainActivity.java"
+src/org/touchirc/MainActivity.java
