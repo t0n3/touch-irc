@@ -48,7 +48,7 @@ public class Database extends SQLiteOpenHelper {
 
 		ContentValues values = new ContentValues();
 
-		values.put(DBConstants.SERVER_TITLE, server.getServerName());
+		values.put(DBConstants.SERVER_TITLE, server.getName());
 		values.put(DBConstants.SERVER_HOST, server.getHost());
 		values.put(DBConstants.SERVER_PORT, server.getPort());
 		values.put(DBConstants.SERVER_PASSWORD, server.getPassword());

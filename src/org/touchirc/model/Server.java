@@ -1,93 +1,101 @@
 package org.touchirc.model;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-import org.jibble.pircbot.IrcException;
-import org.jibble.pircbot.NickAlreadyInUseException;
-import org.jibble.pircbot.PircBot;
 
-public class Server extends PircBot {
+// TODO Comments :)
+
+public class Server {
+	
+	private final static String CHARSET_DEFAULT = "UTF-8";
 	
 	private String name;
 	private String host;
 	private int port;
-	private String charset = "UTF-8";	
+	private String charset;	
 	private String password = "";
 	
-	// private boolean skipMOTD = true;
-	
+	private boolean skipMOTD = true;
 	// TODO Add SSL support
 	private boolean useSSL = false;
+
+	private HashMap<String, Conversation> conversations;
 	
 	public Server(String name, String host, int port){
-		this.name = name;
-		this.host = host;
-		this.port = port;
-		try {
-			this.setEncoding(this.charset);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		this.setLogin("touchirc");
-		this.setVersion("Touch IRC - IRC Client for Android");
-		this.setFinger("You ought to be arrested for fingering a droïd !");
+		this(name, host, port, null, CHARSET_DEFAULT);
 	}
 	
 	public Server(String name, String host, int port, String password){
-		this(name, host, port);
-		this.password = password;
+		this(name, host, port, password, CHARSET_DEFAULT);
 	}
 	
 	public Server(String name, String host, int port, String password, String charset){
-		this(name, host, port, password);
-		try {
-			this.setEncoding(charset);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.name = name;
+		this.host = host;
+		this.port = port;
+		this.password = password;
+		this.charset = charset;
 	}
 	
-	/*
-	 * Connect to the IRC Server
-	 */
-	public void connect() throws NickAlreadyInUseException, IOException, IrcException{
-		this.startIdentServer();
-		if(this.password.isEmpty()) {
-			this.connect(host,port);
-		} else {
-			this.connect(host,port,password);
-		}
+	public Conversation getConversation(String title){
+		return this.conversations.get(title);
 	}
 	
-	public String getServerName(){
+	public void addConversation(Conversation c){
+		this.conversations.put(c.getTitle(),c);
+	}
+	
+	public String getName(){
 		return this.name;
 	}
 	
-	public void setServerName(String newName){
+	public void setName(String newName){
 		this.name = newName;
 	}
 	
-	public String getNickname(){
+	public String getNick(){
 		return this.getName();
 	}
 	
-	public void setNickname(String nick){
+	public void setNick(String nick){
 		this.setName(nick);
 	}
 	
 	public String getHost(){
 		return this.host;
 	}
+
+	public void setHost(String newHost){
+		this.host = newHost;
+	}
+
+	public int getPort(){
+		return this.port;
+	}
+
+	public void setPort(int newPort){
+		this.port = newPort;
+	}
+
+	public String getPassword(){
+		return this.password;
+	}
+
+	public void setPassword(String newPassword){
+		this.password = newPassword;
+	}
+
+	public String getEncoding(){
+		return this.charset;
+	}
+
+	public void setEncoding(String newCharset){
+		this.charset = newCharset;
+	}
 	
 	public boolean useSSL(){
 		return this.useSSL;
-	}
-	
-	public void setPassword(String passwd){
-		this.password = passwd;
 	}
 	
 }

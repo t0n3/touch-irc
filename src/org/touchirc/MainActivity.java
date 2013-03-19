@@ -19,8 +19,8 @@ public class MainActivity extends Activity {
 		StrictMode.setThreadPolicy(policy); 
 		setContentView(R.layout.activity_main);
 	
-	        TextView textview = (TextView) findViewById(R.id.EditText1);
-	        textview.setText("Hello World ! \o/");
+	        TextView textview = (TextView) findViewById(R.id.textView1);
+	        textview.setText("Hello World !");
 		
 	}
 
