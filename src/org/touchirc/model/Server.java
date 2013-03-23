@@ -1,6 +1,5 @@
 package org.touchirc.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -9,7 +8,9 @@ import java.util.HashMap;
 public class Server {
 	
 	private final static String CHARSET_DEFAULT = "UTF-8";
+	private static int idCount = 0;
 	
+	private int id;
 	private String name;
 	private String host;
 	private int port;
@@ -31,6 +32,7 @@ public class Server {
 	}
 	
 	public Server(String name, String host, int port, String password, String charset){
+		this.id = this.idCount++;
 		this.name = name;
 		this.host = host;
 		this.port = port;
@@ -44,6 +46,10 @@ public class Server {
 	
 	public void addConversation(Conversation c){
 		this.conversations.put(c.getTitle(),c);
+	}
+	
+	public int getId(){
+		return this.id;
 	}
 	
 	public String getName(){
