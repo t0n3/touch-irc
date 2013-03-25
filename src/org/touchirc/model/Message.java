@@ -27,7 +27,7 @@ public class Message {
 	}
 
 	public Message(String text, String author, int type) {
-		this.type = type;
+		this.content = text;
 		this.author = author;
 		this.content = text;
 		this.timestamp = new Date().getTime();
