@@ -15,7 +15,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme" 
+        android:windowSoftInputMode="adjustResize">
         <activity
             android:name="org.touchirc.MainActivity"
             android:label="@string/app_name" >
@@ -26,8 +27,8 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="org.touchirc.view.ConversationActivity"
-            android:windowSoftInputMode="adjustResize">
+            android:name="org.touchirc.view.ConversationActivity">
+            
         </activity>
     </application>
 
