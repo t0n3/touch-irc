@@ -12,9 +12,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 public class MainActivity extends Activity implements ServiceConnection {
 	private IrcBinder ircServiceBind;
@@ -30,20 +27,15 @@ public class MainActivity extends Activity implements ServiceConnection {
 		
 		setContentView(R.layout.activity_main);
 		
-		Button b = (Button) findViewById(R.id.button1);
-		b.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				Intent i = new Intent(getApplicationContext(),ConversationActivity.class);
-				startActivity(i);
-			}
-		});
-		
 		Intent intent = new Intent(this, IrcService.class);
 		getApplicationContext().startService(intent);
 		getApplicationContext().bindService(intent, this, 0);
+		
+		Intent i = new Intent(getApplicationContext(),ConversationActivity.class);
+		startActivity(i);
+		
+		
+		
 		
 	    
 		
