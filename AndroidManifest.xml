@@ -30,6 +30,9 @@
             android:name="org.touchirc.view.ConversationActivity">
             
         </activity>
+        <service 
+            android:enabled="true"
+            android:name="org.touchirc.irc.IrcService" />
     </application>
 
 </manifest>
