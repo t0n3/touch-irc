@@ -3,7 +3,7 @@ package org.touchirc.model;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-public abstract class Conversation {
+public class Conversation {
 
 	private LinkedList<Message> messagesBuffer;
 	private LinkedList<Message> messagesHistory;
