@@ -38,6 +38,7 @@ public class Server {
 		this.port = port;
 		this.password = password;
 		this.charset = charset;
+		this.conversations = new HashMap<String, Conversation>();
 	}
 	
 	public Conversation getConversation(String title){
