@@ -31,8 +31,7 @@ public class MainActivity extends Activity implements ServiceConnection {
 		getApplicationContext().startService(intent);
 		getApplicationContext().bindService(intent, this, 0);
 		
-		Intent i = new Intent(getApplicationContext(),ConversationActivity.class);
-		startActivity(i);
+		
 		
 		
 		
@@ -72,6 +71,8 @@ public class MainActivity extends Activity implements ServiceConnection {
 		// TODO Auto-generated method stub
 		this.ircServiceBind = (IrcBinder) service;
 		addServer();
+		Intent i = new Intent(getApplicationContext(),ConversationActivity.class);
+		startActivity(i);
 
 	}
 
