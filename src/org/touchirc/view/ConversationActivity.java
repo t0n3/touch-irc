@@ -3,28 +3,35 @@ package org.touchirc.view;
 import java.util.LinkedList;
 
 import org.touchirc.R;
+import org.touchirc.irc.IrcBinder;
+import org.touchirc.irc.IrcService;
 import org.touchirc.model.Conversation;
 import org.touchirc.model.Message;
 
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.inputmethod.EditorInfo;
+import android.os.IBinder;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
-public class ConversationActivity extends ListActivity {
+public class ConversationActivity extends ListActivity implements ServiceConnection {
+	private IrcBinder ircServiceBind;
+	private BroadcastReceiver MessageReceiver;
+	private Conversation conversation;
+	private LinkedList<Message> values;
+	private ArrayAdapter<Message> adapter;
+
+
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		
-		setContentView(R.layout.conversation_display);
-
-		final LinkedList<Message> values = new LinkedList<Message>();
+		setContentView(R.layout.activity_main);
+		this.values = new LinkedList<Message>();
 
 		Message m1 = new Message("Android", "Bugdroid", 0);
 		Message m2 = new Message("iPhone", "Steve Jobs", 0);
@@ -48,8 +55,7 @@ public class ConversationActivity extends ListActivity {
 		values.add(m9);
 		values.add(m10);
 
-		final ArrayAdapter<Message> adapter = new ArrayAdapter<Message>(this,
-				android.R.layout.simple_list_item_1, values);
+		adapter = new ArrayAdapter<Message>(this,	android.R.layout.simple_list_item_1, values);
 		setListAdapter(adapter);
 		
 		/*			/--------- TODO ----------\
@@ -70,14 +76,48 @@ public class ConversationActivity extends ListActivity {
 			}
 		});
 		*/
+		
+		values.add(new Message("msg","author"));
+		
+		
+		Intent intent = new Intent(this, IrcService.class);
+		getApplicationContext().startService(intent);
+		getApplicationContext().bindService(intent, this, 0);
+		
+		this.MessageReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				System.out.println("[ConversationActivity] Message recu");
+				LinkedList<Message> buffer = conversation.getBuffer();
+				for(Message m : buffer){
+					System.out.println(m.getMessage());
+					values.add(m);
+				}
+				conversation.cleanBuffer();
+				adapter.notifyDataSetChanged();
+				
+			}	
+		};
+		registerReceiver(this.MessageReceiver , new IntentFilter("org.touchirc.irc.newMessage"));
+
 
 	}
 
+	
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	public void onServiceDisconnected(ComponentName name) {
+		// TODO Auto-generated method stub
+		this.ircServiceBind = null;
+		
+	}
+
+
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		// TODO Auto-generated method stub
+		this.ircServiceBind = (IrcBinder) service;
+		this.conversation = this.ircServiceBind.getService().getServerById(0).getConversation("#Boulet");
+
 	}
 
 }
