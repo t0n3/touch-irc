@@ -30,7 +30,7 @@ public class ConversationActivity extends ListActivity implements ServiceConnect
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.conversation_display);
 		this.values = new LinkedList<Message>();
 
 		Message m1 = new Message("Android", "Bugdroid", 0);
