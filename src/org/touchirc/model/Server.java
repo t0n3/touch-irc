@@ -105,4 +105,8 @@ public class Server {
 		return this.useSSL;
 	}
 	
+	public boolean isProtected(){
+		return this.password == null;
+	}
+	
 }
