@@ -17,13 +17,20 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class ConversationActivity extends ListActivity implements ServiceConnection {
 	private IrcBinder ircServiceBind;
 	private BroadcastReceiver MessageReceiver;
 	private Conversation conversation;
+	private EditText input;
+	private ListView list;
 	private LinkedList<Message> values;
 	private ArrayAdapter<Message> adapter;
 
@@ -33,9 +40,25 @@ public class ConversationActivity extends ListActivity implements ServiceConnect
 		
 		setContentView(R.layout.conversation_display);
 		this.values = new LinkedList<Message>();
-		ListView list = (ListView) findViewById(android.R.id.list);
+		this.input = (EditText) findViewById(R.id.messageToSend);
+		this.list = (ListView) findViewById(android.R.id.list);
 		list.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		this.input.setOnEditorActionListener(new OnEditorActionListener() {
+			
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		        if (actionId == EditorInfo.IME_ACTION_SEND) {
+		            sendMessage();
+		            return true;
+		        }
+		        return false;
+			}
+		});
 
+		
+		
+		
+		
 		adapter = new ArrayAdapter<Message>(this,	android.R.layout.simple_list_item_1, values);
 		setListAdapter(adapter);
 		
@@ -77,6 +100,12 @@ public class ConversationActivity extends ListActivity implements ServiceConnect
 		registerReceiver(this.MessageReceiver , new IntentFilter("org.touchirc.irc.newMessage"));
 
 
+	}
+	
+	public void sendMessage(){
+		String msg = input.getText().toString();
+		input.setText("");
+		
 	}
 
 	

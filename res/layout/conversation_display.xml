@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.touchirc.view.VerticalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+    </ListView>
 
+    <EditText
+        android:id="@+id/messageToSend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:imeOptions="actionSend"
+        android:inputType="textAutoCorrect|textUri|textCapSentences" />
 
-        <ListView
-            android:id="@android:id/list"
-            android:layout_width="match_parent"
-            android:layout_height="418dp" >
-        </ListView>
-
-        <EditText
-            android:id="@+id/messageToSend"
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:ems="10"
-            android:imeOptions="actionSend"
-            android:inputType="textAutoCorrect|textMultiLine" >
-        </EditText>
-    </LinearLayout>
-
-</org.touchirc.view.VerticalScrollView>
+</LinearLayout>
