@@ -2,6 +2,7 @@ package org.touchirc.db;
 
 import java.util.ArrayList;
 
+import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
 import android.content.ContentValues;
@@ -30,6 +31,16 @@ public class Database extends SQLiteOpenHelper {
 				+ DBConstants.SERVER_PASSWORD + " TEXT, "
 				+ DBConstants.SERVER_USE_SSL + " BOOLEAN, "
 				+ DBConstants.SERVER_CHARSET + " TEXT );");
+
+		db.execSQL("CREATE TABLE" + DBConstants.PROFILE_TABLE_NAME + "(" + DBConstants.PROFILE_ID
+				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
+				+ DBConstants.PROFILE_NAME + " TEXT NOT NULL,"
+				+ DBConstants.PROFILE_FIRST_NICKNAME + " TEXT NOT NULL,"
+				+ DBConstants.PROFILE_SCD_NICKNAME + " TEXT,"
+				+ DBConstants.PROFILE_THIRD_NICKNAME + " TEXT,"
+				+ DBConstants.PROFILE_USERNAME + " TEXT NOT NULL,"
+				+ DBConstants.PROFILE_REALNAME + " TEXT NOT NULL,"
+				+ DBConstants.PROFILE_SERVER_LIST + " TEXT );");
 
 	}
 
@@ -84,9 +95,9 @@ public class Database extends SQLiteOpenHelper {
 	}
 
 	public ArrayList<Server> getServerList() {
-		
+
 		ArrayList<Server> listServer = new ArrayList<Server>();
-		
+
 		Cursor cursor = this.getReadableDatabase().query(
 				DBConstants.SERVER_TABLE_NAME, DBConstants.SERVER_ALL, null,
 				null, null, null, DBConstants.SERVER_TITLE + " ASC");
@@ -96,7 +107,7 @@ public class Database extends SQLiteOpenHelper {
 		}
 
 		cursor.close();
-		
+
 		return listServer;
 	}
 
@@ -111,17 +122,98 @@ public class Database extends SQLiteOpenHelper {
 		Server server = new Server(
 				cursor.getString(cursor
 						.getColumnIndex((DBConstants.SERVER_TITLE))),
-				cursor.getString(cursor
-						.getColumnIndex((DBConstants.SERVER_HOST))),
-				cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_PORT))),
-				cursor.getString(cursor
-						.getColumnIndex(DBConstants.SERVER_PASSWORD)), cursor
-						.getString(cursor
-								.getColumnIndex(DBConstants.SERVER_CHARSET)));
+						cursor.getString(cursor
+								.getColumnIndex((DBConstants.SERVER_HOST))),
+								cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_PORT))),
+								cursor.getString(cursor
+										.getColumnIndex(DBConstants.SERVER_PASSWORD)), cursor
+										.getString(cursor
+												.getColumnIndex(DBConstants.SERVER_CHARSET)));
 
 		// TODO SSL Support
 
 		return server;
 	}
 
+	/**
+	 * Add the given profile to the database
+	 * 
+	 * @param profile
+	 */
+	public void addProfile(Profile profile) {
+
+		ContentValues values = new ContentValues();
+
+		values.put(DBConstants.PROFILE_NAME, profile.getProfile_name());
+		values.put(DBConstants.PROFILE_FIRST_NICKNAME, profile.getFirstNick());
+		values.put(DBConstants.PROFILE_SCD_NICKNAME, profile.getSecondNick());
+		values.put(DBConstants.PROFILE_THIRD_NICKNAME, profile.getThirdNick());
+		values.put(DBConstants.PROFILE_USERNAME, profile.getUsername());
+		values.put(DBConstants.PROFILE_REALNAME, profile.getRealname());
+		// To check : getListServer.TOSTRING() \\
+		values.put(DBConstants.PROFILE_SERVER_LIST, profile.getListServer().toString());
+
+		this.getWritableDatabase().insert(DBConstants.PROFILE_TABLE_NAME, null,
+				values);
+
+	}
+
+	/**
+	 * Return a profile object with the given profileId
+	 * 
+	 * @param profileId
+	 * @return
+	 */
+	public Profile getProfileById(int profileId) {
+		Profile profile = null;
+
+		Cursor cursor = this.getReadableDatabase().query(
+				DBConstants.PROFILE_TABLE_NAME, DBConstants.PROFILE_ALL,
+				DBConstants.PROFILE_ID + " = " + profileId, null, null, null,
+				DBConstants.PROFILE_NAME + " ASC");
+
+		if (cursor.moveToNext()) {
+			profile = createProfile(cursor);
+		}
+
+		cursor.close();
+
+		return profile;
+	}
+
+	public ArrayList<Profile> getProfileList() {
+
+		ArrayList<Profile> listProfile = new ArrayList<Profile>();
+
+		Cursor cursor = this.getReadableDatabase().query(
+				DBConstants.PROFILE_TABLE_NAME, DBConstants.PROFILE_ALL, null,
+				null, null, null, DBConstants.PROFILE_NAME + " ASC");
+
+		while (cursor.moveToNext()) {
+			listProfile.add(createProfile(cursor));
+		}
+
+		cursor.close();
+
+		return listProfile;
+	}
+
+	/**
+	 * Create a profile object with the given database cursor
+	 * 
+	 * @param cursor
+	 * @return Profile
+	 */
+	private Profile createProfile(Cursor cursor) {
+
+		Profile profile = new Profile(
+				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_NAME)),
+				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_FIRST_NICKNAME)),
+				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_SCD_NICKNAME)),
+				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_THIRD_NICKNAME)),
+				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_USERNAME)),
+				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_USERNAME))
+				);
+		return profile;
+	}
 }
