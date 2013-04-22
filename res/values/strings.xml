@@ -4,5 +4,16 @@
     <string name="app_name">Touch IRC</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="profile_name">Profile Name :</string>
+    <string name="first_nick">First Nickname :</string>
+    <string name="scnd_nick">Second Nickname (optional) :</string>
+    <string name="third_nick">Third Nickname (optional) :</string>
+    <string name="username">Username :</string>
+    <string name="realname">Realname :</string>
+    <string name="addAServer">Add a server</string>
+    <string name="ServerName">Server name :</string>
+    <string name="HostName">Host name :</string>
+    <string name="ServerPort">Server\'s port :</string>
+    <string name="ServerPassword">Server\'s password :</string>
     
 </resources>
