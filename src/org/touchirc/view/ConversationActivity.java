@@ -17,12 +17,20 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class ConversationActivity extends ListActivity implements ServiceConnection {
 	private IrcBinder ircServiceBind;
 	private BroadcastReceiver MessageReceiver;
 	private Conversation conversation;
+	private EditText input;
+	private ListView list;
 	private LinkedList<Message> values;
 	private ArrayAdapter<Message> adapter;
 
@@ -32,29 +40,25 @@ public class ConversationActivity extends ListActivity implements ServiceConnect
 		
 		setContentView(R.layout.conversation_display);
 		this.values = new LinkedList<Message>();
+		this.input = (EditText) findViewById(R.id.messageToSend);
+		this.list = (ListView) findViewById(android.R.id.list);
+		list.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		this.input.setOnEditorActionListener(new OnEditorActionListener() {
+			
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		        if (actionId == EditorInfo.IME_ACTION_SEND) {
+		            sendMessage();
+		            return true;
+		        }
+		        return false;
+			}
+		});
 
-		Message m1 = new Message("Android", "Bugdroid", 0);
-		Message m2 = new Message("iPhone", "Steve Jobs", 0);
-		Message m3 = new Message("WindowsMobile", "Bill Gates", 0);
-		Message m4 = new Message("Blackberry", "BBy", 0);
-		Message m5 = new Message("WebOS", "WebSO", 0);
-		Message m6 = new Message("Ubuntu", "Unix", 0);
-		Message m7 = new Message("Windows7", "Bill Gates", 0);
-		Message m8 = new Message("Max OS X", "Paul Emploi", 0);
-		Message m9 = new Message("Linux", "Tux", 0);
-		Message m10 = new Message("OS/2" , "Steevy", 0);
-
-		values.add(m1);
-		values.add(m2);
-		values.add(m3);
-		values.add(m4);
-		values.add(m5);
-		values.add(m6);
-		values.add(m7);
-		values.add(m8);
-		values.add(m9);
-		values.add(m10);
-
+		
+		
+		
+		
 		adapter = new ArrayAdapter<Message>(this,	android.R.layout.simple_list_item_1, values);
 		setListAdapter(adapter);
 		
@@ -77,20 +81,15 @@ public class ConversationActivity extends ListActivity implements ServiceConnect
 		});
 		*/
 		
-		values.add(new Message("msg","author"));
-		
-		
 		Intent intent = new Intent(this, IrcService.class);
-		getApplicationContext().startService(intent);
+		// getApplicationContext().startService(intent);
 		getApplicationContext().bindService(intent, this, 0);
 		
 		this.MessageReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				System.out.println("[ConversationActivity] Message recu");
 				LinkedList<Message> buffer = conversation.getBuffer();
 				for(Message m : buffer){
-					System.out.println(m.getMessage());
 					values.add(m);
 				}
 				conversation.cleanBuffer();
@@ -101,6 +100,12 @@ public class ConversationActivity extends ListActivity implements ServiceConnect
 		registerReceiver(this.MessageReceiver , new IntentFilter("org.touchirc.irc.newMessage"));
 
 
+	}
+	
+	public void sendMessage(){
+		String msg = input.getText().toString();
+		input.setText("");
+		
 	}
 
 	
