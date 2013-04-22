@@ -2,6 +2,8 @@ package org.touchirc.model;
 
 import java.util.ArrayList;
 
+import android.widget.Toast;
+
 /**
  * 
  * 
@@ -22,15 +24,28 @@ public class Profile {
 	public ArrayList<Server> listServer;
 	
 	public Profile(String profile_n, String fnick, String snick, String tnick, String uname, String rname){
-		this.profile_name = profile_n;
-		this.firstNick = fnick;
-		this.secondNick =  snick;
-		this.thirdNick =  tnick;
-		this.username = uname;
-		this.realname = rname;
-		this.listServer = new ArrayList<Server>();
+		if(!isCorrect(rname)){
+			System.out.println("The realname does not respect the conditions ...");
+		}
+		else if(!isACorrectPseudo(fnick)){
+			System.out.println("The First Nickname does not respect the conditions ...");
+		}
+		else{
+			this.profile_name = profile_n;
+			this.firstNick = fnick;
+			this.secondNick = snick;
+			this.thirdNick = tnick;
+			this.username = uname;
+			this.realname = rname;
+			this.listServer = new ArrayList<Server>();
+		}
+		
 	}
 	
+	public ArrayList<Server> getListServer() {
+		return this.listServer;
+	}
+
 	public String getProfile_name() {
 		return profile_name;
 	}
@@ -122,5 +137,20 @@ public class Profile {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean isCorrect(String realName){
+		if(realName.length() >= 10 && realname.length() <= 20){
+			for(int i = 0 ;  i < realName.length() ; i++){
+				if((realName.charAt(i) < 65 && realName.charAt(i) > 90) || (realName.charAt(i) < 90 && realName.charAt(i) > 122)){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public boolean isACorrectPseudo(String firstNickame){
+		return firstNickame.length() <= 9;
 	}
 }
