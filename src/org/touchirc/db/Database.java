@@ -32,7 +32,7 @@ public class Database extends SQLiteOpenHelper {
 				+ DBConstants.SERVER_USE_SSL + " BOOLEAN, "
 				+ DBConstants.SERVER_CHARSET + " TEXT );");
 
-		db.execSQL("CREATE TABLE" + DBConstants.PROFILE_TABLE_NAME + "(" + DBConstants.PROFILE_ID
+		db.execSQL("CREATE TABLE " + DBConstants.PROFILE_TABLE_NAME + "(" + DBConstants.PROFILE_ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ DBConstants.PROFILE_NAME + " TEXT NOT NULL,"
 				+ DBConstants.PROFILE_FIRST_NICKNAME + " TEXT NOT NULL,"
