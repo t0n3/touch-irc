@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/AutoConnect"
+        android:title="@string/UsedToAutoConnect">
+    </item>
+    <item
+        android:id="@+id/Edit"
+        android:title="@string/Edit">
+    </item>
+    <item
+        android:id="@+id/Delete"
+        android:title="@string/delete">
+    </item>
+
+</menu>
