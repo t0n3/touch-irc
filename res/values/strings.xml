@@ -15,5 +15,12 @@
     <string name="HostName">Host name :</string>
     <string name="ServerPort">Server\'s port :</string>
     <string name="ServerPassword">Server\'s password :</string>
+    <string name="deleteProfile">Delete Profile</string>
+    <string name="deleteServer">Delete Server</string>
+    <string name="delete">Delete</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Edit">Edit</string> 
+    <string name="SetByDefault">Set by Default</string>
+    <string name="UsedToAutoConnect">Use for Auto-connection</string>
     
 </resources>
