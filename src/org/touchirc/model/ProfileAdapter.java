@@ -40,10 +40,10 @@ public class ProfileAdapter extends BaseAdapter {
 		Profile p = profilesList.get(position); // Collect the profile concerned
 		if (v == null){
 			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			v = vi.inflate(R.layout.item_list_profile, null);
+			v = vi.inflate(R.layout.item_list, null);
 		}
 		
-		ImageView defaultProfile_IMG = (ImageView) v.findViewById(R.id.profileStatus_IMGV);
+		ImageView defaultProfile_IMG = (ImageView) v.findViewById(R.id.imageView_itemStatus);
 		
 		// Checking if the current profile is by default
 		Database db = new Database(c);
@@ -57,7 +57,7 @@ public class ProfileAdapter extends BaseAdapter {
 		}
 		db.close();
 		
-		TextView profileName_TV = (TextView) v.findViewById(R.id.profileName_TV);
+		TextView profileName_TV = (TextView) v.findViewById(R.id.textView_itemName);
 		profileName_TV.setText(p.getProfile_name() + " - Nick : " + p.getFirstNick());                            
 		return v;
 	}

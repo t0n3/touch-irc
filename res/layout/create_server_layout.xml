@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.CreateServerActivity" >
+    android:layout_height="match_parent" >
 
     <LinearLayout
-        android:id="@+id/linearLayoutAddServer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/TVServerName"
+            android:id="@+id/textView_server_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/serverName"
@@ -25,20 +22,20 @@
             android:ems="10"
             android:imeOptions="actionNext"
             android:inputType="textCapSentences|textAutoCorrect"
-            android:nextFocusDown="@+id/editText_host_name" >
+            android:nextFocusDown="@+id/editText_hostname" >
 
             <requestFocus />
         </EditText>
 
         <TextView
-            android:id="@+id/TVHostName"
+            android:id="@+id/textView_hostname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hostName"
+            android:text="@string/hostname"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
-            android:id="@+id/editText_host_name"
+            android:id="@+id/editText_hostname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -48,7 +45,7 @@
             android:nextFocusUp="@+id/editText_server_name" />
 
         <TextView
-            android:id="@+id/TVServerPort"
+            android:id="@+id/textView_server_port"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/serverPort"
@@ -62,10 +59,10 @@
             android:imeOptions="actionNext"
             android:inputType="number"
             android:nextFocusDown="@+id/editText_server_password"
-            android:nextFocusUp="@+id/editText_host_name" />
+            android:nextFocusUp="@+id/editText_hostname" />
 
         <TextView
-            android:id="@+id/TVServerPassword"
+            android:id="@+id/textView_server_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/serverPassword"

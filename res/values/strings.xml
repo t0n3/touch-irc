@@ -6,13 +6,13 @@
     <string name="hello_world">Hello world!</string>
     <string name="profileName">Profile Name :</string>
     <string name="firstNick">First Nickname :</string>
-    <string name="scndNick">Second Nickname (optional) :</string>
+    <string name="secondNick">Second Nickname (optional) :</string>
     <string name="thirdNick">Third Nickname (optional) :</string>
     <string name="userName">Username :</string>
     <string name="realName">Realname :</string>
     <string name="addAServer">Add a server</string>
-    <string name="serverName">Server name :</string>
-    <string name="hostName">Host name :</string>
+    <string name="serverName">Server\'s name :</string>
+    <string name="hostname">Hostname :</string>
     <string name="serverPort">Server\'s port :</string>
     <string name="serverPassword">Server\'s password :</string>
     <string name="deleteProfile">Delete Profile</string>

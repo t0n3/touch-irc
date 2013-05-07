@@ -40,10 +40,10 @@ public class ServerAdapter extends BaseAdapter {
 		Server s = serversList.get(position); // Collect the server concerned
 		if (v == null){
 			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			v = vi.inflate(R.layout.item_list_profile, null);
+			v = vi.inflate(R.layout.item_list, null);
 		}
 		
-		ImageView defaultServer_IMG = (ImageView) v.findViewById(R.id.profileStatus_IMGV);
+		ImageView defaultServer_IMG = (ImageView) v.findViewById(R.id.imageView_itemStatus);
 		
 		// Checking if the current server is auto-connected
 		Database db = new Database(c);
@@ -57,7 +57,7 @@ public class ServerAdapter extends BaseAdapter {
 		}
 		db.close();
 
-		TextView profileName_TV = (TextView) v.findViewById(R.id.profileName_TV);
+		TextView profileName_TV = (TextView) v.findViewById(R.id.textView_itemName);
 		profileName_TV.setText(s.getName());                            
 		return v;
 	}

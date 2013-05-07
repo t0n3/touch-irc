@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="14"
         android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -35,7 +35,7 @@
         </activity>
         <activity android:name="org.touchirc.activity.ExistingServersActivity">
         </activity>
-        <activity android:name="org.touchirc.activity.menuActivity">
+        <activity android:name="org.touchirc.activity.MenuActivity">
         </activity>
 
         <service
