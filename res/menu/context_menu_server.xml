@@ -2,15 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/AutoConnect"
-        android:title="@string/UsedToAutoConnect">
+        android:id="@+id/autoConnect"
+        android:title="@string/usedToAutoConnect">
     </item>
     <item
-        android:id="@+id/Edit"
-        android:title="@string/Edit">
+        android:id="@+id/edit"
+        android:title="@string/edit">
     </item>
     <item
-        android:id="@+id/Delete"
+        android:id="@+id/delete"
         android:title="@string/delete">
     </item>
 
