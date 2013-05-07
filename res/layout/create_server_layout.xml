@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    tools:context=".view.CreateServerActivity" >
 
     <LinearLayout
         android:id="@+id/linearLayoutAddServer"
@@ -13,7 +15,7 @@
             android:id="@+id/TVServerName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/ServerName"
+            android:text="@string/serverName"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -32,7 +34,7 @@
             android:id="@+id/TVHostName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/HostName"
+            android:text="@string/hostName"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -49,7 +51,7 @@
             android:id="@+id/TVServerPort"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/ServerPort"
+            android:text="@string/serverPort"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -66,7 +68,7 @@
             android:id="@+id/TVServerPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/ServerPassword"
+            android:text="@string/serverPassword"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
