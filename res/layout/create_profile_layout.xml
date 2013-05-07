@@ -13,7 +13,7 @@
             android:id="@+id/textView_profile_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/profile_name"
+            android:text="@string/profileName"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -32,7 +32,7 @@
             android:id="@+id/textView_first_nick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/first_nick"
+            android:text="@string/firstNick"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -49,7 +49,7 @@
             android:id="@+id/textView_scnd_nick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scnd_nick"
+            android:text="@string/scndNick"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -66,7 +66,7 @@
             android:id="@+id/textView_third_nick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/third_nick"
+            android:text="@string/thirdNick"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -83,7 +83,7 @@
             android:id="@+id/textView_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/username"
+            android:text="@string/userName"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -100,7 +100,7 @@
             android:id="@+id/textView_realname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/realname"
+            android:text="@string/realName"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
