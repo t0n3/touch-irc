@@ -114,7 +114,7 @@ public class ExistingServersActivity extends ListActivity{
 		this.index = selectedServer_position;
 
 		// if the item "Use for Auto-Connection" is selected
-		if(item.getItemId() == R.id.AutoConnect){
+		if(item.getItemId() == R.id.autoConnect){
 
 			Database db = new Database(c);
 			// The selected server is now used to auto-connect
@@ -134,7 +134,7 @@ public class ExistingServersActivity extends ListActivity{
 		}
 
 		// if the item "Edit" is selected		
-		if(item.getItemId() == R.id.Edit){
+		if(item.getItemId() == R.id.edit){
 
 			// Collect all the informations concerning the current server
 			Database db = new Database(c);
@@ -165,7 +165,7 @@ public class ExistingServersActivity extends ListActivity{
 		}
 
 		// if the item "Delete" is selected
-		if(item.getItemId() == R.id.Delete){
+		if(item.getItemId() == R.id.delete){
 
 			// Removal throughout the db
 			Database db = new Database(c);
