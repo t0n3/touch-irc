@@ -134,7 +134,7 @@ public class ExistingProfilesActivity extends ListActivity{
 		}
 		
 		// if the item "Edit" is selected		
-		if(item.getItemId() == R.id.Edit){
+		if(item.getItemId() == R.id.edit){
 
 			// Collect all the informations concerning the current profile
 			Database db = new Database(c);
@@ -167,7 +167,7 @@ public class ExistingProfilesActivity extends ListActivity{
 		}
 		
 		// if the item "Delete" is selected
-		if(item.getItemId() == R.id.Delete){
+		if(item.getItemId() == R.id.delete){
 
 			// Removal throughout the db
 			Database db = new Database(c);
