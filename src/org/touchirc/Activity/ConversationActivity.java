@@ -1,4 +1,4 @@
-package org.touchirc.view;
+package org.touchirc.activity;
 
 import java.util.LinkedList;
 
