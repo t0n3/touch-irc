@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class menuActivity extends Activity{
+public class MenuActivity extends Activity{
 	private Button create_profile_button;
 	private Button existing_profiles_button;
 	private Button create_server_button;
