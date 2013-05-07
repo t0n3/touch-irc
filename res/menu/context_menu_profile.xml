@@ -3,14 +3,14 @@
 
     <item
         android:id="@+id/setByDefault"
-        android:title="@string/SetByDefault">
+        android:title="@string/setByDefault">
     </item>
     <item
-        android:id="@+id/Edit"
-        android:title="@string/Edit">
+        android:id="@+id/edit"
+        android:title="@string/edit">
     </item>
     <item
-        android:id="@+id/Delete"
+        android:id="@+id/delete"
         android:title="@string/delete">
     </item>
 
