@@ -22,5 +22,6 @@
     <string name="edit">Edit</string> 
     <string name="setByDefault">Set by Default</string>
     <string name="usedToAutoConnect">Use for Auto-connection</string>
+    <string name="linkAServer">Link a Server</string>
     
 </resources>
