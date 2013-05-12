@@ -56,7 +56,7 @@ public class CreateProfileActivity extends Activity{
 
 		this.firstNickname_TV = (TextView) findViewById(R.id.textView_first_nick);
 
-		this.secondNickname_TV = (TextView) findViewById(R.id.textView_scnd_nick);
+		this.secondNickname_TV = (TextView) findViewById(R.id.textView_second_nick);
 		this.secondNickname_TV.setTextColor(Color.GRAY);
 
 		this.thirdNickname_TV = (TextView) findViewById(R.id.textView_third_nick);
@@ -80,7 +80,7 @@ public class CreateProfileActivity extends Activity{
 			this.firstNickname.setText(b.getString("FirstNickName"));
 		}
 
-		this.secondNickname = (EditText) findViewById(R.id.editText_scnd_nick);
+		this.secondNickname = (EditText) findViewById(R.id.editText_second_nick);
 		// if started by ExistingProfilesActivity, changing the EditText
 		if(b != null && b.containsKey("ScdNickName") && b.getString("ScdNickName").length() > 0){
 			this.secondNickname.setText(b.getString("ScdNickName"));
