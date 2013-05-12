@@ -4,15 +4,15 @@ import android.provider.BaseColumns;
 
 public interface DBConstants extends BaseColumns {
 
-	public static final String SERVER_TABLE_NAME = "servers";
-	public static final String SERVER_ID		 = "id";
-	public static final String SERVER_TITLE 	 = "title";
-	public static final String SERVER_HOST 		 = "host";
-	public static final String SERVER_PORT 		 = "port";
-	public static final String SERVER_PASSWORD 	 = "password";
-	public static final String SERVER_USE_SSL 	 = "useSSL";
-	public static final String SERVER_CHARSET 	 = "charset";
-	public static final String SERVER_AUTOCONNECT= "autoconnect";
+	public static final String SERVER_TABLE_NAME 	= "servers";
+	public static final String SERVER_ID		 	= "id";
+	public static final String SERVER_TITLE 	 	= "title";
+	public static final String SERVER_HOST 		 	= "host";
+	public static final String SERVER_PORT 		 	= "port";
+	public static final String SERVER_PASSWORD 	 	= "password";
+	public static final String SERVER_USE_SSL 	 	= "useSSL";
+	public static final String SERVER_CHARSET 	 	= "charset";
+	public static final String SERVER_AUTOCONNECT	= "autoconnect";
 
 	public static final String[] SERVER_ALL = {
 		SERVER_ID,
@@ -48,5 +48,12 @@ public interface DBConstants extends BaseColumns {
 		PROFILE_SERVER_LIST
 	};
 
-
+	public static final String LINKED_SERVERS_TO_PROFILE_NAME	= "servers_linked_to_profile";
+	public static final String LINKED_SERVER_ID 				= "idServer";
+	public static final String LINKED_PROFILE_ID				= "idProfile";
+	
+	public static final String [] LINKED_SERVERS_TO_PROFILE_ALL = {
+		LINKED_PROFILE_ID,
+		LINKED_SERVER_ID
+	};
 }
