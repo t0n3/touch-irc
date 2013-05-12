@@ -3,14 +3,27 @@
 
     <item
         android:id="@+id/setByDefault"
+        android:icon="@android:drawable/star_off"
+        android:showAsAction="always"
         android:title="@string/setByDefault">
     </item>
     <item
         android:id="@+id/edit"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="always"
         android:title="@string/edit">
     </item>
     <item
+        android:id="@+id/linkServer"
+        android:showAsAction="always|withText"
+        android:title="@string/linkAServer">
+        <menu>
+        </menu>
+    </item>
+    <item
         android:id="@+id/delete"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:showAsAction="always"
         android:title="@string/delete">
     </item>
 

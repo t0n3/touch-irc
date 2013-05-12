@@ -3,15 +3,18 @@
 
     <item
         android:id="@+id/autoConnect"
-        android:title="@string/usedToAutoConnect">
+        android:icon="@android:drawable/star_off"
+        android:title="@string/usedToAutoConnect" android:showAsAction="always">
     </item>
     <item
         android:id="@+id/edit"
-        android:title="@string/edit">
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/edit" android:showAsAction="always">
     </item>
     <item
         android:id="@+id/delete"
-        android:title="@string/delete">
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="@string/delete" android:showAsAction="always">
     </item>
 
 </menu>
