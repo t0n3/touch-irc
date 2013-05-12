@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.touchirc.R;
 import org.touchirc.R.layout;
 import org.touchirc.db.Database;
-import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 import org.touchirc.model.ServerAdapter;
 
@@ -15,14 +14,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ActionMode;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem.OnMenuItemClickListener;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -212,7 +207,7 @@ public class ExistingServersActivity extends ListActivity{
 					// Notify the adapter that the list's state has changed
 					adapterServer.notifyDataSetChanged();
 					// Update the number of available servers in the TV
-					servers_TV.setText("Profiles List :       (" + servers_AL.size() + ")");
+					servers_TV.setText("Servers List :       (" + servers_AL.size() + ")");
 				}
 				db.close();
 				return true;
@@ -242,7 +237,7 @@ public class ExistingServersActivity extends ListActivity{
 	@ Override
 	protected void onResume(){
 		super.onResume();
-		// Use a Bundle to collect the new name of the profile
+		// Use a Bundle to collect the new name of the server
 		Bundle b = this.getIntent().getBundleExtra("NewValue");
 		if(b != null && b.containsKey("NewValue")){
 			String nameServer = b.getString("NewNameServer");
