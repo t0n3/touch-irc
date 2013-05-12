@@ -7,17 +7,20 @@ import org.touchirc.R.layout;
 import org.touchirc.db.Database;
 import org.touchirc.model.Profile;
 import org.touchirc.model.ProfileAdapter;
+import org.touchirc.model.Server;
 
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.view.ActionMode;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,8 +31,13 @@ public class ExistingProfilesActivity extends ListActivity{
 	private ListView profiles_LV;
 	private ArrayList<Profile> profiles_AL;
 	private ProfileAdapter adapterProfile;
-	private int index;
+	private int indexSelectedItem; // selected profile's index in the listView
+	private String nameSelectedItem; // selected profile's name
 	private Context c;
+
+	protected Object mActionMode; // Variable used for triggering the actionMode (ActionBar)
+	private static View oldView; // Variable used to store the old view selected
+	protected boolean subMenuLinkCreated = false; // Variable used to warn OnPrepare method first display ActionBar
 
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
@@ -54,143 +62,267 @@ public class ExistingProfilesActivity extends ListActivity{
 		// Put an ProfileAdapter so that the LV and the profiles list be linked
 		this.adapterProfile = new ProfileAdapter(profiles_AL, c);
 		this.setListAdapter(adapterProfile);
+		
+		/**
+		 * 
+		 * When the user longclick on an item an ActionMode Bar appears.
+		 * It provides him some features on the selected profile : Set by Default, Edit, Link a Server, Delete.
+		 * 
+		 */
 
-		registerForContextMenu(profiles_LV);
+		profiles_LV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View v,
+					int position, long arg3) {
+
+				indexSelectedItem = position;
+
+				// if the ActionMode is already displayed
+				if (mActionMode != null) {
+					ExistingProfilesActivity.this.mActionModeCallback.onDestroyActionMode((ActionMode)mActionMode); // closing it
+					mActionMode = ExistingProfilesActivity.this.startActionMode(mActionModeCallback); // and launching it to update values
+
+					v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
+					oldView = v;
+
+					return false;
+				}				
+
+				// Start the CallBackActionBar using the ActionMode.Callback defined below
+				mActionMode = ExistingProfilesActivity.this.startActionMode(mActionModeCallback); // launching the ActionMode
+				oldView = v;
+				v.setSelected(true);
+				v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
+				return true;
+			}
+		});
 	}
 	
 	/**
-	 * When the user long click on a View of the ListView, he triggers
-	 * a ContextMenu which suggest him "Defaulting", Editing or Removing the current profile
-	 */
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		// Load the context Menu
-		inflater.inflate(R.menu.context_menu_profile, menu);
-		// Give a title to the ContextMenu
-		menu.setHeaderTitle("Options profile");
-		
-		// Collecting the name of the selected profile, using a AdapterContextMenuInfo
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-
-		// Put all the profile's name in an Array
-		String [] profiles = new String [profiles_AL.size()];
-		for(int p = 0 ; p < profiles_AL.size() ; p++){
-			profiles[p] = profiles_AL.get(p).getProfile_name();
-		}
-
-		// Collecting the name of the selected profile
-		String selectedProfile_name = profiles[(int)info.id];
-		
-		// if the profile is already by default, we cannot set it by default
-		if(selectedProfile_name.equals(new Database(c).nameDefaultProfile())){
-			menu.getItem(0).setEnabled(false);
-		}
-	}
-	
-	/**
-	 * According the Item selected ("Set by Default", "Edit", "Delete")
-	 * specific statements will be done
+	 * 
+	 * Here, we define the behavior of the actionMode according the input events
 	 * 
 	 */
 
-	public boolean onContextItemSelected(MenuItem item) {
+	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
-		// Collecting the name of the selected profile, using a AdapterContextMenuInfo
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		// Called when the action mode is created; startActionMode() was called
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = getMenuInflater();
 
-		// Put all the profile's name in an Array
-		String [] profiles = new String [profiles_AL.size()];
-		for(int p = 0 ; p < profiles_AL.size() ; p++){
-			profiles[p] = profiles_AL.get(p).getProfile_name();
-		}
+			// Load the contextual Menu
+			inflater.inflate(R.menu.context_menu_profile, menu);
 
-		// Collecting the name and position of the selected profile
-		String selectedProfile_name = profiles[(int)info.id];
-		int selectedProfile_position = (int)info.id;
-		this.index = selectedProfile_position;
+			// Put all the profile's name in an Array, in order to ...
+			String [] profiles = new String [profiles_AL.size()];
+			for(int p = 0 ; p < profiles_AL.size() ; p++){
+				profiles[p] = profiles_AL.get(p).getProfile_name();
+			}
 
-		// if the item "Set By Default" is selected
-		if(item.getItemId() == R.id.setByDefault){
+			// ... collect the name of the selected profile
+			nameSelectedItem = profiles[indexSelectedItem];
 
-			Database db = new Database(c);
-			// The selected profile is now the default profile
-			if(db.setDefaultProfile(selectedProfile_name)){
-				Toast.makeText(c, selectedProfile_name + " is now the profile by default !", Toast.LENGTH_LONG).show();
+			// if the profile is already by default, we cannot set it by default
+			// the icon is updated
+			if(nameSelectedItem.equals(new Database(c).nameDefaultProfile())){
+				menu.getItem(0).setIcon(android.R.drawable.star_on);
+				menu.getItem(0).setEnabled(false);
 			}
 			else{
-				Toast.makeText(c, "An error occurred while setting the profile by default :(", Toast.LENGTH_LONG).show();
+				menu.getItem(0).setIcon(android.R.drawable.star_off);
 			}
-			
-			db.close();
-			
-			// Notifying the adapter to update the display
-			adapterProfile.notifyDataSetInvalidated();
-			
+
+			// the subMenu providing the availables servers is not still created
+			subMenuLinkCreated = false; 
+
 			return true;
 		}
-		
-		// if the item "Edit" is selected		
-		if(item.getItemId() == R.id.edit){
 
-			// Collect all the informations concerning the current profile
-			Database db = new Database(c);
-			Profile profileToEdit = db.getProfileByName(selectedProfile_name);
-			
-			// Prepare the Intent to switch on the activity which allows to modify the profile
-			Intent i = new Intent(this, CreateProfileActivity.class);
-
-			// Put the informations of the current profile into a Bundle object
-			Bundle b = new Bundle();
-			b.putString("ProfileName", profileToEdit.getProfile_name());
-			b.putString("FirstNickName", profileToEdit.getFirstNick());
-			b.putString("ScdNickName", profileToEdit.getSecondNick());
-			b.putString("ThdNickName", profileToEdit.getThirdNick());
-			b.putString("UserName", profileToEdit.getUsername());
-			b.putString("RealName", profileToEdit.getRealname());
-			
-			// Assign the Bundle to the Intent
-			i.putExtra("ProfileIdentification", b);
-
-			// Start the Intent
-			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(i);
-			
-			db.close();
-			
-			finish();
-			
+		// Called each time the action mode is shown. Always called after
+		// onCreateActionMode, but
+		// may be called multiple times if the mode is invalidated.
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			// if the subMenu is created, we can check the links between profiles & servers
+			if(subMenuLinkCreated){
+				checkingLinkBetweenProfileAndServers(menu);
+			}
 			return true;
 		}
-		
-		// if the item "Delete" is selected
-		if(item.getItemId() == R.id.delete){
 
-			// Removal throughout the db
+		// Called when the user selects a contextual menu item
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+
 			Database db = new Database(c);
 
-			if (db.deleteProfile(selectedProfile_name)){ // if the deletion is successful
-				// Notify the user thanks to a Toast
-				Toast.makeText(c, "Profile " + selectedProfile_name + " deleted.", Toast.LENGTH_LONG).show();
+			switch (item.getItemId()) {		
+
+			// ########## if the item "Link a Server" is selected ##########
+			case R.id.linkServer :
+
+				final ArrayList<Server> servers = db.getServerList();
+				final Profile profileToLink = db.getProfileByName(nameSelectedItem);
+
+				// This condition is specified to avoid the fact that 
+				// the list becomes longer by multiplying the click on the item
+				if(item.getSubMenu().size() < servers.size()){
+					for(int j = 0 ; j < servers.size() ; j++){
+
+						// We add the server's name to the subMenu and allow it to be checked
+						item.getSubMenu().add(servers.get(j).getName());
+						item.getSubMenu().getItem(j).setCheckable(true);
+
+						// if the link already exists, we check the box
+						if(db.linkAlreadyExisting(profileToLink, servers.get(j))){
+							item.getSubMenu().getItem(j).setChecked(true);
+						}
+						else{
+							item.getSubMenu().getItem(j).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+
+								@Override
+								public boolean onMenuItemClick(MenuItem item) {									
+									Database database = new Database(c);
+									Server serverToLink = database.getServerByName(item.getTitle().toString());
+									
+									if(!item.isChecked()){
+										// Add a link
+										database.addLinkProfileServer(profileToLink, serverToLink);
+										item.setChecked(true);
+										Toast.makeText(c,serverToLink.getName() + " is now link to the profile " + profileToLink.getProfile_name(), Toast.LENGTH_LONG).show();
+									}
+									else{
+										// Delete the existing link
+										database.deleteLinkProfileServer(profileToLink, serverToLink);
+										item.setChecked(false);
+									}
+									
+									database.close();
+									return true;
+								}
+							});		
+						}
+					}
+					
+					// Now, the subMenu is created
+					subMenuLinkCreated = true;
+				}
+				
+				db.close(); // close the database
+				return true;
+
+			// ########## if the item "Set By Default" is selected ##########
+			case R.id.setByDefault :
+
+				// The selected profile is now the default profile
+				if(db.setDefaultProfile(nameSelectedItem)){
+					mode.getMenu().getItem(0).setIcon(android.R.drawable.star_on);
+					mode.getMenu().getItem(0).setEnabled(false);
+					Toast.makeText(c, nameSelectedItem + " is now the profile by default !", Toast.LENGTH_LONG).show();
+				}
+				else{
+					Toast.makeText(c, "An error occurred while setting the profile by default :(", Toast.LENGTH_LONG).show();
+				}
+
+				// Notifying the adapter to update the display
+				adapterProfile.notifyDataSetInvalidated();
+
+				db.close(); // close the database
+				return true;
+
+			// ########## if the item "Edit" is selected ##########		
+			case R.id.edit : 
+
+				// Collect all the informations concerning the current profile
+				Profile profileToEdit = db.getProfileByName(nameSelectedItem);
+
+				// Prepare the Intent to switch on the activity which allows to modify the profile
+				Intent i = new Intent(ExistingProfilesActivity.this, CreateProfileActivity.class);
+
+				// Put the informations of the current profile into a Bundle object
+				Bundle b = new Bundle();
+				b.putString("ProfileName", profileToEdit.getProfile_name());
+				b.putString("FirstNickName", profileToEdit.getFirstNick());
+				b.putString("ScdNickName", profileToEdit.getSecondNick());
+				b.putString("ThdNickName", profileToEdit.getThirdNick());
+				b.putString("UserName", profileToEdit.getUsername());
+				b.putString("RealName", profileToEdit.getRealname());
+
+				// Assign the Bundle to the Intent
+				i.putExtra("ProfileIdentification", b);
+
+				// Start the Intent
+				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(i);
+
+				finish(); // close the current activity
+
+				db.close(); // close the database
+				return true;
+
+			// ########## if the item "Delete" is selected ##########
+			case R.id.delete :
+
+				mode.finish(); // the actionMode disappears
+
+				// Removal throughout the db
+				if (db.deleteProfile(nameSelectedItem)){ // if the deletion is successful
+					// Notify the user thanks to a Toast
+					Toast.makeText(c, "Profile " + nameSelectedItem + " deleted.", Toast.LENGTH_LONG).show();
+					// Remove the corresponding profile from the list
+					profiles_AL.remove(indexSelectedItem);
+					// Notify the adapter that the list's state has changed
+					adapterProfile.notifyDataSetChanged();
+					// Update the number of available profiles in the TV
+					profiles_TV.setText("Profiles List :       (" + profiles_AL.size() + ")");
+				}
 				db.close();
-				// Remove the corresponding profile from the list
-				profiles_AL.remove(selectedProfile_position);
-				// Notify the adapter that the list's state has changed
-				adapterProfile.notifyDataSetChanged();
-				// Update the number of available profiles in the TV
-				profiles_TV.setText("Profiles List :       (" + this.profiles_AL.size() + ")");
-			}
-			
-			db.close();
+				return true;
 
-			return true;
+			default:
+				db.close();
+				mode.finish(); // the actionMode disappears
+				return false;
+			}
 		}
-		return super.onContextItemSelected(item);
+
+		// Called when the user exits the action mode
+		public void onDestroyActionMode(ActionMode mode) {
+			// the oldView looses the "focus"
+			oldView.setBackgroundColor(profiles_LV.getCacheColorHint());
+			// the actionMode is destroyed by putting it at null
+			mActionMode = null;
+		}
+	};
+
+	/**
+	 * 
+	 * This method allows to checking link between all availables servers and the selected profile
+	 * If a link is detected, the server is checked in the subMenu's "Link a Server" item
+	 * 
+	 * @param menu
+	 */
+	
+	public void checkingLinkBetweenProfileAndServers(Menu menu){
+
+		Database db = new Database(c);
+		ArrayList<Server> servers = db.getServerList();
+
+		if(servers.size() != 0){	
+			for(int s = 0 ; s < servers.size() ; s++){
+				if(db.linkAlreadyExisting(db.getProfileByName(nameSelectedItem), servers.get(s))){
+					menu.getItem(3).getSubMenu().getItem(s).setChecked(true);
+				}
+			}
+		}
+
+		db.close();
 	}
 	
+	/**
+	 * 
+	 * This method is called each time the system goes back on this activity
+	 * 
+	 */
+
 	@ Override
 	protected void onResume(){
 		super.onResume();
@@ -198,11 +330,11 @@ public class ExistingProfilesActivity extends ListActivity{
 		Bundle b = this.getIntent().getBundleExtra("NewValue");
 		if(b != null && b.containsKey("NewValue")){
 			String nameProfile = b.getString("NewNameProfile");
-			this.profiles_AL.get(index).setProfile_name(nameProfile);
+			this.profiles_AL.get(indexSelectedItem).setProfile_name(nameProfile);
 
 			// Update the list and its display
 			this.adapterProfile.notifyDataSetChanged();
-			this.adapterProfile.notifyDataSetInvalidated();
+			this.adapterProfile.notifyDataSetInvalidated();			
 		}
 	}
 }

@@ -5,19 +5,25 @@ import java.util.ArrayList;
 import org.touchirc.R;
 import org.touchirc.R.layout;
 import org.touchirc.db.Database;
+import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 import org.touchirc.model.ServerAdapter;
 
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.ActionMode;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,8 +34,12 @@ public class ExistingServersActivity extends ListActivity{
 	private ListView servers_LV;
 	private ArrayList<Server> servers_AL;
 	private ServerAdapter adapterServer;
-	private int index;
+	private int indexSelectedItem; // selected server's index in the listView
+	private String nameSelectedItem; // selected server's name
 	private Context c;
+
+	protected Object mActionMode; // Variable used for triggering the actionMode (ActionBar)
+	private static View oldView; // Variable used to store the old view selected
 
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
@@ -55,139 +65,179 @@ public class ExistingServersActivity extends ListActivity{
 		this.adapterServer =  new ServerAdapter(servers_AL, c);
 		this.setListAdapter(adapterServer);
 
-		registerForContextMenu(servers_LV);
+		/**
+		 * 
+		 * When the user longclick on an item an ActionMode Bar appears.
+		 * It provides him some features on the selected server : Set autoconnect this server, Edit, Delete.
+		 * 
+		 */
+
+		servers_LV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View v,
+					int position, long arg3) {
+
+				indexSelectedItem = position;
+
+				// if the ActionMode is already displayed
+				if (mActionMode != null) {
+					ExistingServersActivity.this.mActionModeCallback.onDestroyActionMode((ActionMode)mActionMode); // closing it
+					mActionMode = ExistingServersActivity.this.startActionMode(mActionModeCallback); // and launching it to update values
+
+					v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
+					oldView = v;
+
+					return false;
+				}				
+
+				// Start the CallBackActionBar using the ActionMode.Callback defined below
+				mActionMode = ExistingServersActivity.this.startActionMode(mActionModeCallback); // launching the ActionMode
+				oldView = v;
+				v.setSelected(true);
+				v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
+				return true;
+			}
+		});
 	}
-
+	
 	/**
-	 * When the user long click on a View of the ListView, he triggers
-	 * a ContextMenu which suggest him "AutoConnecting", Editing or Removing the current server
-	 */
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		// Load the context Menu
-		inflater.inflate(R.menu.context_menu_server, menu);
-		// Give a title to the ContextMenu
-		menu.setHeaderTitle("Options server");
-		
-		// Collecting the name of the selected server, using a AdapterContextMenuInfo
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-
-		// Put all the server's name in an Array
-		String [] servers = new String [servers_AL.size()];
-		for(int s = 0 ; s < servers_AL.size() ; s++){
-			servers[s] = servers_AL.get(s).getName();
-		}
-
-		// Collecting the name of the selected server
-		String selectedServer_name = servers[(int)info.id];
-		
-		// if the server is already used for auto-connection, we cannot use it for auto-connection
-		if(selectedServer_name.equals(new Database(c).nameAutoConnectedServer())){
-			menu.getItem(0).setEnabled(false);
-		}
-	}
-
-	/**
-	 * According the Item selected ("Use for Auto-Connection", "Edit", "Delete")
-	 * specific statements will be done
+	 * 
+	 * Here, we define the behavior of the actionMode according the input events
 	 * 
 	 */
 
-	public boolean onContextItemSelected(MenuItem item) {
+	private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
-		// Collecting the name of the selected server, using a AdapterContextMenuInfo
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		// Called when the action mode is created; startActionMode() was called
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			MenuInflater inflater = getMenuInflater();
 
-		// Put all the server's name in an Array
-		String [] servers = new String [servers_AL.size()];
-		for(int s = 0 ; s < servers_AL.size() ; s++){
-			servers[s] = servers_AL.get(s).getName();
-		}
+			// Load the contextual Menu
+			inflater.inflate(R.menu.context_menu_server, menu);
 
-		// Collecting the name and position of the selected server
-		String selectedServer_name = servers[(int)info.id];
-		int selectedServer_position = (int)info.id;
-		this.index = selectedServer_position;
+			// Put all the server's name in an Array, in order to ...
+			String [] servers = new String [servers_AL.size()];
+			for(int s = 0 ; s < servers_AL.size() ; s++){
+				servers[s] = servers_AL.get(s).getName();
+			}
 
-		// if the item "Use for Auto-Connection" is selected
-		if(item.getItemId() == R.id.autoConnect){
+			// ... collect the name of the selected server
+			nameSelectedItem = servers[indexSelectedItem];
 
-			Database db = new Database(c);
-			// The selected server is now used to auto-connect
-			if(db.setAutoConnect(selectedServer_name)){
-				Toast.makeText(c, selectedServer_name + " is now used to auto-connect !", Toast.LENGTH_LONG).show();
+			// if the server is already the autoconnected one, we cannot set it
+			// the icon is updated
+			if(nameSelectedItem.equals(new Database(c).nameAutoConnectedServer())){
+				menu.getItem(0).setIcon(android.R.drawable.star_on);
+				menu.getItem(0).setEnabled(false);
 			}
 			else{
-				Toast.makeText(c, "An error occurred while setting the server :(", Toast.LENGTH_LONG).show();
-			}
-
-			db.close();
-
-			// Notifying the adapter to update the display
-			adapterServer.notifyDataSetInvalidated();
+				menu.getItem(0).setIcon(android.R.drawable.star_off);
+			} 
 
 			return true;
 		}
 
-		// if the item "Edit" is selected		
-		if(item.getItemId() == R.id.edit){
-
-			// Collect all the informations concerning the current server
-			Database db = new Database(c);
-			Server serverToEdit = db.getServerByName(selectedServer_name);
-
-			// Prepare the Intent to switch on the activity which allows to modify the server
-			Intent i = new Intent(this, CreateServerActivity.class);
-
-			// Put the informations of the current server into a Bundle object
-			Bundle b = new Bundle();
-			b.putString("ServerName", serverToEdit.getName());
-			b.putString("HostName", serverToEdit.getHost());
-			b.putInt("portNumber", serverToEdit.getPort());
-			b.putString("ServerPassword", serverToEdit.getPassword());
-
-			// Assign the Bundle to the Intent
-			i.putExtra("ServerIdentification", b);
-
-			// Start the Intent
-			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(i);
-
-			db.close();
-			
-			finish();
-
-			return true;
+		// Called each time the action mode is shown. Always called after
+		// onCreateActionMode, but
+		// may be called multiple times if the mode is invalidated.
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false; // if nothing is done
 		}
 
-		// if the item "Delete" is selected
-		if(item.getItemId() == R.id.delete){
+		// Called when the user selects a contextual menu item
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 
-			// Removal throughout the db
 			Database db = new Database(c);
 
-			if (db.deleteServer(selectedServer_name)){ // if the deletion is successful
-				// Notify the user thanks to a Toast
-				Toast.makeText(c, "Server " + selectedServer_name + " deleted.", Toast.LENGTH_LONG).show();
+			switch (item.getItemId()) {		
+
+			// ########## if the item "AutoConnect" is selected ##########
+			case R.id.autoConnect :
+
+				// The selected server is now the autoconnected one
+				if(db.setAutoConnect(nameSelectedItem)){
+					mode.getMenu().getItem(0).setIcon(android.R.drawable.star_on);
+					mode.getMenu().getItem(0).setEnabled(false);
+					Toast.makeText(c, nameSelectedItem + " is now used for autoconnecting !", Toast.LENGTH_LONG).show();
+				}
+				else{
+					Toast.makeText(c, "An error occurred while setting the server :(", Toast.LENGTH_LONG).show();
+				}
+
+				// Notifying the adapter to update the display
+				adapterServer.notifyDataSetInvalidated();
+
+				db.close(); // close the database
+				return true;
+
+			// ########## if the item "Edit" is selected ##########		
+			case R.id.edit : 
+
+				// Collect all the informations concerning the current server
+				Server serverToEdit = db.getServerByName(nameSelectedItem);
+
+				// Prepare the Intent to switch on the activity which allows to modify the server
+				Intent i = new Intent(ExistingServersActivity.this, CreateServerActivity.class);
+
+				// Put the informations of the current server into a Bundle object
+				Bundle b = new Bundle();
+				b.putString("ServerName", serverToEdit.getName());
+				b.putString("HostName", serverToEdit.getHost());
+				b.putInt("portNumber", serverToEdit.getPort());
+				b.putString("ServerPassword", serverToEdit.getPassword());
+
+				// Assign the Bundle to the Intent
+				i.putExtra("ServerIdentification", b);
+
+				// Start the Intent
+				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(i);
+
+				finish(); // close the current activity
+
+				db.close(); // close the database
+				return true;
+
+			// ########## if the item "Delete" is selected ##########
+			case R.id.delete :
+
+				mode.finish(); // the actionMode disappears
+
+				// Removal throughout the db
+				if (db.deleteServer(nameSelectedItem)){ // if the deletion is successful
+					// Notify the user thanks to a Toast
+					Toast.makeText(c, "Server " + nameSelectedItem + " deleted.", Toast.LENGTH_LONG).show();
+					// Remove the corresponding server from the list
+					servers_AL.remove(indexSelectedItem);
+					// Notify the adapter that the list's state has changed
+					adapterServer.notifyDataSetChanged();
+					// Update the number of available servers in the TV
+					servers_TV.setText("Profiles List :       (" + servers_AL.size() + ")");
+				}
 				db.close();
-				// Remove the corresponding server from the list
-				servers_AL.remove(selectedServer_position);
-				// Notify the adapter that the list's state has changed
-				adapterServer.notifyDataSetChanged();
-				// Update the number of available servers in the TV
-				servers_TV.setText("Servers List :       (" + this.servers_AL.size() + ")");
+				return true;
+
+			default:
+				db.close();
+				mode.finish(); // the actionMode disappears
+				return false;
 			}
-
-			db.close();
-
-			return true;
 		}
-		return super.onContextItemSelected(item);
-	}
+
+		// Called when the user exits the action mode
+		public void onDestroyActionMode(ActionMode mode) {
+			// the oldView looses the "focus"
+			oldView.setBackgroundColor(servers_LV.getCacheColorHint());
+			// the actionMode is destroyed by putting it at null
+			mActionMode = null;
+		}
+	};
+	
+	/**
+	 * 
+	 * This method is called each time the system goes back on this activity
+	 * 
+	 */
 
 	@ Override
 	protected void onResume(){
@@ -196,7 +246,7 @@ public class ExistingServersActivity extends ListActivity{
 		Bundle b = this.getIntent().getBundleExtra("NewValue");
 		if(b != null && b.containsKey("NewValue")){
 			String nameServer = b.getString("NewNameServer");
-			this.servers_AL.get(index).setName(nameServer);
+			this.servers_AL.get(indexSelectedItem).setName(nameServer);
 
 			// Update the list and its display
 			this.adapterServer.notifyDataSetChanged();

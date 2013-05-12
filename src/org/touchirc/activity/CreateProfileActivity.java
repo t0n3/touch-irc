@@ -20,22 +20,22 @@ import android.widget.Toast;
 public class CreateProfileActivity extends Activity{
 
 	private TextView profileName_TV;
-	private EditText profileName;
+	private EditText profileName_ET;
 
 	private TextView firstNickname_TV;
-	private EditText firstNickname;
+	private EditText firstNickname_ET;
 
 	private TextView secondNickname_TV;
-	private EditText secondNickname;
+	private EditText secondNickname_ET;
 
 	private TextView thirdNickname_TV;
-	private EditText thirdNickname;
+	private EditText thirdNickname_ET;
 
 	private TextView userName_TV;
-	private EditText userName;
+	private EditText userName_ET;
 
 	private TextView realName_TV;
-	private EditText realName;
+	private EditText realName_ET;
 
 	private Profile prof;
 	private Bundle b = null;
@@ -68,42 +68,42 @@ public class CreateProfileActivity extends Activity{
 
 		// EditTexts		
 
-		this.profileName = (EditText) findViewById(R.id.editText_profile_name);
+		this.profileName_ET = (EditText) findViewById(R.id.editText_profile_name);
 		// if started by ExistingProfilesActivity, changing the EditText
 		if(b != null && b.containsKey("ProfileName")){
-			this.profileName.setText(b.getString("ProfileName"));
+			this.profileName_ET.setText(b.getString("ProfileName"));
 		}
 
-		this.firstNickname = (EditText) findViewById(R.id.editText_first_nick);
+		this.firstNickname_ET = (EditText) findViewById(R.id.editText_first_nick);
 		// if started by ExistingProfilesActivity, changing the EditText
 		if(b != null && b.containsKey("FirstNickName")){
-			this.firstNickname.setText(b.getString("FirstNickName"));
+			this.firstNickname_ET.setText(b.getString("FirstNickName"));
 		}
 
-		this.secondNickname = (EditText) findViewById(R.id.editText_second_nick);
+		this.secondNickname_ET = (EditText) findViewById(R.id.editText_second_nick);
 		// if started by ExistingProfilesActivity, changing the EditText
 		if(b != null && b.containsKey("ScdNickName") && b.getString("ScdNickName").length() > 0){
-			this.secondNickname.setText(b.getString("ScdNickName"));
+			this.secondNickname_ET.setText(b.getString("ScdNickName"));
 			this.secondNickname_TV.setTextColor(Color.BLACK); // To highlight the fact that a 2nd nick exists
 		}
 
-		this.thirdNickname = (EditText) findViewById(R.id.editText_third_nick);
+		this.thirdNickname_ET = (EditText) findViewById(R.id.editText_third_nick);
 		// if started by ExistingProfilesActivity, changing the EditText
 		if(b != null && b.containsKey("ThdNickName") && b.getString("ThdNickName").length() > 0){
-			this.thirdNickname.setText(b.getString("ThdNickName"));
+			this.thirdNickname_ET.setText(b.getString("ThdNickName"));
 			this.thirdNickname_TV.setTextColor(Color.BLACK); // To highlight the fact that a 3rd nick exists
 		}
 
-		this.userName = (EditText) findViewById(R.id.editText_username);
+		this.userName_ET = (EditText) findViewById(R.id.editText_username);
 		// if started by ExistingProfilesActivity, changing the EditText
 		if(b != null && b.containsKey("UserName")){
-			this.userName.setText(b.getString("UserName"));
+			this.userName_ET.setText(b.getString("UserName"));
 		}
 
-		this.realName = (EditText) findViewById(R.id.editText_realname);
+		this.realName_ET = (EditText) findViewById(R.id.editText_realname);
 		// if started by ExistingProfilesActivity, changing the EditText
 		if(b != null && b.containsKey("RealName")){
-			this.realName.setText(b.getString("RealName"));
+			this.realName_ET.setText(b.getString("RealName"));
 		}
 
 		/**
@@ -111,7 +111,7 @@ public class CreateProfileActivity extends Activity{
 		 * When the Key "Done" is pressed on the Realname EditText : a Profile is created.
 		 */
 
-		this.realName.setOnEditorActionListener(new OnEditorActionListener() {
+		this.realName_ET.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
 			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
@@ -119,24 +119,24 @@ public class CreateProfileActivity extends Activity{
 
 				// the keyboard disappears
 				InputMethodManager mngr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-				mngr.hideSoftInputFromWindow(realName.getWindowToken(), 0);
+				mngr.hideSoftInputFromWindow(realName_ET.getWindowToken(), 0);
 
 				if (arg1 == EditorInfo.IME_ACTION_DONE && (
-						profileName.getText().length() != 0 && 
-						firstNickname.getText().length() != 0 &&
-						firstNickname.getText().length() <= 9 &&
-						userName.getText().length() != 0 && 
-						realName.getText().length() != 0 &&
-						realName.getText().length() >= 10 &&
-						realName.getText().length() < 20)) {
+						profileName_ET.getText().length() != 0 && 
+						firstNickname_ET.getText().length() != 0 &&
+						firstNickname_ET.getText().length() <= 9 &&
+						userName_ET.getText().length() != 0 && 
+						realName_ET.getText().length() != 0 &&
+						realName_ET.getText().length() >= 10 &&
+						realName_ET.getText().length() < 20)) {
 
 					// the Profile is created with the datas given by the user
-					prof = new Profile(profileName.getText().toString(),
-							firstNickname.getText().toString(),
-							secondNickname.getText().toString(),
-							thirdNickname.getText().toString(),
-							userName.getText().toString(),
-							realName.getText().toString());
+					prof = new Profile(profileName_ET.getText().toString(),
+							firstNickname_ET.getText().toString(),
+							secondNickname_ET.getText().toString(),
+							thirdNickname_ET.getText().toString(),
+							userName_ET.getText().toString(),
+							realName_ET.getText().toString());
 
 					Database db = new Database(getApplicationContext());
 					
@@ -173,25 +173,25 @@ public class CreateProfileActivity extends Activity{
 					realName_TV.setTextColor(Color.BLACK);
 
 					// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
-					if(realName.getText().length() == 0 || realName.getText().length() < 10 || realName.getText().length() > 20){
+					if(realName_ET.getText().length() == 0 || realName_ET.getText().length() < 10 || realName_ET.getText().length() > 20){
 						realName_TV.setTextColor(Color.RED);
 						realName_TV.invalidate();
-						realName.requestFocus();
+						realName_ET.requestFocus();
 					}
-					if(userName.getText().length() == 0){
+					if(userName_ET.getText().length() == 0){
 						userName_TV.setTextColor(Color.RED);
 						userName_TV.invalidate();
-						userName.requestFocus();
+						userName_ET.requestFocus();
 					}
-					if(firstNickname.getText().length() == 0 || firstNickname.getText().length() > 9){
+					if(firstNickname_ET.getText().length() == 0 || firstNickname_ET.getText().length() > 9){
 						firstNickname_TV.setTextColor(Color.RED);
 						firstNickname_TV.invalidate();
-						firstNickname.requestFocus();
+						firstNickname_ET.requestFocus();
 					}
-					if(profileName.getText().length() == 0){
+					if(profileName_ET.getText().length() == 0){
 						profileName_TV.setTextColor(Color.RED);
 						profileName_TV.invalidate();
-						profileName.requestFocus();
+						profileName_ET.requestFocus();
 					}
 				}
 				return handled;
