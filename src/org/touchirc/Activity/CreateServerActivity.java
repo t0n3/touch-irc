@@ -21,16 +21,16 @@ import android.widget.TextView.OnEditorActionListener;
 public class CreateServerActivity extends Activity{
 
 	private TextView server_Name_TV;
-	private EditText server_Name;
+	private EditText serverName_ET;
 
 	private TextView server_Hostname_TV;
-	private EditText server_Hostname;
+	private EditText serverHostname_ET;
 
 	private TextView server_port_TV;
-	private EditText server_port;
+	private EditText serverPort_ET;
 
 	private TextView server_password_TV;
-	private EditText server_password;
+	private EditText serverPassword_ET;
 
 	private Server serv;
 	private Bundle b = null;
@@ -47,40 +47,40 @@ public class CreateServerActivity extends Activity{
 
 		// TextViews : black ones (default color)s are compulsories, gray ones are optionals
 
-		this.server_Name_TV = (TextView) findViewById(R.id.TVServerName);	
+		this.server_Name_TV = (TextView) findViewById(R.id.textView_server_name);	
 
-		this.server_Hostname_TV = (TextView) findViewById(R.id.TVHostName);
+		this.server_Hostname_TV = (TextView) findViewById(R.id.textView_hostname);
 
-		this.server_port_TV = (TextView) findViewById(R.id.TVServerPort);
+		this.server_port_TV = (TextView) findViewById(R.id.textView_server_port);
 
-		this.server_password_TV = (TextView) findViewById(R.id.TVServerPassword);
+		this.server_password_TV = (TextView) findViewById(R.id.textView_server_password);
 		this.server_password_TV.setTextColor(Color.GRAY);
 
 		// EditTexts		
 
-		this.server_Name = (EditText) findViewById(R.id.editText_server_name);
+		this.serverName_ET = (EditText) findViewById(R.id.editText_server_name);
 		// if started by ExistingServersActivity, changing the EditText
 		if(b != null && b.containsKey("ServerName")){
-			this.server_Name.setText(b.getString("ServerName"));
+			this.serverName_ET.setText(b.getString("ServerName"));
 		}
 
-		this.server_Hostname = (EditText) findViewById(R.id.editText_host_name);
+		this.serverHostname_ET = (EditText) findViewById(R.id.editText_hostname);
 		// if started by ExistingServersActivity, changing the EditText
 		if(b != null && b.containsKey("HostName")){
-			this.server_Hostname.setText(b.getString("HostName"));
+			this.serverHostname_ET.setText(b.getString("HostName"));
 		}
 
-		this.server_port = (EditText) findViewById(R.id.editText_server_port);
+		this.serverPort_ET = (EditText) findViewById(R.id.editText_server_port);
 		// if started by ExistingServersActivity, changing the EditText
 		if(b != null && b.containsKey("portNumber")){
-			this.server_port.setText(String.valueOf(b.getInt("portNumber")));
+			this.serverPort_ET.setText(String.valueOf(b.getInt("portNumber")));
 		}
 
-		this.server_password = (EditText) findViewById(R.id.editText_server_password);
+		this.serverPassword_ET = (EditText) findViewById(R.id.editText_server_password);
 		// if started by ExistingServersActivity, changing the EditText
 		if(b != null && b.containsKey("ServerPassword") && b.getString("ServerPassword").length() > 0){
 			this.server_password_TV.setTextColor(Color.BLACK); // To highlight the fact that a password exists
-			this.server_password.setText(b.getString("ServerPassword"));
+			this.serverPassword_ET.setText(b.getString("ServerPassword"));
 		}
 
 		/**
@@ -88,7 +88,7 @@ public class CreateServerActivity extends Activity{
 		 * When the Key "Done" is pressed on the server_password EditText : a Server is created.
 		 */
 
-		this.server_password.setOnEditorActionListener(new OnEditorActionListener() {
+		this.serverPassword_ET.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
 			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
@@ -96,20 +96,20 @@ public class CreateServerActivity extends Activity{
 
 				// the keyboard disappears
 				InputMethodManager mngr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-				mngr.hideSoftInputFromWindow(server_password.getWindowToken(), 0);
+				mngr.hideSoftInputFromWindow(serverPassword_ET.getWindowToken(), 0);
 
 				if (arg1 == EditorInfo.IME_ACTION_DONE && (
-						server_Name.getText().length() != 0 && 
-						server_Hostname.getText().length() != 0 &&
-						server_port.getText().length() != 0)) {
+						serverName_ET.getText().length() != 0 && 
+						serverHostname_ET.getText().length() != 0 &&
+						serverPort_ET.getText().length() != 0)) {
 
 					// the Server is created with the datas given by the user
-					int port = Integer.parseInt(server_port.getText().toString());
+					int port = Integer.parseInt(serverPort_ET.getText().toString());
 
-					serv = new Server(server_Name.getText().toString(),
-							server_Hostname.getText().toString(),
+					serv = new Server(serverName_ET.getText().toString(),
+							serverHostname_ET.getText().toString(),
 							port,
-							server_password.getText().toString()
+							serverPassword_ET.getText().toString()
 							);
 					
 					Database db = new Database(getApplicationContext());
@@ -142,20 +142,20 @@ public class CreateServerActivity extends Activity{
 					Toast.makeText(getApplicationContext(), "Missing informations ...", Toast.LENGTH_SHORT).show();
 
 					// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
-					if(server_port.getText().length() == 0){
+					if(serverPort_ET.getText().length() == 0){
 						server_port_TV.setTextColor(Color.RED);
 						server_port_TV.invalidate();
-						server_port.requestFocus();
+						serverPort_ET.requestFocus();
 					}
-					if(server_Hostname.getText().length() == 0){
+					if(serverHostname_ET.getText().length() == 0){
 						server_Hostname_TV.setTextColor(Color.RED);
 						server_Hostname_TV.invalidate();
-						server_Hostname.requestFocus();
+						serverHostname_ET.requestFocus();
 					}
-					if(server_Name.getText().length() == 0){
+					if(serverName_ET.getText().length() == 0){
 						server_Name_TV.setTextColor(Color.RED);
 						server_Name_TV.invalidate();
-						server_Name.requestFocus();
+						serverName_ET.requestFocus();
 					}
 				}
 				return handled;
