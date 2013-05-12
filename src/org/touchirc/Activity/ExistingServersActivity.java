@@ -179,7 +179,7 @@ public class ExistingServersActivity extends ListActivity{
 				// Notify the adapter that the list's state has changed
 				adapterServer.notifyDataSetChanged();
 				// Update the number of available servers in the TV
-				servers_TV.setText("Profiles List :       (" + this.servers_AL.size() + ")");
+				servers_TV.setText("Servers List :       (" + this.servers_AL.size() + ")");
 			}
 
 			db.close();
