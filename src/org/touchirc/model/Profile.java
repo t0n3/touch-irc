@@ -21,8 +21,7 @@ public class Profile {
 	private String username;
 	private String realname;
 	
-	public ArrayList<Server> listServer;
-	
+
 	public Profile(String profile_n, String fnick, String snick, String tnick, String uname, String rname){
 		if(!isCorrect(rname)){
 			System.out.println("The realname does not respect the conditions ...");
@@ -37,13 +36,8 @@ public class Profile {
 			this.thirdNick = tnick;
 			this.username = uname;
 			this.realname = rname;
-			this.listServer = new ArrayList<Server>();
 		}
 		
-	}
-	
-	public ArrayList<Server> getListServer() {
-		return this.listServer;
 	}
 
 	public String getProfile_name() {
@@ -93,51 +87,7 @@ public class Profile {
 	public void setRealname(String realname) {
 		this.realname = realname;
 	}
-	
-	public boolean addServer(Server s, String pwd){
-		int i = 0;
-		// check if the server exists in the list
-		while(i < this.listServer.size() && this.listServer.get(i).getName() != s.getName()){
-			i++;
-		}
-		// server found since it always exists in the list
-		if(this.listServer.get(i).getName() == s.getName()){
-			return false;
-		}
-		// new server associated to the current profile
-		else{
-			if(s.getPassword() == pwd){
-				this.listServer.add(s);
-				return true;
-			}
-			return false;
-		}
-	}
-	
-	public boolean deleteServer(Server s){
-		for(Server serv : this.listServer){
-			if(serv.getName() == s.getName()){
-				this.listServer.remove(serv);
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	// with new datas sent by the user, create a new Server which will take the place of the older one
-	public boolean modifyServer(Server oldServ, Server newServ){
-		int i = 0;
-		// check if the server exists in the list
-		while(i < this.listServer.size() && this.listServer.get(i).getName() != oldServ.getName()){
-			i++;
-		}
-		// server found since it always exists in the list
-		if(this.listServer.get(i).getName() == oldServ.getName()){
-			this.listServer.set(i, newServ);
-			return true;
-		}
-		return false;
-	}
+
 	
 	public boolean isCorrect(String realName){
 		if(realName.length() >= 10 && realname.length() <= 20){

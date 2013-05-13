@@ -41,8 +41,7 @@ public class Database extends SQLiteOpenHelper {
 				+ DBConstants.PROFILE_THIRD_NICKNAME + " TEXT,"
 				+ DBConstants.PROFILE_USERNAME + " TEXT NOT NULL,"
 				+ DBConstants.PROFILE_REALNAME + " TEXT NOT NULL,"
-				+ DBConstants.DEFAULT_PROFILE + " BOOLEAN,"
-				+ DBConstants.PROFILE_SERVER_LIST + " TEXT );");
+				+ DBConstants.DEFAULT_PROFILE + " BOOLEAN );");
 		
 		db.execSQL("CREATE TABLE " + DBConstants.LINKED_SERVERS_TO_PROFILE_NAME + "("
 				+ DBConstants.LINKED_PROFILE_ID + " INTEGER,"
@@ -357,10 +356,6 @@ public class Database extends SQLiteOpenHelper {
 		values.put(DBConstants.PROFILE_USERNAME, profile.getUsername());
 		values.put(DBConstants.PROFILE_REALNAME, profile.getRealname());
 		values.put(DBConstants.DEFAULT_PROFILE, "false");
-
-		// TODO ListServer Support
-
-		values.put(DBConstants.PROFILE_SERVER_LIST, profile.getListServer().toString());
 
 		this.getWritableDatabase().insert(
 										DBConstants.PROFILE_TABLE_NAME,
