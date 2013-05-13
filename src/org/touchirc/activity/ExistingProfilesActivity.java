@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import org.touchirc.R;
 import org.touchirc.R.layout;
+import org.touchirc.adapter.ProfileAdapter;
 import org.touchirc.db.Database;
 import org.touchirc.model.Profile;
-import org.touchirc.model.ProfileAdapter;
 import org.touchirc.model.Server;
 
 import android.app.ListActivity;

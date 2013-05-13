@@ -1,9 +1,10 @@
-package org.touchirc.model;
+package org.touchirc.adapter;
 
 import java.util.ArrayList;
 
 import org.touchirc.R;
 import org.touchirc.db.Database;
+import org.touchirc.model.Server;
 
 import android.content.Context;
 import android.view.LayoutInflater;
