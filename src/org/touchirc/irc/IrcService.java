@@ -43,7 +43,7 @@ public class IrcService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
-		Toast.makeText(getApplicationContext(), "TOTO", Toast.LENGTH_LONG).show(); // TODO Delete it
+		Toast.makeText(getApplicationContext(), "TouchIrcService Started", Toast.LENGTH_LONG).show(); // TODO Delete it
 		return START_STICKY;
 	
 	}
@@ -57,6 +57,7 @@ public class IrcService extends Service {
 	public Server getServerById(int idServer){
 		return this.serversAvailable.get(idServer);
 	}
+	
 	
 	public Set<Server> getConnectedServers(){
 		return this.botsConnected.keySet();
