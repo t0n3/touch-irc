@@ -26,7 +26,7 @@ public class Database extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE servers (" + DBConstants.SERVER_ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ DBConstants.SERVER_TITLE + " TEXT NOT NULL UNIQUE,"
-				+ DBConstants.SERVER_HOST + " TEXT NOT NULL UNIQUE,"
+				+ DBConstants.SERVER_HOST + " TEXT NOT NULL,"
 				+ DBConstants.SERVER_PORT + " INTEGER,"
 				+ DBConstants.SERVER_PASSWORD + " TEXT, "
 				+ DBConstants.SERVER_USE_SSL + " BOOLEAN, "
@@ -45,8 +45,8 @@ public class Database extends SQLiteOpenHelper {
 				+ DBConstants.PROFILE_SERVER_LIST + " TEXT );");
 		
 		db.execSQL("CREATE TABLE " + DBConstants.LINKED_SERVERS_TO_PROFILE_NAME + "("
-				+ DBConstants.LINKED_PROFILE_ID + " INTEGER PRIMARY KEY,"
-				+ DBConstants.LINKED_SERVER_ID + " INTEGER,"
+				+ DBConstants.LINKED_PROFILE_ID + " INTEGER,"
+				+ DBConstants.LINKED_SERVER_ID + " INTEGER PRIMARY KEY,"
 				+ " FOREIGN KEY (" + DBConstants.LINKED_PROFILE_ID + ") REFERENCES " 
 					+ DBConstants.PROFILE_TABLE_NAME + "(" + DBConstants.PROFILE_ID + "),"
 				+ " FOREIGN KEY (" + DBConstants.LINKED_SERVER_ID + ") REFERENCES " 

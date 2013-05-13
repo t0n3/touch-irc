@@ -9,8 +9,10 @@ import org.touchirc.db.Database;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -62,7 +64,7 @@ public class ExistingProfilesActivity extends ListActivity{
 		// Put an ProfileAdapter so that the LV and the profiles list be linked
 		this.adapterProfile = new ProfileAdapter(profiles_AL, c);
 		this.setListAdapter(adapterProfile);
-		
+
 		/**
 		 * 
 		 * When the user longclick on an item an ActionMode Bar appears.
@@ -97,7 +99,7 @@ public class ExistingProfilesActivity extends ListActivity{
 			}
 		});
 	}
-	
+
 	/**
 	 * 
 	 * Here, we define the behavior of the actionMode according the input events
@@ -182,7 +184,7 @@ public class ExistingProfilesActivity extends ListActivity{
 								public boolean onMenuItemClick(MenuItem item) {									
 									Database database = new Database(c);
 									Server serverToLink = database.getServerByName(item.getTitle().toString());
-									
+
 									if(!item.isChecked()){
 										// Add a link
 										database.addLinkProfileServer(profileToLink, serverToLink);
@@ -194,22 +196,22 @@ public class ExistingProfilesActivity extends ListActivity{
 										database.deleteLinkProfileServer(profileToLink, serverToLink);
 										item.setChecked(false);
 									}
-									
+
 									database.close();
 									return true;
 								}
 							});		
 						}
 					}
-					
+
 					// Now, the subMenu is created
 					subMenuLinkCreated = true;
 				}
-				
+
 				db.close(); // close the database
 				return true;
 
-			// ########## if the item "Set By Default" is selected ##########
+				// ########## if the item "Set By Default" is selected ##########
 			case R.id.setByDefault :
 
 				// The selected profile is now the default profile
@@ -228,7 +230,7 @@ public class ExistingProfilesActivity extends ListActivity{
 				db.close(); // close the database
 				return true;
 
-			// ########## if the item "Edit" is selected ##########		
+				// ########## if the item "Edit" is selected ##########		
 			case R.id.edit : 
 
 				// Collect all the informations concerning the current profile
@@ -258,22 +260,45 @@ public class ExistingProfilesActivity extends ListActivity{
 				db.close(); // close the database
 				return true;
 
-			// ########## if the item "Delete" is selected ##########
+				// ########## if the item "Delete" is selected ##########
 			case R.id.delete :
 
 				mode.finish(); // the actionMode disappears
 
-				// Removal throughout the db
-				if (db.deleteProfile(nameSelectedItem)){ // if the deletion is successful
-					// Notify the user thanks to a Toast
-					Toast.makeText(c, "Profile " + nameSelectedItem + " deleted.", Toast.LENGTH_LONG).show();
-					// Remove the corresponding profile from the list
-					profiles_AL.remove(indexSelectedItem);
-					// Notify the adapter that the list's state has changed
-					adapterProfile.notifyDataSetChanged();
-					// Update the number of available profiles in the TV
-					profiles_TV.setText("Profiles List :       (" + profiles_AL.size() + ")");
-				}
+				// Instantiate an AlertDialog.Builder with its constructor
+				AlertDialog.Builder builder = new AlertDialog.Builder(ExistingProfilesActivity.this);
+
+				// Chain together various setter methods to set the dialog characteristics
+				builder.setTitle(R.string.deleteProfile)
+				.setMessage("Would you really like to delete the profile : " + nameSelectedItem + " ?")
+				.setIcon(android.R.drawable.ic_menu_delete);
+
+				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						// Removal throughout the db
+						if (new Database(c).deleteProfile(nameSelectedItem)){ // if the deletion is successful
+							// Notify the user thanks to a Toast
+							Toast.makeText(c, "Profile " + nameSelectedItem + " deleted.", Toast.LENGTH_LONG).show();
+							// Remove the corresponding profile from the list
+							profiles_AL.remove(indexSelectedItem);
+							// Notify the adapter that the list's state has changed
+							adapterProfile.notifyDataSetChanged();
+							// Update the number of available profiles in the TV
+							profiles_TV.setText("Profiles List :       (" + profiles_AL.size() + ")");
+						}
+					}
+				});
+				builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.dismiss();
+					}
+				});
+
+
+				// Get the AlertDialog from create()
+				AlertDialog dialog = builder.create();
+				dialog.show();
+
 				db.close();
 				return true;
 
@@ -300,7 +325,7 @@ public class ExistingProfilesActivity extends ListActivity{
 	 * 
 	 * @param menu
 	 */
-	
+
 	public void checkingLinkBetweenProfileAndServers(Menu menu){
 
 		Database db = new Database(c);
@@ -316,7 +341,7 @@ public class ExistingProfilesActivity extends ListActivity{
 
 		db.close();
 	}
-	
+
 	/**
 	 * 
 	 * This method is called each time the system goes back on this activity
