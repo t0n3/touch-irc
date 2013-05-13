@@ -8,8 +8,10 @@ import org.touchirc.db.Database;
 import org.touchirc.model.Server;
 import org.touchirc.model.ServerAdapter;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -198,17 +200,40 @@ public class ExistingServersActivity extends ListActivity{
 
 				mode.finish(); // the actionMode disappears
 
-				// Removal throughout the db
-				if (db.deleteServer(nameSelectedItem)){ // if the deletion is successful
-					// Notify the user thanks to a Toast
-					Toast.makeText(c, "Server " + nameSelectedItem + " deleted.", Toast.LENGTH_LONG).show();
-					// Remove the corresponding server from the list
-					servers_AL.remove(indexSelectedItem);
-					// Notify the adapter that the list's state has changed
-					adapterServer.notifyDataSetChanged();
-					// Update the number of available servers in the TV
-					servers_TV.setText("Servers List :       (" + servers_AL.size() + ")");
-				}
+				// Instantiate an AlertDialog.Builder with its constructor
+				AlertDialog.Builder builder = new AlertDialog.Builder(ExistingServersActivity.this);
+
+				// Chain together various setter methods to set the dialog characteristics
+				builder.setTitle(R.string.deleteServer)
+				.setMessage("Would you really like to delete the server : " + nameSelectedItem + " ?")
+				.setIcon(android.R.drawable.ic_menu_delete);
+
+				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						// Removal throughout the db
+						if (new Database(c).deleteServer(nameSelectedItem)){ // if the deletion is successful
+							// Notify the user thanks to a Toast
+							Toast.makeText(c, "Server " + nameSelectedItem + " deleted.", Toast.LENGTH_LONG).show();
+							// Remove the corresponding server from the list
+							servers_AL.remove(indexSelectedItem);
+							// Notify the adapter that the list's state has changed
+							adapterServer.notifyDataSetChanged();
+							// Update the number of available servers in the TV
+							servers_TV.setText("Servers List :       (" + servers_AL.size() + ")");
+						}
+					}
+				});
+				builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.dismiss();
+					}
+				});
+
+
+				// Get the AlertDialog from create()
+				AlertDialog dialog = builder.create();
+				dialog.show();
+
 				db.close();
 				return true;
 
