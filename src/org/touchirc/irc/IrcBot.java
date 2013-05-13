@@ -12,9 +12,9 @@ public class IrcBot extends PircBot {
 	private IrcService service;
 	private Server server;
 
-	public IrcBot(int idServer, IrcService service) {
+	public IrcBot(Server server, IrcService service) {
 		this.service = service;
-		this.server = this.service.getServerById(idServer);
+		this.server = server;
 		this.server.addConversation(new Conversation("#Boulet"));
 	}
 
