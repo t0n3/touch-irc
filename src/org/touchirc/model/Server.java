@@ -108,5 +108,11 @@ public class Server {
 	public boolean isProtected(){
 		return this.password == null;
 	}
+
+	public boolean hasConversation(){
+		if(this.conversations.isEmpty())
+			return false;
+		return true;
+	}
 	
 }
