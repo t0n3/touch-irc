@@ -8,7 +8,6 @@ import java.util.HashMap;
 public class Server {
 	
 	private final static String CHARSET_DEFAULT = "UTF-8";
-	private static int idCount = 0;
 	
 	private int id;
 	private String name;
@@ -16,6 +15,7 @@ public class Server {
 	private int port;
 	private String charset;	
 	private String password = "";
+	private Profile profile;
 	
 	private boolean skipMOTD = true;
 	// TODO Add SSL support
@@ -32,13 +32,13 @@ public class Server {
 	}
 	
 	public Server(String name, String host, int port, String password, String charset){
-		this.id = this.idCount++;
 		this.name = name;
 		this.host = host;
 		this.port = port;
 		this.password = password;
 		this.charset = charset;
 		this.conversations = new HashMap<String, Conversation>();
+		this.profile = null;
 	}
 	
 	public Conversation getConversation(String title){
@@ -106,7 +106,22 @@ public class Server {
 	}
 	
 	public boolean isProtected(){
-		return this.password == null;
+		return this.password != null; // != null => a password was setted
 	}
 	
+	public void setProfile(Profile p){
+		this.profile = p;
+	}
+	
+	public void deleteProfile(){
+		this.profile = null;
+	}
+	
+	public boolean isAnAssociatedProfile(){
+		return this.profile != null;
+	}
+	
+	public Profile getProfile(){
+		return this.profile;
+	}
 }
