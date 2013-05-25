@@ -140,12 +140,11 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			inflater.inflate(R.menu.context_menu_server, menu);
 
 			// if the server is already the auto-connected one, we cannot set it
-			if(servers.get(indexSelectedItem).hasAutoConnect()){
-				menu.getItem(2).setTitle(R.string.AUTO);
-				menu.getItem(2).setEnabled(false);
+			if(servers.get(indexSelectedItem).isAutoConnect()){
+				menu.getItem(2).setTitle(R.string.disAUTO);
 			}
 			else{
-				menu.getItem(2).setTitle(R.string.AUTO);;
+				menu.getItem(2).setTitle(R.string.AUTO);
 			} 
 
 			return true;
@@ -167,12 +166,17 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			// ########## if the item "AutoConnect" is selected ##########
 			case R.id.autoConnect :
 
-				// The selected server is now the auto-connected one
-				servers.get(indexSelectedItem).enableAutoConnect();
-				mode.getMenu().getItem(2).setTitle(R.string.AUTO);
-				mode.getMenu().getItem(2).setEnabled(false);
-				Toast.makeText(c, servers.get(indexSelectedItem).getName() + " is now used for autoconnection !", Toast.LENGTH_LONG).show();
-				
+				if(servers.get(indexSelectedItem).isAutoConnect()){
+					// The selected server loose its status of auto-connected server
+					servers.get(indexSelectedItem).disableAutoConnect();
+					mode.getMenu().getItem(2).setTitle(R.string.AUTO);
+				}
+				else{
+					// The selected server is now the auto-connected one
+					servers.get(indexSelectedItem).enableAutoConnect();
+					mode.getMenu().getItem(2).setTitle(R.string.disAUTO);
+					Toast.makeText(c, servers.get(indexSelectedItem).getName() + R.string.nowUsedForAutoConnection, Toast.LENGTH_LONG).show();
+				}				
 
 				// Notifying the adapter to update the display
 				adapterServer.notifyDataSetInvalidated();

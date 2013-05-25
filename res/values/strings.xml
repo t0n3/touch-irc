@@ -26,6 +26,7 @@
     <string name="setByDefault">Set by Default</string>
     <string name="DEFAULT">DEFAULT</string>
     <string name="AUTO">AUTO</string>
+    <string name="disAUTO">dis-AUTO</string>
     <string name="linkAServer">Link a Server</string>
     <string name="search">Search</string>
     <string name="yes">Yes</string>
@@ -34,5 +35,6 @@
     <string name="warning">Warning !</string>
     <string name="Quit">Quit</string>
     <string name="QuitAppQuestion">Quit the TouchIRC App ?</string>
+    <string name="nowUsedForAutoConnection"> is now used for autoconnection !</string>
     
 </resources>

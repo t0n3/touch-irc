@@ -136,7 +136,7 @@ public class Server {
 		this.autoConnect = false;
 	}
 	
-	public boolean hasAutoConnect(){
+	public boolean isAutoConnect(){
 		return this.autoConnect;
 	}
 }
