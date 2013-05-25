@@ -1,12 +1,10 @@
 package org.touchirc.adapter;
 
-import java.util.ArrayList;
-
 import org.touchirc.R;
-import org.touchirc.db.Database;
 import org.touchirc.model.Server;
 
 import android.content.Context;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +13,11 @@ import android.widget.TextView;
 
 public class ServerAdapter extends BaseAdapter {
 
-	private ArrayList<Server> serversList;
+	private SparseArray<Server> serversList;
 	private Context c;
 
-	public ServerAdapter (ArrayList<Server> data, Context c){
-		this.serversList = data;
+	public ServerAdapter (SparseArray<Server> servers_AL, Context c){
+		this.serversList = servers_AL;
 		this.c = c;
 	}
 
@@ -37,6 +35,7 @@ public class ServerAdapter extends BaseAdapter {
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
+		position++;
 		Server s = serversList.get(position); // Collect the server concerned
 		if (v == null){
 			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -46,8 +45,7 @@ public class ServerAdapter extends BaseAdapter {
 		TextView autoConnect_TV = (TextView) v.findViewById(R.id.textView_DEFAULT);
 		
 		// Checking if the current server is auto-connected
-		Database db = new Database(c);
-		if(db.nameAutoConnectedServer() != null && db.nameAutoConnectedServer().equals(s.getName())){
+		if(s.hasAutoConnect()){
 			autoConnect_TV.setBackgroundResource(R.drawable.object_border);
 			autoConnect_TV.setText(R.string.AUTO);
 		}
@@ -56,7 +54,6 @@ public class ServerAdapter extends BaseAdapter {
 			autoConnect_TV.setBackgroundResource(0);
 			autoConnect_TV.setText("");
 		}
-		db.close();
 
 		TextView serverName_TV = (TextView) v.findViewById(R.id.textView_itemName);
 		serverName_TV.setText(s.getName());

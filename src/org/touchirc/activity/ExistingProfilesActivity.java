@@ -1,13 +1,25 @@
 package org.touchirc.activity;
 
-import java.util.ArrayList;
-
 import org.touchirc.R;
 import org.touchirc.R.layout;
+import org.touchirc.TouchIrc;
 import org.touchirc.adapter.ProfileAdapter;
-import org.touchirc.db.Database;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.SparseArray;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockListActivity;
@@ -17,26 +29,14 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
-import android.widget.Toast;
-
 public class ExistingProfilesActivity extends SherlockListActivity {
 
+	private TouchIrc touchIrc;
 	private ListView profiles_LV;
-	private ArrayList<Profile> profiles_AL;
+	private SparseArray<Profile> profiles;
+	private SparseArray<Server> servers;
 	private ProfileAdapter adapterProfile;
 	private int indexSelectedItem; // selected profile's index in the listView
-	private String nameSelectedItem; // selected profile's name
 	private Context c;
 	private ActionBar actionBar;
 
@@ -48,6 +48,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		
 		// The icon App can do "Previous"
 		this.actionBar = getSupportActionBar();
 		this.actionBar.setDisplayHomeAsUpEnabled(true);
@@ -55,8 +56,11 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 		setContentView(layout.listview_layout);
 
 		// Collect the context
-		c = this;
+		c = getApplicationContext();
 
+		// Get the access to the infos
+		touchIrc = TouchIrc.getInstance(c);
+		
 		// Collect the profile widgets ListView (LV)
 		this.profiles_LV = (ListView) findViewById(android.R.id.list);
 
@@ -64,12 +68,13 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 		this.profiles_LV.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
 		// Collect the Profiles list
-		this.profiles_AL = new Database(getApplicationContext()).getProfileList();
+		this.profiles = touchIrc.getAvailableProfiles();
+		this.servers = touchIrc.getAvailableServers();
 
-		this.actionBar.setTitle("Profiles  (" + this.profiles_AL.size() + ")");
+		this.actionBar.setTitle("Profiles  (" + this.profiles.size() + ")");
 
 		// Put an ProfileAdapter so that the LV and the profiles list be linked
-		this.adapterProfile = new ProfileAdapter(profiles_AL, c);
+		this.adapterProfile = new ProfileAdapter(profiles, c);
 		this.setListAdapter(adapterProfile);
 
 		/**
@@ -84,7 +89,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 			public void onItemClick(AdapterView<?> arg0, View v,
 					int position, long arg3) {
 
-				indexSelectedItem = position;
+				indexSelectedItem = position+1;
 				currentView = v;
 
 				// if the ActionMode is already displayed
@@ -125,18 +130,9 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 			// Load the contextual Menu
 			inflater.inflate(R.menu.context_menu_profile, menu);
 
-			// Put all the profile's name in an Array, in order to ...
-			String [] profiles = new String [profiles_AL.size()];
-			for(int p = 0 ; p < profiles_AL.size() ; p++){
-				profiles[p] = profiles_AL.get(p).getProfile_name();
-			}
-
-			// ... collect the name of the selected profile
-			nameSelectedItem = profiles[indexSelectedItem];
-
 			// if the profile is already by default, we cannot set it by default
 			// the icon is updated
-			if(nameSelectedItem.equals(new Database(c).nameDefaultProfile())){
+			if(touchIrc.getDefaultProfile() == indexSelectedItem){
 				menu.getItem(2).setIcon(android.R.drawable.star_on);
 				menu.getItem(2).setEnabled(false);
 			}
@@ -145,9 +141,6 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 			}
 
 			// If there is no server in the database, we disable the button "Link A Server"
-			Database db = new Database(c);
-			final ArrayList<Server> servers = db.getServerList();
-
 			if(servers.size() == 0){
 				menu.getItem(3).setEnabled(false);
 			}
@@ -179,15 +172,14 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-			Database db = new Database(c);
-
 			switch (item.getItemId()) {
 
 			// ########## if the item "Edit" is selected ##########		
 			case R.id.edit : 
+				System.out.println("indexSelectedItem = " + indexSelectedItem);
 
 				// Collect all the informations concerning the current profile
-				Profile profileToEdit = db.getProfileByName(nameSelectedItem);
+				Profile profileToEdit = profiles.get(indexSelectedItem);
 
 				// Prepare the Intent to switch on the activity which allows to modify the profile
 				Intent i = new Intent(ExistingProfilesActivity.this, CreateProfileActivity.class);
@@ -210,7 +202,6 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 				finish(); // close the current activity
 
-				db.close(); // close the database
 				return true;
 
 			// ########## if the item "Delete" is selected ##########
@@ -221,7 +212,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 				// Chain together various setter methods to set the dialog characteristics
 				builder.setTitle(R.string.deleteProfile)
-				.setMessage("Would you really like to delete the profile : " + nameSelectedItem + " ?")
+				.setMessage("Would you really like to delete the profile : " + profiles.get(indexSelectedItem).getProfile_name() + " ?")
 				.setIcon(android.R.drawable.ic_menu_delete);
 
 				final ActionMode am = mode;
@@ -229,17 +220,17 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						// Removal throughout the db
-						if (new Database(c).deleteProfile(nameSelectedItem)){ // if the deletion is successful
+						if (touchIrc.deleteServer(indexSelectedItem)){ // if the deletion is successful
 							// Notify the user thanks to a Toast
-							Toast.makeText(c, "Profile " + nameSelectedItem + " deleted.", Toast.LENGTH_LONG).show();
+							Toast.makeText(c, "Profile " + profiles.get(indexSelectedItem).getProfile_name() + " deleted.", Toast.LENGTH_LONG).show();
 							// Remove the corresponding profile from the list
-							profiles_AL.remove(indexSelectedItem);
+							profiles.remove(indexSelectedItem);
 							// Notify the adapter that the list's state has changed
 							adapterProfile.notifyDataSetChanged();
 							// Notifying the adapter to update the display
 							adapterProfile.notifyDataSetInvalidated();
 							// Update the number of available profiles in the actionBar
-							actionBar.setTitle("Profiles  (" + profiles_AL.size() + ")");
+							actionBar.setTitle("Profiles  (" + profiles.size() + ")");
 						}
 						am.finish();
 					}
@@ -255,17 +246,16 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 				AlertDialog dialog = builder.create();
 				dialog.show();
 
-				db.close();
 				return true;
 
 			// ########## if the item "Set By Default" is selected ##########
 			case R.id.setByDefault :
 
 				// The selected profile is now the default profile
-				if(db.setDefaultProfile(nameSelectedItem)){
+				if(touchIrc.setDefaultProfile(indexSelectedItem)){
 					mode.getMenu().getItem(2).setIcon(android.R.drawable.star_on);
 					mode.getMenu().getItem(2).setEnabled(false);
-					Toast.makeText(c, nameSelectedItem + " is now the profile by default !", Toast.LENGTH_LONG).show();
+					Toast.makeText(c, profiles.get(indexSelectedItem).getProfile_name() + " is now the profile by default !", Toast.LENGTH_LONG).show();
 				}
 				else{
 					Toast.makeText(c, "An error occurred while setting the profile by default :(", Toast.LENGTH_LONG).show();
@@ -274,15 +264,13 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 				// Notifying the adapter to update the display
 				adapterProfile.notifyDataSetInvalidated();
 
-				db.close(); // close the database
 				return true;
 
 
 			// ########## if the item "Link a Server" is selected ##########
+			
 			case R.id.linkServer :
 
-				final ArrayList<Server> servers = db.getServerList();
-				final Profile profileToLink = db.getProfileByName(nameSelectedItem);
 
 				// This condition is specified to avoid the fact that 
 				// the list becomes longer by multiplying the click on the item
@@ -293,37 +281,35 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 						item.getSubMenu().add(servers.get(j).getName());
 						item.getSubMenu().getItem(j).setCheckable(true);
 
-						// if the link already exists, we check the box
-						if(db.linkAlreadyExisting(profileToLink, servers.get(j))){
-							item.getSubMenu().getItem(j).setChecked(true);
-						}
-
-						// if the server is already linked to another profile, we cannot link it
-						if(db.serverLinkedToAnotherProfile(servers.get(j), profileToLink)){
-							item.getSubMenu().getItem(j).setCheckable(false);
-							item.getSubMenu().getItem(j).setEnabled(false);
+						
+						if(servers.get(j).hasAssociatedProfile()){
+							// if the link already exists, we check the box
+							if(servers.get(j).getProfile().equals(profiles.get(indexSelectedItem))){
+								item.getSubMenu().getItem(j).setChecked(true);
+							}
+							else { // if the server is already linked to another profile, we cannot link it
+								item.getSubMenu().getItem(j).setCheckable(false);
+								item.getSubMenu().getItem(j).setEnabled(false);
+							}
 						}
 
 						item.getSubMenu().getItem(j).setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
 							@Override
 							public boolean onMenuItemClick(MenuItem item) {
-								Database database = new Database(c);
-								Server serverToLink = database.getServerByName(item.getTitle().toString());
+								Server serverToLink = servers.get(item.getItemId()); // TODO CHECK
 
 								if(!item.isChecked()){
-									// Add a link
-									database.addLinkProfileServer(profileToLink, serverToLink);
+									serverToLink.setProfile(profiles.get(indexSelectedItem));
 									item.setChecked(true);
-									Toast.makeText(c,serverToLink.getName() + " is now link to the profile " + profileToLink.getProfile_name(), Toast.LENGTH_LONG).show();
+									Toast.makeText(c,serverToLink.getName() + " is now link to the profile " + profiles.get(indexSelectedItem).getProfile_name(), Toast.LENGTH_LONG).show();
 								}
 								else{
 									// Delete the existing link
-									database.deleteLinkProfileServer(profileToLink, serverToLink);
+									serverToLink.setProfile(null);
 									item.setChecked(false);
 								}
 
-								database.close();
 								return true;
 							}
 						});
@@ -333,11 +319,9 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 					subMenuLinkCreated = true;
 				}
 
-				db.close(); // close the database
 				return true;
 
 			default:
-				db.close();
 				mode.finish(); // the actionMode disappears
 				return false;
 			}
@@ -355,7 +339,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 
 	/**
-	 * 
+	 *final 
 	 * This method allows to checking link between all available servers and the selected profile
 	 * If a link is detected, the server is checked in the subMenu's "Link a Server" item
 	 * 
@@ -363,21 +347,13 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 	 */
 
 	public void checkingLinkBetweenProfileAndServers(Menu menu){
-
-		Database db = new Database(c);
-		ArrayList<Server> servers = db.getServerList();
-
-		if(servers.size() != 0){	
-			for(int s = 0 ; s < servers.size() ; s++){
-				if(db.linkAlreadyExisting(db.getProfileByName(nameSelectedItem), servers.get(s))){
-					menu.getItem(3).getSubMenu().getItem(s).setChecked(true);
-				}
+		for(int s = 0 ; s < servers.size() ; s++){
+			if(servers.get(s).getProfile().equals(profiles.get(indexSelectedItem))){
+				menu.getItem(3).getSubMenu().getItem(s).setChecked(true);
 			}
 		}
-
-		db.close();
 	}
-
+	
 	/**
 	 * 
 	 * This method is called each time the system goes back on this activity
@@ -393,31 +369,19 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 		if(bundleEdit != null && bundleEdit.containsKey("NewValue")){
 			String nameProfile = bundleEdit.getString("NewNameProfile");
-			this.profiles_AL.get(indexSelectedItem).setProfile_name(nameProfile);
+			this.profiles.get(indexSelectedItem).setProfile_name(nameProfile);
 
 		}
 
 		if(bundleAdd != null && bundleAdd.containsKey("NewProfile")){
-
-			// We collect the new profile
-			Profile newP;
-			newP = new Profile(
-					bundleAdd.getString("NameProfile"),
-					bundleAdd.getString("FirstNickProfile"), 
-					bundleAdd.getString("SecondNickProfile"),
-					bundleAdd.getString("ThirdNickProfile"),
-					bundleAdd.getString("UserNameProfile"),
-					bundleAdd.getString("RealNameProfile")
-					);			
-			// We add the new profile to the list
-			this.profiles_AL.add(newP);
+			profiles = touchIrc.getAvailableProfiles();
 		}
 
 		// Update the list and its display
 		this.adapterProfile.notifyDataSetChanged();
 		this.adapterProfile.notifyDataSetInvalidated();
 
-		this.actionBar.setTitle("Profiles  (" + this.profiles_AL.size() + ")");
+		this.actionBar.setTitle("Profiles  (" + this.profiles.size() + ")");
 	}
 
 	/**

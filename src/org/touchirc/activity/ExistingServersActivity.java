@@ -1,12 +1,30 @@
 package org.touchirc.activity;
 
-import java.util.ArrayList;
-
 import org.touchirc.R;
 import org.touchirc.R.layout;
+import org.touchirc.TouchIrc;
 import org.touchirc.adapter.ServerAdapter;
-import org.touchirc.db.Database;
+import org.touchirc.irc.IrcBinder;
+import org.touchirc.irc.IrcService;
 import org.touchirc.model.Server;
+
+import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
+import android.util.SparseArray;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockListActivity;
@@ -15,36 +33,29 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
-import android.widget.Toast;
-
-public class ExistingServersActivity extends SherlockListActivity {
+public class ExistingServersActivity extends SherlockListActivity implements ServiceConnection{
 
 	private ListView servers_LV;
-	private ArrayList<Server> servers_AL;
+	private SparseArray<Server> servers;
 	private ServerAdapter adapterServer;
 	private int indexSelectedItem; // selected server's index in the listView
-	private String nameSelectedItem; // selected server's name
 	private Context c;
 	private ActionBar actionBar;
+	private TouchIrc touchIrc;
 
 	protected ActionMode mActionMode; // Variable used for triggering the actionMode (ActionBar)
+	private IrcService ircService;
 	private static View oldView; // Variable used to store the old view selected
 	private static View currentView; // Variable used to store the current view selected
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		this.ircService = null;
+		Intent intent = new Intent(this, IrcService.class);
+		getApplicationContext().startService(intent);
+		getApplicationContext().bindService(intent, this, 0);
+
 
 		// Allows the icon to do "Previous"
 		this.actionBar = getSupportActionBar();
@@ -54,6 +65,7 @@ public class ExistingServersActivity extends SherlockListActivity {
 
 		// Collect the context
 		c = this;
+		touchIrc = TouchIrc.getInstance(c);
 
 		// Collect the server widgets ListView (LV)
 		this.servers_LV = (ListView) findViewById(android.R.id.list);
@@ -62,14 +74,17 @@ public class ExistingServersActivity extends SherlockListActivity {
 		this.servers_LV.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
 		// Collect the Servers list
-		this.servers_AL = new Database(getApplicationContext()).getServerList();
+		this.servers = touchIrc.getAvailableServers();
 
-		this.actionBar.setTitle("Servers  (" + this.servers_AL.size() + ")");
+		this.actionBar.setTitle("Servers  (" + this.servers.size() + ")");
 
 		// Put an ArrayAdapter so that the LV and the servers list be linked
-		this.adapterServer =  new ServerAdapter(servers_AL, c);
+		this.adapterServer =  new ServerAdapter(servers, c);
 		this.setListAdapter(adapterServer);
-
+		
+		
+		
+		
 		/**
 		 * 
 		 * When the user click on an item an ActionMode Bar appears.
@@ -80,10 +95,9 @@ public class ExistingServersActivity extends SherlockListActivity {
 		servers_LV.setOnItemLongClickListener(new OnItemLongClickListener() {
 
 			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View v,
-					int position, long arg3) {
+			public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long arg3) {
 
-				indexSelectedItem = position;
+				indexSelectedItem = position+1;
 				currentView = v;
 
 				// if the ActionMode is already displayed
@@ -125,17 +139,8 @@ public class ExistingServersActivity extends SherlockListActivity {
 			// Load the contextual Menu
 			inflater.inflate(R.menu.context_menu_server, menu);
 
-			// Put all the server's name in an Array, in order to ...
-			String [] servers = new String [servers_AL.size()];
-			for(int s = 0 ; s < servers_AL.size() ; s++){
-				servers[s] = servers_AL.get(s).getName();
-			}
-
-			// ... collect the name of the selected server
-			nameSelectedItem = servers[indexSelectedItem];
-
 			// if the server is already the auto-connected one, we cannot set it
-			if(nameSelectedItem.equals(new Database(c).nameAutoConnectedServer())){
+			if(servers.get(indexSelectedItem).hasAutoConnect()){
 				menu.getItem(2).setTitle(R.string.AUTO);
 				menu.getItem(2).setEnabled(false);
 			}
@@ -157,34 +162,28 @@ public class ExistingServersActivity extends SherlockListActivity {
 		// Called when the user selects a contextual menu item
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 
-			Database db = new Database(c);
-
 			switch (item.getItemId()) {		
 
 			// ########## if the item "AutoConnect" is selected ##########
 			case R.id.autoConnect :
 
 				// The selected server is now the auto-connected one
-				if(db.setAutoConnect(nameSelectedItem)){
-					mode.getMenu().getItem(2).setTitle(R.string.AUTO);
-					mode.getMenu().getItem(2).setEnabled(false);
-					Toast.makeText(c, nameSelectedItem + " is now used for autoconnection !", Toast.LENGTH_LONG).show();
-				}
-				else{
-					Toast.makeText(c, "An error occurred while setting the server :(", Toast.LENGTH_LONG).show();
-				}
+				servers.get(indexSelectedItem).enableAutoConnect();
+				mode.getMenu().getItem(2).setTitle(R.string.AUTO);
+				mode.getMenu().getItem(2).setEnabled(false);
+				Toast.makeText(c, servers.get(indexSelectedItem).getName() + " is now used for autoconnection !", Toast.LENGTH_LONG).show();
+				
 
 				// Notifying the adapter to update the display
 				adapterServer.notifyDataSetInvalidated();
 
-				db.close(); // close the database
 				return true;
 
 			// ########## if the item "Edit" is selected ##########		
 			case R.id.edit : 
 
 				// Collect all the informations concerning the current server
-				Server serverToEdit = db.getServerByName(nameSelectedItem);
+				Server serverToEdit = servers.get(indexSelectedItem);
 
 				// Prepare the Intent to switch on the activity which allows to modify the server
 				Intent i = new Intent(ExistingServersActivity.this, CreateServerActivity.class);
@@ -205,7 +204,6 @@ public class ExistingServersActivity extends SherlockListActivity {
 
 				finish(); // close the current activity
 
-				db.close(); // close the database
 				return true;
 
 			// ########## if the item "Delete" is selected ##########
@@ -216,7 +214,7 @@ public class ExistingServersActivity extends SherlockListActivity {
 
 				// Chain together various setter methods to set the dialog characteristics
 				builder.setTitle(R.string.deleteServer)
-				.setMessage("Would you really like to delete the server : " + nameSelectedItem + " ?")
+				.setMessage("Would you really like to delete the server : " + servers.get(indexSelectedItem).getName() + " ?")
 				.setIcon(android.R.drawable.ic_menu_delete);
 
 				final ActionMode am = mode;
@@ -224,49 +222,18 @@ public class ExistingServersActivity extends SherlockListActivity {
 				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						
-						// Collect the auto-connected server before removal of the selected server
-						String autoconnectedServer = new Database(c).nameAutoConnectedServer();
-
 						// Removal throughout the db
-						if (new Database(c).deleteServer(nameSelectedItem)){ // if the deletion is successful
-							// Remove the corresponding server from the list
-							servers_AL.remove(indexSelectedItem);
+						if (touchIrc.deleteServer(indexSelectedItem)){ // if the deletion is successful
+							// Reload the new server list
+							servers = touchIrc.getAvailableServers();
 							// Notify the adapter that the list's state has changed
 							adapterServer.notifyDataSetChanged();
 							// Update the number of available servers in the TV
-							actionBar.setTitle("Servers  (" + servers_AL.size() + ")");
+							actionBar.setTitle("Servers  (" + servers.size() + ")");
 						}
 						
 						/** ------------------------------------------------------- **/
 						
-						// the selected server is the one used for auto-connection
-						if(nameSelectedItem.equals(autoconnectedServer)){
-							
-						}
-						
-						// Instantiate an AlertDialog.Builder with its constructor
-						AlertDialog.Builder builderAutoconnect = new AlertDialog.Builder(ExistingServersActivity.this);
-
-						// Chain together various setter methods to set the dialog characteristics
-						builderAutoconnect.setTitle(R.string.warning)
-						.setMessage("A new autoconnected server has to be setted.\nChoose one, thanks you :");
-
-						builderAutoconnect.setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								// TODO Suggest a  list of servers to select the new one used for auto-connection
-							}
-						});
-						builderAutoconnect.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.dismiss();
-							}
-						});
-
-						// Get the AlertDialog from create()
-						AlertDialog dialogAutoconnect = builderAutoconnect.create();
-						dialogAutoconnect.show();
-						
-						/** ------------------------------------------------------- **/
 						
 						am.finish();
 					}
@@ -282,11 +249,9 @@ public class ExistingServersActivity extends SherlockListActivity {
 				AlertDialog dialog = builder.create();
 				dialog.show();
 
-				db.close();
 				return true;
 
 			default:
-				db.close();
 				mode.finish(); // the actionMode disappears
 				return false;
 			}
@@ -307,8 +272,10 @@ public class ExistingServersActivity extends SherlockListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id){
 		super.onListItemClick(l, v, position, id);
+		position++;
 		if(mActionMode == null){
-			Log.i("TouchIRC ", "Attempt to connect to the server " + this.servers_AL.get(position) +" !");
+			Log.i("TouchIRC ", "Attempt to connect to the server " + this.servers.get(position).getName() +" !");
+			ircService.connect(position);
 		}
 	}
 
@@ -328,39 +295,21 @@ public class ExistingServersActivity extends SherlockListActivity {
 		// We come from CreateServerActivity and the server's name has changed
 		if(bundleEdit != null && bundleEdit.containsKey("NewValue")){
 			String nameServer = bundleEdit.getString("NewNameServer");
-			this.servers_AL.get(indexSelectedItem).setName(nameServer);
+			this.servers.get(indexSelectedItem).setName(nameServer);
 		}
 
 		// We come from CreateServerActivity and a new server has been added
 		if(bundleAdd != null && bundleAdd.containsKey("NewServer")){
 
-			// We collect the new server
-			Server newS;
-
-			// According the presence of a password
-			if(!bundleAdd.containsKey("PasswordServer")){
-				newS = new Server(	bundleAdd.getString("NameServer"), 
-						bundleAdd.getString("HostnameServer"),
-						bundleAdd.getInt("PortServer")
-						);
-			}
-			else{
-				newS = new Server(	bundleAdd.getString("NameServer"), 
-						bundleAdd.getString("HostnameServer"),
-						bundleAdd.getInt("PortServer"),
-						bundleAdd.getString("PasswordServer")
-						);	
-			}
-
-			// We add the new server to the list
-			this.servers_AL.add(newS);
+			// We reload the server list
+			servers = touchIrc.getAvailableServers();
 		}
 
 		// Update the list and its display
 		this.adapterServer.notifyDataSetChanged();
 		this.adapterServer.notifyDataSetInvalidated();
 
-		this.actionBar.setTitle("Servers  (" + this.servers_AL.size() + ")");
+		this.actionBar.setTitle("Servers  (" + this.servers.size() + ")");
 	}
 
 	/**
@@ -376,7 +325,7 @@ public class ExistingServersActivity extends SherlockListActivity {
 		inflater.inflate(R.menu.existing_object_activity, menu);
 		return true;
 	}
-
+	
 	/**
 	 * 
 	 * This method allows you to configure the behavior of the icon 
@@ -429,4 +378,17 @@ public class ExistingServersActivity extends SherlockListActivity {
 
 		return super.onKeyDown(keyCode, event);
 	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		this.ircService = null;
+		
+	}
+
+
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder binder) {
+		this.ircService = ((IrcBinder) binder).getService();
+	}
+	
 }

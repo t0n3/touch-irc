@@ -1,6 +1,7 @@
 package org.touchirc.adapter;
 
 import org.touchirc.R;
+import org.touchirc.TouchIrc;
 import org.touchirc.db.Database;
 import org.touchirc.model.Profile;
 
@@ -36,6 +37,7 @@ public class ProfileAdapter extends BaseAdapter {
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
+		position++;
 		Profile profile = profilesList.get(position); // Collect the profile concerned
 		if (v == null){
 			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -46,7 +48,7 @@ public class ProfileAdapter extends BaseAdapter {
 		
 		// Checking if the current profile is by default
 		Database db = new Database(c);
-		if(db.nameDefaultProfile() != null && db.nameDefaultProfile().equals(profile.getProfile_name())){
+		if(TouchIrc.getInstance(c).getDefaultProfile() == position){
 			default_TV.setBackgroundResource(R.drawable.object_border);
 			default_TV.setText(R.string.DEFAULT);
 		}
