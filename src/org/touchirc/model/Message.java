@@ -1,6 +1,5 @@
 package org.touchirc.model;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class Message {
