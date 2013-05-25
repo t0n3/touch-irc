@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.NickAlreadyInUseException;
+import org.touchirc.TouchIrc;
 import org.touchirc.model.Server;
 
 import android.app.Service;
@@ -23,13 +24,13 @@ public class IrcService extends Service {
 	private HashMap<Server, IrcBot> botsConnected;
 	
 	// Map of idServer, Server for available servers 
-	private SparseArray<Server> serversAvailable; // SparseArray = Map<Integer, Object>
+	private SparseArray<Server> availableServers; // SparseArray = Map<Integer, Object>
 	
 	public IrcService(){
 		super();
 		this.ircBinder = new IrcBinder(this);
 		this.botsConnected = new HashMap<Server, IrcBot>();
-		this.serversAvailable = new SparseArray<Server>(); 
+		this.availableServers = TouchIrc.getInstance(this).getAvailableServers(); 
 	}
 	
 	@Override
@@ -48,14 +49,13 @@ public class IrcService extends Service {
 	
 	}
 	
-	// Add a server to the list of available servers
-	public void addServer(Server server){
-		this.serversAvailable.put(server.getId(),server);
+	public void reloadAvailableServers(){
+		this.availableServers = TouchIrc.getInstance(this).getAvailableServers();
 	}
 	
 	// return null if the idServer isn't in the Hashmap servers
 	public Server getServerById(int idServer){
-		return this.serversAvailable.get(idServer);
+		return this.availableServers.get(idServer);
 	}
 	
 	
@@ -63,13 +63,14 @@ public class IrcService extends Service {
 		return this.botsConnected.keySet();
 	}
 	
-	public synchronized void connect(final Server server){
+	public synchronized void connect(int idServer){
+		final Server server = availableServers.get(idServer);
 		final IrcBot bot = getBot(server);
-		
 		new Thread("Thread for the server : " + server.getName()){
 			@Override
 			public void run(){
-				
+				System.out.println(" Thread for the server : " + server.getName());
+
 				bot.setNickName("Toto1234");
 				bot.setIdent("BouletIdent");
 				bot.setRealName("BouletRealName");
