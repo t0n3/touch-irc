@@ -1,12 +1,13 @@
 package org.touchirc.adapter;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.touchirc.R;
 import org.touchirc.db.Database;
 import org.touchirc.model.Profile;
 
 import android.content.Context;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +17,11 @@ import android.widget.TextView;
 
 public class ProfileAdapter extends BaseAdapter {
 
-	private ArrayList<Profile> profilesList;
+	private SparseArray<Profile> profilesList;
 	private Context c;
 
-	public ProfileAdapter (ArrayList<Profile> data, Context c){
-		this.profilesList = data;
+	public ProfileAdapter (SparseArray<Profile> profiles_AL, Context c){
+		this.profilesList = profiles_AL;
 		this.c = c;
 	}
 
