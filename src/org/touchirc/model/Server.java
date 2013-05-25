@@ -9,13 +9,13 @@ public class Server {
 	
 	private final static String CHARSET_DEFAULT = "UTF-8";
 	
-	private int id;
 	private String name;
 	private String host;
 	private int port;
 	private String charset;	
 	private String password = "";
 	private Profile profile;
+	private boolean autoConnect;
 	
 	private boolean skipMOTD = true;
 	// TODO Add SSL support
@@ -39,6 +39,7 @@ public class Server {
 		this.charset = charset;
 		this.conversations = new HashMap<String, Conversation>();
 		this.profile = null;
+		this.autoConnect = false;
 	}
 	
 	public Conversation getConversation(String title){
@@ -47,10 +48,6 @@ public class Server {
 	
 	public void addConversation(Conversation c){
 		this.conversations.put(c.getTitle(),c);
-	}
-	
-	public int getId(){
-		return this.id;
 	}
 	
 	public String getName(){
@@ -123,5 +120,17 @@ public class Server {
 	
 	public Profile getProfile(){
 		return this.profile;
+	}
+	
+	public void enableAutoConnect(){
+		this.autoConnect = true;
+	}
+	
+	public void disableAutoConnect(){
+		this.autoConnect = false;
+	}
+	
+	public boolean hasAutoConnect(){
+		return this.autoConnect;
 	}
 }
