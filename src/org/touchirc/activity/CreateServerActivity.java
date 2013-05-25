@@ -5,12 +5,16 @@ import org.touchirc.R;
 import org.touchirc.db.Database;
 import org.touchirc.model.Server;
 
-import android.app.Activity;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -18,7 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
-public class CreateServerActivity extends Activity{
+public class CreateServerActivity extends SherlockActivity {
 
 	private TextView server_Name_TV;
 	private EditText serverName_ET;
@@ -33,17 +37,27 @@ public class CreateServerActivity extends Activity{
 	private EditText serverPassword_ET;
 
 	private Server serv;
-	private Bundle b = null;
+	private Bundle bundleEdit = null;
+	private Bundle bundleAddFromMenu = null;
 
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		// Allows to the actionBar's icon to do "Previous"
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setTitle("Create a Server");
+
+		// Prevents the keyboard to be displayed when you come on this activity
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
 		setContentView(R.layout.create_server_layout);
 
 		Intent i = getIntent();
 
-		// Collect the Bundle object if the activity is started by ExistingServersActivity
-		b = i.getBundleExtra("ServerIdentification");
+		// Collect the Bundle object if the activity is started by ExistingServersActivity : Add or Edit
+		bundleEdit = i.getBundleExtra("ServerIdentification");
+		bundleAddFromMenu = i.getBundleExtra("AddingFromExistingServersActivity");
 
 		// TextViews : black ones (default color)s are compulsories, gray ones are optionals
 
@@ -60,27 +74,27 @@ public class CreateServerActivity extends Activity{
 
 		this.serverName_ET = (EditText) findViewById(R.id.editText_server_name);
 		// if started by ExistingServersActivity, changing the EditText
-		if(b != null && b.containsKey("ServerName")){
-			this.serverName_ET.setText(b.getString("ServerName"));
+		if(bundleEdit != null && bundleEdit.containsKey("ServerName")){
+			this.serverName_ET.setText(bundleEdit.getString("ServerName"));
 		}
 
 		this.serverHostname_ET = (EditText) findViewById(R.id.editText_hostname);
 		// if started by ExistingServersActivity, changing the EditText
-		if(b != null && b.containsKey("HostName")){
-			this.serverHostname_ET.setText(b.getString("HostName"));
+		if(bundleEdit != null && bundleEdit.containsKey("HostName")){
+			this.serverHostname_ET.setText(bundleEdit.getString("HostName"));
 		}
 
 		this.serverPort_ET = (EditText) findViewById(R.id.editText_server_port);
 		// if started by ExistingServersActivity, changing the EditText
-		if(b != null && b.containsKey("portNumber")){
-			this.serverPort_ET.setText(String.valueOf(b.getInt("portNumber")));
+		if(bundleEdit != null && bundleEdit.containsKey("portNumber")){
+			this.serverPort_ET.setText(String.valueOf(bundleEdit.getInt("portNumber")));
 		}
 
 		this.serverPassword_ET = (EditText) findViewById(R.id.editText_server_password);
 		// if started by ExistingServersActivity, changing the EditText
-		if(b != null && b.containsKey("ServerPassword") && b.getString("ServerPassword").length() > 0){
+		if(bundleEdit != null && bundleEdit.containsKey("ServerPassword")){
 			this.server_password_TV.setTextColor(Color.BLACK); // To highlight the fact that a password exists
-			this.serverPassword_ET.setText(b.getString("ServerPassword"));
+			this.serverPassword_ET.setText(bundleEdit.getString("ServerPassword"));
 		}
 
 		/**
@@ -111,17 +125,19 @@ public class CreateServerActivity extends Activity{
 							port,
 							serverPassword_ET.getText().toString()
 							);
-					
+
 					Database db = new Database(getApplicationContext());
-					
-					if(b != null){
+					Intent i;
+					Bundle b;
+
+					if(bundleEdit != null){
 						// Update the Server in the database
-						db.updateServer(serv, b.getString("ServerName"));
+						db.updateServer(serv, bundleEdit.getString("ServerName"));
 						Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been modified !", Toast.LENGTH_SHORT).show();
-						
-						Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
+
+						i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
 						// Use a Bundle to transfer the Server modified
-						Bundle b = new Bundle();
+						b = new Bundle();
 						b.putString("NewNameServer", serv.getName());
 						i.putExtra("NewValue", b);
 						startActivity(i);
@@ -130,16 +146,31 @@ public class CreateServerActivity extends Activity{
 						// Add the Server just created into the database
 						db.addServer(serv);
 						Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been added !", Toast.LENGTH_SHORT).show();
+						
+						// We go back to the ExistingServersActivity and transmit the new server
+						if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingServersActivity")){
+							i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
+							// Use a Bundle to transfer the Server created
+							b = new Bundle();
+							b.putString("NameServer", serv.getName());
+							b.putString("HostnameServer", serv.getHost());
+							b.putInt("PortServer", serv.getPort());
+							if(serv.isProtected()){
+								b.putString("PasswordServer", serv.getPassword());
+							}
+							i.putExtra("NewServer", b);
+							startActivity(i);
+						}
 					}
-					
+
 					db.close();
-					
+
 					handled = true;					
 					finish(); // close the activity
 				}
 				else{
 					// We alarm the user of missing informations
-					Toast.makeText(getApplicationContext(), "Missing informations ...", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
 
 					// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
 					if(serverPort_ET.getText().length() == 0){
@@ -161,5 +192,56 @@ public class CreateServerActivity extends Activity{
 				return handled;
 			}
 		});
+	}
+	
+	/**
+	 * 
+	 * This method allows you to configure the behavior of the icon 
+	 * in the action bar: When this button is clicked, the current activity 
+	 * is removed and the previous activity becomes the current activity
+	 * 
+	 */
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			// app icon in action bar clicked; go home
+			Intent intent = new Intent(this, MenuActivity.class);
+            // According to the origin of the triggering of the activity
+            if(bundleEdit != null || bundleAddFromMenu != null){
+	            intent.setClass(this, ExistingServersActivity.class);
+            }
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	/**
+	 * 
+	 * This method allows you to configure the behavior of the physical button 
+	 * "Back" (on device) : When this button is clicked, the current activity 
+	 * is removed and the previous activity becomes the current activity
+	 * 
+	 */
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event)  {
+	    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+	    	
+            Intent intent = new Intent(this, MenuActivity.class);
+            // According to the origin of the triggering of the activity
+            if(bundleEdit != null || bundleAddFromMenu != null){
+	            intent.setClass(this, ExistingServersActivity.class);
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            return true;
+	    }
+
+	    return super.onKeyDown(keyCode, event);
 	}
 }

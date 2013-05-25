@@ -15,13 +15,22 @@
     <string name="hostname">Hostname :</string>
     <string name="serverPort">Server\'s port :</string>
     <string name="serverPassword">Server\'s password :</string>
-    <string name="deleteProfile">Delete Profile</string>
-    <string name="deleteServer">Delete Server</string>
+    <string name="deleteProfile">Delete Profile(s)</string>
+    <string name="deleteServer">Delete Server(s)</string>
+    <string name="add">Add</string>
     <string name="delete">Delete</string>
+    <string name="clearAll">Clear All</string>
     <string name="cancel">Cancel</string>
-    <string name="edit">Edit</string> 
+    <string name="edit">Edit</string>
+    <string name="exit">Exit</string>
     <string name="setByDefault">Set by Default</string>
-    <string name="usedToAutoConnect">Use for Auto-connection</string>
+    <string name="DEFAULT">DEFAULT</string>
+    <string name="AUTO">AUTO</string>
     <string name="linkAServer">Link a Server</string>
+    <string name="search">Search</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="set">Set</string>
+    <string name="warning">Warning !</string>
     
 </resources>
