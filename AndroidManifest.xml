@@ -16,15 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="adjustResize" >
-        <activity
-            android:name="org.touchirc.MainActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+    
         <activity android:name="org.touchirc.activity.ConversationActivity" >
         </activity>
         <activity android:name="org.touchirc.activity.CreateProfileActivity">
@@ -35,7 +27,13 @@
         </activity>
         <activity android:name="org.touchirc.activity.ExistingServersActivity">
         </activity>
-        <activity android:name="org.touchirc.activity.MenuActivity">
+        <activity android:name="org.touchirc.activity.MenuActivity"
+         		  android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <service
