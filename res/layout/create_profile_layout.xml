@@ -6,7 +6,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:layout_margin="10dp"
+        android:background="@drawable/object_border"
+        android:orientation="vertical"
+        android:padding="15dp" >
 
         <TextView
             android:id="@+id/textView_profile_name"
