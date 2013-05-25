@@ -34,7 +34,6 @@ public interface DBConstants extends BaseColumns {
 	public static final String PROFILE_USERNAME 		= "username";
 	public static final String PROFILE_REALNAME 		= "realname";
 	public static final String DEFAULT_PROFILE			= "profile_by_default";
-	public static final String PROFILE_SERVER_LIST 		= "server_list";
 
 	public static final String[] PROFILE_ALL = {
 		PROFILE_ID,
@@ -45,7 +44,6 @@ public interface DBConstants extends BaseColumns {
 		PROFILE_USERNAME,
 		PROFILE_REALNAME,
 		DEFAULT_PROFILE,
-		PROFILE_SERVER_LIST
 	};
 
 	public static final String LINKED_SERVERS_TO_PROFILE_NAME	= "servers_linked_to_profile";
