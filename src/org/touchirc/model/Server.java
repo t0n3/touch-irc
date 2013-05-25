@@ -117,7 +117,7 @@ public class Server {
 		this.profile = null;
 	}
 	
-	public boolean isAnAssociatedProfile(){
+	public boolean hasAssociatedProfile(){
 		return this.profile != null;
 	}
 	
