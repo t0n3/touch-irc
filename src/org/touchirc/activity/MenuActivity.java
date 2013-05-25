@@ -106,7 +106,7 @@ public class MenuActivity extends SherlockActivity{
 
 			// Chain together various setter methods to set the dialog characteristics
 			builder.setTitle(R.string.exit)
-			.setMessage("Quit the TouchIRC App ?")
+			.setMessage(R.string.QuitAppQuestion)
 			.setIcon(android.R.drawable.ic_menu_help);
 
 			builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {

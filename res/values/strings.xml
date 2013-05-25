@@ -32,5 +32,7 @@
     <string name="no">No</string>
     <string name="set">Set</string>
     <string name="warning">Warning !</string>
+    <string name="Quit">Quit</string>
+    <string name="QuitAppQuestion">Quit the TouchIRC App ?</string>
     
 </resources>
