@@ -105,6 +105,12 @@ public class Server {
 	public boolean isProtected(){
 		return this.password != null; // != null => a password was setted
 	}
+
+	public boolean hasConversation(){
+		if(this.conversations.isEmpty())
+			return false;
+		return true;
+	}
 	
 	public void setProfile(Profile p){
 		this.profile = p;

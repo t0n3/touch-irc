@@ -1,128 +1,140 @@
 package org.touchirc.activity;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 import org.touchirc.R;
+import org.touchirc.fragments.ConversationFragment;
 import org.touchirc.irc.IrcBinder;
-import org.touchirc.irc.IrcService;
 import org.touchirc.model.Conversation;
-import org.touchirc.model.Message;
+import org.touchirc.model.Server;
 
-import android.app.ListActivity;
+import com.slidingmenu.lib.SlidingMenu;
+import com.slidingmenu.lib.app.SlidingFragmentActivity;
+
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 
-public class ConversationActivity extends ListActivity implements ServiceConnection {
-	private IrcBinder ircServiceBind;
-	private BroadcastReceiver MessageReceiver;
-	private Conversation conversation;
-	private EditText input;
-	private ListView list;
-	private LinkedList<Message> values;
-	private ArrayAdapter<Message> adapter;
+public class ConversationActivity extends SlidingFragmentActivity implements ServiceConnection {
 
+    private IrcBinder ircServiceBind;
+    private Set<Server> connectedServers;
 
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-		
-		setContentView(R.layout.conversation_display);
-		this.values = new LinkedList<Message>();
-		this.input = (EditText) findViewById(R.id.messageToSend);
-		this.list = (ListView) findViewById(android.R.id.list);
-		list.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-		this.input.setOnEditorActionListener(new OnEditorActionListener() {
-			
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Retrieve currently connected servers
+        this.connectedServers = this.ircServiceBind.getService().getConnectedServers();
+        
+        // set the content view
+        setContentView(R.layout.conversation_display);
+        
+        // set the viewpager
+        ViewPager vp = new ViewPager(this);
+		vp.setId("VP".hashCode());
+		vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager()));
+		setContentView(vp);
+
+		vp.setOnPageChangeListener(new OnPageChangeListener() {
 			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		        if (actionId == EditorInfo.IME_ACTION_SEND) {
-		            sendMessage();
-		            return true;
-		        }
-		        return false;
-			}
-		});
-
-		
-		
-		
-		
-		adapter = new ArrayAdapter<Message>(this,	android.R.layout.simple_list_item_1, values);
-		setListAdapter(adapter);
-		
-		/*			/--------- TODO ----------\
-		 * 
-		final EditText editText = (EditText) findViewById(R.id.messageToSend);
-		editText.setOnEditorActionListener(new OnEditorActionListener() {
+			public void onPageScrollStateChanged(int arg0) { }
 
 			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent event) {
-		        boolean handled = false;
-		        if (actionId == EditorInfo.IME_ACTION_SEND) {
-		            values.add(new Message("You", editText.getText().toString(), 0));
-		            adapter.notifyDataSetChanged();
-		            handled = true;
-		        }
-		        return handled;
-			}
-		});
-		*/
-		
-		Intent intent = new Intent(this, IrcService.class);
-		// getApplicationContext().startService(intent);
-		getApplicationContext().bindService(intent, this, 0);
-		
-		this.MessageReceiver = new BroadcastReceiver() {
+			public void onPageScrolled(int arg0, float arg1, int arg2) { }
+
 			@Override
-			public void onReceive(Context context, Intent intent) {
-				LinkedList<Message> buffer = conversation.getBuffer();
-				for(Message m : buffer){
-					values.add(m);
+			public void onPageSelected(int position) {
+				switch (position) {
+				case 0:
+					getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+					break;
+				default:
+					getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+					break;
 				}
-				conversation.cleanBuffer();
-				adapter.notifyDataSetChanged();
-				
-			}	
-		};
-		registerReceiver(this.MessageReceiver , new IntentFilter("org.touchirc.irc.newMessage"));
+			}
 
-
-	}
-	
-	public void sendMessage(){
-		String msg = input.getText().toString();
-		input.setText("");
+		});
 		
-	}
+		vp.setCurrentItem(0);
+        
+        // configure the SlidingMenu
+        getSlidingMenu().setMode(SlidingMenu.LEFT);
+        getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+        getSlidingMenu().setShadowWidthRes(R.dimen.sliding_shadow_width);
+        getSlidingMenu().setShadowDrawable(R.drawable.shadow);
+        getSlidingMenu().setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        getSlidingMenu().setFadeDegree(0.35f);
+        getSlidingMenu().attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+		getSlidingMenu().setMenu(R.layout.connected_servers);
 
-	
-	@Override
-	public void onServiceDisconnected(ComponentName name) {
-		// TODO Auto-generated method stub
-		this.ircServiceBind = null;
-		
-	}
+    }
+    
+    /**
+     * Initialize TabView for a specified server
+     */
+    public void initConversation(Server s){
+    	if(s.hasConversation()){
+    		
+    	}
+    }
+    
+    public void updateConversation(){
+    	
+    }
+    
+    public void sendMessage(){
+        
+    }
+
+    
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        this.ircServiceBind = null;
+    }
 
 
-	@Override
-	public void onServiceConnected(ComponentName name, IBinder service) {
-		// TODO Auto-generated method stub
-		this.ircServiceBind = (IrcBinder) service;
-		this.conversation = this.ircServiceBind.getService().getServerById(0).getConversation("#Boulet");
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        this.ircServiceBind = (IrcBinder) service;
+    }
 
-	}
+    /**
+     * ConversationPagerAdapter
+     * In charge to handle conversation fragment for swiping in ConversationActivity
+     * @author tone
+     */
+    public class ConversationPagerAdapter extends FragmentPagerAdapter {
+        
+        private ArrayList<Fragment> mFragments;
+
+        public ConversationPagerAdapter(FragmentManager fm) {
+            super(fm);
+            mFragments = new ArrayList<Fragment>();
+            mFragments.add(new ConversationFragment());
+        }
+
+        @Override
+        public int getCount() {
+            return mFragments.size();
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragments.get(position);
+        }
+
+    }
 
 }
