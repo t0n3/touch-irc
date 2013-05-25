@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ServerAdapter extends BaseAdapter {
@@ -44,22 +43,27 @@ public class ServerAdapter extends BaseAdapter {
 			v = vi.inflate(R.layout.item_list, null);
 		}
 		
-		ImageView defaultServer_IMG = (ImageView) v.findViewById(R.id.imageView_itemStatus);
+		TextView autoConnect_TV = (TextView) v.findViewById(R.id.textView_DEFAULT);
 		
 		// Checking if the current server is auto-connected
 		Database db = new Database(c);
-		if(db.nameAutoConnectedServer() != null && db.nameAutoConnectedServer().equals(s.getName())){ // if positive we change the IMGView
-			// Changing the ImageView
-			defaultServer_IMG.setImageResource(android.R.drawable.presence_online);
+		if(db.nameAutoConnectedServer() != null && db.nameAutoConnectedServer().equals(s.getName())){
+			autoConnect_TV.setBackgroundResource(R.drawable.object_border);
+			autoConnect_TV.setText(R.string.AUTO);
 		}
 		else{
-			// To ensure the fact that when the method is recalled the src is correct
-			defaultServer_IMG.setImageResource(android.R.drawable.presence_offline);
+			// To ensure the fact that when the method is recalled the resources are corrects
+			autoConnect_TV.setBackgroundResource(0);
+			autoConnect_TV.setText("");
 		}
 		db.close();
 
-		TextView profileName_TV = (TextView) v.findViewById(R.id.textView_itemName);
-		profileName_TV.setText(s.getName());                            
+		TextView serverName_TV = (TextView) v.findViewById(R.id.textView_itemName);
+		serverName_TV.setText(s.getName());
+		
+		TextView hostnameServer_TV = (TextView) v.findViewById(R.id.textView_itemSecondInfo);
+		hostnameServer_TV.setText(s.getHost());
+		
 		return v;
 	}
 }
