@@ -1,7 +1,5 @@
 package org.touchirc.adapter;
 
-import java.util.HashMap;
-
 import org.touchirc.R;
 import org.touchirc.db.Database;
 import org.touchirc.model.Profile;
@@ -28,8 +26,8 @@ public class ProfileAdapter extends BaseAdapter {
 		return profilesList.size();
 	}
 
-	public Object getItem(int position) {
-		return profilesList.get(position);
+	public Profile getItem(int idProfile) {
+		return profilesList.get(idProfile);
 	}
 
 	public long getItemId(int position) {
@@ -38,7 +36,7 @@ public class ProfileAdapter extends BaseAdapter {
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
-		Profile p = profilesList.get(position); // Collect the profile concerned
+		Profile profile = profilesList.get(position); // Collect the profile concerned
 		if (v == null){
 			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			v = vi.inflate(R.layout.item_list, null);
@@ -48,7 +46,7 @@ public class ProfileAdapter extends BaseAdapter {
 		
 		// Checking if the current profile is by default
 		Database db = new Database(c);
-		if(db.nameDefaultProfile() != null && db.nameDefaultProfile().equals(p.getProfile_name())){
+		if(db.nameDefaultProfile() != null && db.nameDefaultProfile().equals(profile.getProfile_name())){
 			default_TV.setBackgroundResource(R.drawable.object_border);
 			default_TV.setText(R.string.DEFAULT);
 		}
@@ -60,10 +58,10 @@ public class ProfileAdapter extends BaseAdapter {
 		db.close();
 		
 		TextView profileName_TV = (TextView) v.findViewById(R.id.textView_itemName);
-		profileName_TV.setText(p.getProfile_name());
+		profileName_TV.setText(profile.getProfile_name());
 		
 		TextView firstNickName_TV = (TextView) v.findViewById(R.id.textView_itemSecondInfo);
-		firstNickName_TV.setText(p.getFirstNick());
+		firstNickName_TV.setText(profile.getFirstNick());
 		
 		return v;
 	}
