@@ -1,8 +1,5 @@
 package org.touchirc.model;
 
-import java.util.ArrayList;
-
-import android.widget.Toast;
 
 /**
  * 
@@ -90,7 +87,7 @@ public class Profile {
 
 	
 	public boolean isCorrect(String realName){
-		if(realName.length() >= 10 && realname.length() <= 20){
+		if(realName.length() >= 10 && realName.length() <= 20){
 			for(int i = 0 ;  i < realName.length() ; i++){
 				if((realName.charAt(i) < 65 && realName.charAt(i) > 90) || (realName.charAt(i) < 90 && realName.charAt(i) > 122)){
 					return false;
