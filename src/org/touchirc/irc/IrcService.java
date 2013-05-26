@@ -80,8 +80,6 @@ public class IrcService extends Service {
 				
 				int connected = -1;
 				while(connected != 0){
-					System.out.println("while");
-
 					try {
 						bot.setEncoding(server.getEncoding());
 						bot.connect(server.getHost(),server.getPort(),server.getPassword());
