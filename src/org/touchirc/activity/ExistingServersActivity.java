@@ -65,7 +65,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		// Collect the context
 		c = this;
-		touchIrc = TouchIrc.getInstance(c);
+		touchIrc = TouchIrc.getInstance();
 
 		// Collect the server widgets ListView (LV)
 		this.servers_LV = (ListView) findViewById(android.R.id.list);
@@ -227,7 +227,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 					public void onClick(DialogInterface dialog, int id) {
 						
 						// Removal throughout the db
-						if (touchIrc.deleteServer(indexSelectedItem)){ // if the deletion is successful
+						if (touchIrc.deleteServer(indexSelectedItem, getApplicationContext())){ // if the deletion is successful
 							// Reload the new server list
 							servers = touchIrc.getAvailableServers();
 							// Notify the adapter that the list's state has changed
@@ -292,22 +292,10 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	@ Override
 	protected void onResume(){
 		super.onResume();
-		// Use a Bundle to collect the new name of the server or the new Server
-		Bundle bundleEdit = this.getIntent().getBundleExtra("NewValue");
-		Bundle bundleAdd = this.getIntent().getBundleExtra("NewServer");
-
-		// We come from CreateServerActivity and the server's name has changed
-		if(bundleEdit != null && bundleEdit.containsKey("NewValue")){
-			String nameServer = bundleEdit.getString("NewNameServer");
-			this.servers.get(indexSelectedItem).setName(nameServer);
-		}
-
-		// We come from CreateServerActivity and a new server has been added
-		if(bundleAdd != null && bundleAdd.containsKey("NewServer")){
-
-			// We reload the server list
-			servers = touchIrc.getAvailableServers();
-		}
+		
+		touchIrc = TouchIrc.getInstance();
+		servers = touchIrc.getAvailableServers();
+		
 
 		// Update the list and its display
 		this.adapterServer.notifyDataSetChanged();

@@ -59,7 +59,11 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 		c = getApplicationContext();
 
 		// Get the access to the infos
-		touchIrc = TouchIrc.getInstance(c);
+		touchIrc = TouchIrc.getInstance();
+		
+		// Collect the Profiles list
+		this.profiles = touchIrc.getAvailableProfiles();
+		this.servers = touchIrc.getAvailableServers();
 		
 		// Collect the profile widgets ListView (LV)
 		this.profiles_LV = (ListView) findViewById(android.R.id.list);
@@ -67,9 +71,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 		// the LV is always focused on its last item
 		this.profiles_LV.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
-		// Collect the Profiles list
-		this.profiles = touchIrc.getAvailableProfiles();
-		this.servers = touchIrc.getAvailableServers();
+		
 
 		this.actionBar.setTitle("Profiles  (" + this.profiles.size() + ")");
 
@@ -220,7 +222,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						// Removal throughout the db
-						if (touchIrc.deleteServer(indexSelectedItem)){ // if the deletion is successful
+						if (touchIrc.deleteServer(indexSelectedItem, getApplicationContext())){ // if the deletion is successful
 							// Notify the user thanks to a Toast
 							Toast.makeText(c, "Profile " + profiles.get(indexSelectedItem).getProfile_name() + " deleted.", Toast.LENGTH_LONG).show();
 							// Remove the corresponding profile from the list
@@ -363,19 +365,10 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 	@ Override
 	protected void onResume(){
 		super.onResume();
-		// Use a Bundle to collect the new name of the profile
-		Bundle bundleEdit = this.getIntent().getBundleExtra("NewValue");
-		Bundle bundleAdd = this.getIntent().getBundleExtra("NewProfile");
-
-		if(bundleEdit != null && bundleEdit.containsKey("NewValue")){
-			String nameProfile = bundleEdit.getString("NewNameProfile");
-			this.profiles.get(indexSelectedItem).setProfile_name(nameProfile);
-
-		}
-
-		if(bundleAdd != null && bundleAdd.containsKey("NewProfile")){
-			profiles = touchIrc.getAvailableProfiles();
-		}
+		
+		touchIrc = TouchIrc.getInstance();
+		profiles = touchIrc.getAvailableProfiles();
+		servers = touchIrc.getAvailableServers();
 
 		// Update the list and its display
 		this.adapterProfile.notifyDataSetChanged();

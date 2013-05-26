@@ -1,14 +1,8 @@
 package org.touchirc.activity;
 
 import org.touchirc.R;
-import org.touchirc.db.Database;
+import org.touchirc.TouchIrc;
 import org.touchirc.model.Profile;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +16,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
 public class CreateProfileActivity extends SherlockActivity{
 
@@ -146,89 +146,18 @@ public class CreateProfileActivity extends SherlockActivity{
 						realName_ET.getText().length() >= 10 &&
 						realName_ET.getText().length() < 20)) {
 
-					// the Profile is created with the datas given by the user
-					prof = new Profile(profileName_ET.getText().toString(),
-							firstNickname_ET.getText().toString(),
-							secondNickname_ET.getText().toString(),
-							thirdNickname_ET.getText().toString(),
-							userName_ET.getText().toString(),
-							realName_ET.getText().toString());
-
-					Database db = new Database(getApplicationContext());
-					Intent i;
-					Bundle b;
-
-					if(bundleEdit != null){
-						// Update the Profile in the database
-						db.updateProfile(prof, bundleEdit.getString("ProfileName"));
-						Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been modified !", Toast.LENGTH_SHORT).show();
-
-						i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
-						// Use a Bundle to transfer the profile modified
-						b = new Bundle();
-						b.putString("NewNameProfile", prof.getProfile_name());
-						i.putExtra("NewValue", b);
-						startActivity(i);
-					}
-					else{
-						// Add the Profile just created into the database
-						db.addProfile(prof);
-						Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
-						
-						// We go back to the ExistingProfilesActivity and transmit the new profile
-						if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingProfilesActivity")){
-							i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
-							// Use a Bundle to transfer the Profile created
-							b = new Bundle();
-							b.putString("NameProfile", prof.getProfile_name());
-							b.putString("FirstNickProfile", prof.getFirstNick());
-							b.putString("SecondNickProfile", prof.getSecondNick());
-							b.putString("ThirdNickProfile", prof.getThirdNick());
-							b.putString("UserNameProfile", prof.getUsername());
-							b.putString("RealNameProfile", prof.getRealname());
-							i.putExtra("NewProfile", b);
-							startActivity(i);
-						}
-					}
-
-					db.close();
+					addProfile();
 
 					handled = true;					
 					finish(); // close the activity
 				}
 				else{
-					// We alarm the user of missing informations
-					Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
-
-					// Initialize the color of the TV
-
-					firstNickname_TV.setTextColor(Color.BLACK);
-					realName_TV.setTextColor(Color.BLACK);
-
-					// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
-					if(realName_ET.getText().length() == 0 || realName_ET.getText().length() < 10 || realName_ET.getText().length() > 20){
-						realName_TV.setTextColor(Color.RED);
-						realName_TV.invalidate();
-						realName_ET.requestFocus();
-					}
-					if(userName_ET.getText().length() == 0){
-						userName_TV.setTextColor(Color.RED);
-						userName_TV.invalidate();
-						userName_ET.requestFocus();
-					}
-					if(firstNickname_ET.getText().length() == 0 || firstNickname_ET.getText().length() > 9){
-						firstNickname_TV.setTextColor(Color.RED);
-						firstNickname_TV.invalidate();
-						firstNickname_ET.requestFocus();
-					}
-					if(profileName_ET.getText().length() == 0){
-						profileName_TV.setTextColor(Color.RED);
-						profileName_TV.invalidate();
-						profileName_ET.requestFocus();
-					}
+					missingInformation();
 				}
 				return handled;
 			}
+
+			
 		});
 	}
 	
@@ -278,85 +207,12 @@ public class CreateProfileActivity extends SherlockActivity{
 				realName_ET.getText().length() >= 10 &&
 				realName_ET.getText().length() < 20) {
 
-				// the Profile is created with the datas given by the user
-				prof = new Profile(profileName_ET.getText().toString(),
-						firstNickname_ET.getText().toString(),
-						secondNickname_ET.getText().toString(),
-						thirdNickname_ET.getText().toString(),
-						userName_ET.getText().toString(),
-						realName_ET.getText().toString());
-
-				Database db = new Database(getApplicationContext());
-				Intent i;
-				Bundle b;
-
-				if(bundleEdit != null){
-					// Update the Profile in the database
-					db.updateProfile(prof, bundleEdit.getString("ProfileName"));
-					Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been modified !", Toast.LENGTH_SHORT).show();
-
-					i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
-					// Use a Bundle to transfer the profile modified
-					b = new Bundle();
-					b.putString("NewNameProfile", prof.getProfile_name());
-					i.putExtra("NewValue", b);
-					startActivity(i);
-				}
-				else{
-					// Add the Profile just created into the database
-					db.addProfile(prof);
-					Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
-					
-					// We go back to the ExistingProfilesActivity and transmit the new profile
-					if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingProfilesActivity")){
-						i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
-						// Use a Bundle to transfer the Profile created
-						b = new Bundle();
-						b.putString("NameProfile", prof.getProfile_name());
-						b.putString("FirstNickProfile", prof.getFirstNick());
-						b.putString("SecondNickProfile", prof.getSecondNick());
-						b.putString("ThirdNickProfile", prof.getThirdNick());
-						b.putString("UserNameProfile", prof.getUsername());
-						b.putString("RealNameProfile", prof.getRealname());
-						i.putExtra("NewProfile", b);
-						startActivity(i);
-					}
-				}
-
-				db.close();
+				addProfile();
 				
 				finish(); // close the activity
 			}
 			else{
-				// We alarm the user of missing informations
-				Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
-
-				// Initialize the color of the TV
-
-				firstNickname_TV.setTextColor(Color.BLACK);
-				realName_TV.setTextColor(Color.BLACK);
-
-				// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
-				if(realName_ET.getText().length() == 0 || realName_ET.getText().length() < 10 || realName_ET.getText().length() > 20){
-					realName_TV.setTextColor(Color.RED);
-					realName_TV.invalidate();
-					realName_ET.requestFocus();
-				}
-				if(userName_ET.getText().length() == 0){
-					userName_TV.setTextColor(Color.RED);
-					userName_TV.invalidate();
-					userName_ET.requestFocus();
-				}
-				if(firstNickname_ET.getText().length() == 0 || firstNickname_ET.getText().length() > 9){
-					firstNickname_TV.setTextColor(Color.RED);
-					firstNickname_TV.invalidate();
-					firstNickname_ET.requestFocus();
-				}
-				if(profileName_ET.getText().length() == 0){
-					profileName_TV.setTextColor(Color.RED);
-					profileName_TV.invalidate();
-					profileName_ET.requestFocus();
-				}
+				missingInformation();
 			}
 		
 			return true;
@@ -364,6 +220,78 @@ public class CreateProfileActivity extends SherlockActivity{
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+	
+	private void missingInformation() {
+		// We alarm the user of missing informations
+		Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
+
+		// Initialize the color of the TV
+
+		firstNickname_TV.setTextColor(Color.BLACK);
+		realName_TV.setTextColor(Color.BLACK);
+
+		// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
+		if(realName_ET.getText().length() == 0 || realName_ET.getText().length() < 10 || realName_ET.getText().length() > 20){
+			realName_TV.setTextColor(Color.RED);
+			realName_TV.invalidate();
+			realName_ET.requestFocus();
+		}
+		if(userName_ET.getText().length() == 0){
+			userName_TV.setTextColor(Color.RED);
+			userName_TV.invalidate();
+			userName_ET.requestFocus();
+		}
+		if(firstNickname_ET.getText().length() == 0 || firstNickname_ET.getText().length() > 9){
+			firstNickname_TV.setTextColor(Color.RED);
+			firstNickname_TV.invalidate();
+			firstNickname_ET.requestFocus();
+		}
+		if(profileName_ET.getText().length() == 0){
+			profileName_TV.setTextColor(Color.RED);
+			profileName_TV.invalidate();
+			profileName_ET.requestFocus();
+		}
+		
+	}
+
+	private void addProfile() {
+		// the Profile is created with the datas given by the user
+		prof = new Profile(profileName_ET.getText().toString(),
+				firstNickname_ET.getText().toString(),
+				secondNickname_ET.getText().toString(),
+				thirdNickname_ET.getText().toString(),
+				userName_ET.getText().toString(),
+				realName_ET.getText().toString());
+
+		Intent i;
+
+		if(bundleEdit != null){
+			/*
+			// Update the Profile in the database
+			db.updateProfile(prof, bundleEdit.getString("ProfileName"));
+			Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been modified !", Toast.LENGTH_SHORT).show();
+
+			i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
+			// Use a Bundle to transfer the profile modified
+			b = new Bundle();
+			b.putString("NewNameProfile", prof.getProfile_name());
+			i.putExtra("NewValue", b);
+			startActivity(i);
+			*/
+		}
+		else{
+			// Add the Profile just created into the database
+			TouchIrc.getInstance().addProfile(prof, this);
+			Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
+			
+			// We go back to the ExistingProfilesActivity and transmit the new profile
+			if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingProfilesActivity")){
+				i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
+				startActivity(i);
+			}
+		}
+		
 	}
 
 	/**
