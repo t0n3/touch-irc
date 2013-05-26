@@ -38,7 +38,8 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	private ListView servers_LV;
 	private SparseArray<Server> servers;
 	private ServerAdapter adapterServer;
-	private int indexSelectedItem; // selected server's index in the listView
+	private int idSelectedServer; // selected server's index in the listView
+	private Server selectedServer;
 	private Context c;
 	private ActionBar actionBar;
 	private TouchIrc touchIrc;
@@ -53,7 +54,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		
 		this.ircService = null;
 		Intent intent = new Intent(this, IrcService.class);
-		getApplicationContext().startService(intent);
 		getApplicationContext().bindService(intent, this, 0);
 
 
@@ -94,10 +94,13 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		servers_LV.setOnItemLongClickListener(new OnItemLongClickListener() {
 
+			
+
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long arg3) {
 
-				indexSelectedItem = position+1;
+				idSelectedServer = (int) adapterServer.getItemId(position);
+				selectedServer = adapterServer.getItem(position);
 				currentView = v;
 
 				// if the ActionMode is already displayed
@@ -140,7 +143,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			inflater.inflate(R.menu.context_menu_server, menu);
 
 			// if the server is already the auto-connected one, we cannot set it
-			if(servers.get(indexSelectedItem).isAutoConnect()){
+			if(selectedServer.isAutoConnect()){
 				menu.getItem(2).setTitle(R.string.disAUTO);
 			}
 			else{
@@ -166,16 +169,16 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			// ########## if the item "AutoConnect" is selected ##########
 			case R.id.autoConnect :
 
-				if(servers.get(indexSelectedItem).isAutoConnect()){
+				if(selectedServer.isAutoConnect()){
 					// The selected server loose its status of auto-connected server
-					servers.get(indexSelectedItem).disableAutoConnect();
+					selectedServer.disableAutoConnect();
 					mode.getMenu().getItem(2).setTitle(R.string.AUTO);
 				}
 				else{
 					// The selected server is now the auto-connected one
-					servers.get(indexSelectedItem).enableAutoConnect();
+					selectedServer.enableAutoConnect();
 					mode.getMenu().getItem(2).setTitle(R.string.disAUTO);
-					Toast.makeText(c, servers.get(indexSelectedItem).getName() + R.string.nowUsedForAutoConnection, Toast.LENGTH_LONG).show();
+					Toast.makeText(c, selectedServer.getName() + R.string.nowUsedForAutoConnection, Toast.LENGTH_LONG).show();
 				}				
 
 				// Notifying the adapter to update the display
@@ -187,7 +190,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			case R.id.edit : 
 
 				// Collect all the informations concerning the current server
-				Server serverToEdit = servers.get(indexSelectedItem);
+				Server serverToEdit = selectedServer;
 
 				// Prepare the Intent to switch on the activity which allows to modify the server
 				Intent i = new Intent(ExistingServersActivity.this, CreateServerActivity.class);
@@ -218,16 +221,14 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 				// Chain together various setter methods to set the dialog characteristics
 				builder.setTitle(R.string.deleteServer)
-				.setMessage("Would you really like to delete the server : " + servers.get(indexSelectedItem).getName() + " ?")
+				.setMessage("Would you really like to delete the server : " + selectedServer.getName() + " ?")
 				.setIcon(android.R.drawable.ic_menu_delete);
-
-				final ActionMode am = mode;
 
 				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						
 						// Removal throughout the db
-						if (touchIrc.deleteServer(indexSelectedItem, getApplicationContext())){ // if the deletion is successful
+						if (touchIrc.deleteServer(idSelectedServer, getApplicationContext())){ // if the deletion is successful
 							// Reload the new server list
 							servers = touchIrc.getAvailableServers();
 							// Notify the adapter that the list's state has changed
@@ -239,7 +240,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 						/** ------------------------------------------------------- **/
 						
 						
-						am.finish();
 					}
 				});
 				builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

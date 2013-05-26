@@ -27,18 +27,17 @@ public class ProfileAdapter extends BaseAdapter {
 		return profilesList.size();
 	}
 
-	public Profile getItem(int idProfile) {
-		return profilesList.get(idProfile);
+	public Profile getItem(int position) {
+		return profilesList.valueAt(position);
 	}
 
 	public long getItemId(int position) {
-		return position;
+		return profilesList.keyAt(position);
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
-		position++;
-		Profile profile = profilesList.get(position); // Collect the profile concerned
+		Profile profile = profilesList.valueAt(position); // Collect the profile concerned
 		if (v == null){
 			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			v = vi.inflate(R.layout.item_list, null);

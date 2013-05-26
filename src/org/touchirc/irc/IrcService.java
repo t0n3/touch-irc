@@ -15,7 +15,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.SparseArray;
-import android.widget.Toast;
 
 public class IrcService extends Service {
 	
@@ -23,6 +22,8 @@ public class IrcService extends Service {
 	
 	// Map of Server, IrcBot for connected Bots
 	private HashMap<Server, IrcBot> botsConnected;
+	
+	private Server currentServer;
 	
 	// Map of idServer, Server for available servers 
 	private SparseArray<Server> availableServers; // SparseArray = Map<Integer, Object>
@@ -33,7 +34,7 @@ public class IrcService extends Service {
 		this.ircBinder = new IrcBinder(this);
 		this.botsConnected = new HashMap<Server, IrcBot>();
 		TouchIrc.getInstance().load(this);
-		this.availableServers = TouchIrc.getInstance().getAvailableServers(); 
+		this.availableServers = TouchIrc.getInstance().getAvailableServers();
 	}
 	
 	@Override
@@ -47,7 +48,7 @@ public class IrcService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
-		Toast.makeText(getApplicationContext(), "TouchIrcService Started", Toast.LENGTH_LONG).show(); // TODO Delete it
+		System.out.println("TouchIrcService Started");
 		return START_STICKY;
 	
 	}
@@ -105,6 +106,7 @@ public class IrcService extends Service {
 						e.printStackTrace();
 					}
 					connected = 0;
+					currentServer = server;
 				}
 			}
 		}.start();
@@ -128,6 +130,14 @@ public class IrcService extends Service {
 		return ircBot;
 	}
 	
+	public Server getCurrentServer(){
+		return currentServer;
+	}
+	
+	public void setCurrentServer(Server server){
+		if(botsConnected.containsKey(server))
+			currentServer = server;
+	}
 	
    
 
