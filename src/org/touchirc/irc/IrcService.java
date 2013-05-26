@@ -28,9 +28,11 @@ public class IrcService extends Service {
 	
 	public IrcService(){
 		super();
+		
 		this.ircBinder = new IrcBinder(this);
 		this.botsConnected = new HashMap<Server, IrcBot>();
-		this.availableServers = TouchIrc.getInstance(this).getAvailableServers(); 
+		TouchIrc.getInstance().load(this);
+		this.availableServers = TouchIrc.getInstance().getAvailableServers(); 
 	}
 	
 	@Override
@@ -50,7 +52,7 @@ public class IrcService extends Service {
 	}
 	
 	public void reloadAvailableServers(){
-		this.availableServers = TouchIrc.getInstance(this).getAvailableServers();
+		this.availableServers = TouchIrc.getInstance().getAvailableServers();
 	}
 	
 	// return null if the idServer isn't in the Hashmap servers
