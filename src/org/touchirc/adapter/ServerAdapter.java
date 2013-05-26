@@ -25,18 +25,19 @@ public class ServerAdapter extends BaseAdapter {
 		return serversList.size();
 	}
 
-	public Object getItem(int position) {
-		return serversList.get(position);
+	public Server getItem(int position) {
+		return serversList.valueAt(position);
 	}
 
 	public long getItemId(int position) {
-		return position;
+		return serversList.keyAt(position);
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
-		position++;
-		Server s = serversList.get(position); // Collect the server concerned
+		Server s = serversList.valueAt(position); // Collect the server concerned
+		if(s == null)
+			return null;
 		if (v == null){
 			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			v = vi.inflate(R.layout.item_list, null);
