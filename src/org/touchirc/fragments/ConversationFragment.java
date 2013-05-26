@@ -1,9 +1,9 @@
 package org.touchirc.fragments;
 
-import org.touchirc.R;
 import org.touchirc.model.Conversation;
 import org.touchirc.model.Message;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 
 public class ConversationFragment extends Fragment {
 	

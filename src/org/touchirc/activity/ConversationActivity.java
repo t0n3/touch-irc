@@ -29,13 +29,13 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 public class ConversationActivity extends SlidingFragmentActivity implements ServiceConnection {
 
     private IrcBinder ircServiceBind;
-    private Set<Server> connectedServers;
+    private Server currentServer;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Retrieve currently connected servers
-        this.connectedServers = this.ircServiceBind.getService().getConnectedServers();
+        // Retrieve the currently connected server
+        this.currentServer = this.ircServiceBind.getService().getCurrentServer();
         
         // set the content view
         setContentView(R.layout.conversation_display);
@@ -43,7 +43,7 @@ public class ConversationActivity extends SlidingFragmentActivity implements Ser
         // set the viewpager
         ViewPager vp = new ViewPager(this);
 		vp.setId("VP".hashCode());
-		vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager()));
+		vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer.getAllConversations()));
 		setContentView(vp);
 
 		vp.setOnPageChangeListener(new OnPageChangeListener() {
@@ -78,9 +78,11 @@ public class ConversationActivity extends SlidingFragmentActivity implements Ser
         getSlidingMenu().setFadeDegree(0.35f);
         getSlidingMenu().attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
 		getSlidingMenu().setMenu(R.layout.connected_servers);
+		
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
-    
+        
     /**
      * Initialize TabView for a specified server
      */
@@ -119,10 +121,11 @@ public class ConversationActivity extends SlidingFragmentActivity implements Ser
         
         private ArrayList<Fragment> mFragments;
 
-        public ConversationPagerAdapter(FragmentManager fm) {
+        public ConversationPagerAdapter(FragmentManager fm, Set<String> conv) {
             super(fm);
             mFragments = new ArrayList<Fragment>();
-            mFragments.add(new ConversationFragment());
+            for(String c : conv)
+            	mFragments.add(new ConversationFragment(ConversationActivity.this.currentServer.getConversation(c)));
         }
 
         @Override
