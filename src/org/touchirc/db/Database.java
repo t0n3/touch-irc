@@ -300,7 +300,7 @@ public class Database extends SQLiteOpenHelper {
 				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_SCD_NICKNAME)),
 				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_THIRD_NICKNAME)),
 				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_USERNAME)),
-				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_USERNAME))
+				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_REALNAME))
 				);
 		return profile;
 	}
