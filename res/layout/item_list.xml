@@ -56,7 +56,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="3dp"
-        android:text="@string/DEFAULT"
+        android:textColor="@color/gray"
         android:textSize="12sp" />
 
 </LinearLayout>

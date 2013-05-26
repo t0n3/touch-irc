@@ -15,7 +15,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.SparseArray;
-import android.widget.Toast;
 
 public class IrcService extends Service {
 	
@@ -49,7 +48,7 @@ public class IrcService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
-		Toast.makeText(getApplicationContext(), "TouchIrcService Started", Toast.LENGTH_LONG).show(); // TODO Delete it
+		System.out.println("TouchIrcService Started");
 		return START_STICKY;
 	
 	}

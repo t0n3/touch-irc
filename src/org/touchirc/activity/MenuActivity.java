@@ -2,6 +2,7 @@ package org.touchirc.activity;
 
 import org.touchirc.R;
 import org.touchirc.TouchIrc;
+import org.touchirc.irc.IrcService;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -27,6 +28,8 @@ public class MenuActivity extends SherlockActivity{
 		
 		// Load 
 		TouchIrc.getInstance().load(this);
+		Intent intent = new Intent(this, IrcService.class);
+		getApplicationContext().startService(intent);
 
 		setContentView(R.layout.menu);
 

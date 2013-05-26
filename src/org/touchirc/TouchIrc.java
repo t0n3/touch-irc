@@ -60,11 +60,17 @@ public class TouchIrc{
 		return availableServers;
 	}
 	
-	public void addServer(Server server, Context c){
+	public boolean addServer(Server server, Context c){
+		for(int i = 0 ; i < availableServers.size() ; i++){
+			if(availableServers.valueAt(i).equals(server))
+					return false;
+		}
 		Database db = new Database(c);
 		db.addServer(server);
 		loadServers(c);
-		db.close();		
+		db.close();
+		
+		return true;
 	}
 	
 	public void updateServer(int idServer, Server server, Context c){
@@ -87,11 +93,16 @@ public class TouchIrc{
 		return availableProfiles;
 	}
 	
-	public void addProfile(Profile profile, Context c){
+	public boolean addProfile(Profile profile, Context c){
+		for(int i = 0 ; i < availableProfiles.size() ; i++){
+			if(availableProfiles.valueAt(i).equals(profile))
+				return false;
+		}
 		Database db = new Database(c);
 		db.addProfile(profile);
 		loadProfiles(c);
-		db.close();		
+		db.close();
+		return true;
 	}
 	
 	public void updateProfile(int idProfile, Profile profile, Context c){

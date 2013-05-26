@@ -54,7 +54,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		
 		this.ircService = null;
 		Intent intent = new Intent(this, IrcService.class);
-		getApplicationContext().startService(intent);
 		getApplicationContext().bindService(intent, this, 0);
 
 
