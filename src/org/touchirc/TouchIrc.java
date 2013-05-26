@@ -59,6 +59,13 @@ public class TouchIrc{
 		db.close();		
 	}
 	
+	public void updateServer(int idServer, Server server, Context c){
+		Database db = new Database(c);
+		db.updateServer(idServer, server);
+		loadServers(c);
+		db.close();	
+	}
+	
 	public boolean deleteServer(int idServer, Context c){
 		Database db = new Database(c);
 		boolean b = db.deleteServer(idServer);
@@ -75,6 +82,13 @@ public class TouchIrc{
 	public void addProfile(Profile profile, Context c){
 		Database db = new Database(c);
 		db.addProfile(profile);
+		loadProfiles(c);
+		db.close();		
+	}
+	
+	public void updateProfile(int idProfile, Profile profile, Context c){
+		Database db = new Database(c);
+		db.updateProfile(idProfile, profile);
 		loadProfiles(c);
 		db.close();		
 	}
