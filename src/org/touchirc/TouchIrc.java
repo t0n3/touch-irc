@@ -22,6 +22,14 @@ public class TouchIrc{
 		loaded = false;
 	}
 	
+	public void load(Context c) {
+		// always load Profiles before Servers !
+		if(!loaded){
+			loadProfiles(c);
+			loadServers(c);
+			loaded = true;
+		}
+	}
 
 	public static TouchIrc getInstance(){
 		if(instance == null)
@@ -104,6 +112,17 @@ public class TouchIrc{
 		return (idDefaultProfile != -1) ? idDefaultProfile : 1;
 	}
 	
+	// Use idProfile = 0 to unset profile
+	public void setProfile(int idServer, int idProfile, Context c){
+		Server server = availableServers.get(idServer);
+		if(idProfile == 0){
+			server.setProfile(null);
+		}else{
+			server.setProfile(availableProfiles.get(idProfile));
+		}
+		updateServer(idServer, server, c);
+	}
+	
 	public Profile getDefaultProfile(){
 		return this.availableProfiles.get(getIdDefaultProfile());
 	}
@@ -116,11 +135,5 @@ public class TouchIrc{
 	}
 
 
-	public void load(Context c) {
-		if(!loaded){
-			loadProfiles(c);
-			loadServers(c);
-			loaded = true;
-		}
-	}
+	
 }

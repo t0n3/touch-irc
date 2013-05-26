@@ -13,6 +13,7 @@ public interface DBConstants extends BaseColumns {
 	public static final String SERVER_USE_SSL 	 	= "useSSL";
 	public static final String SERVER_CHARSET 	 	= "charset";
 	public static final String SERVER_AUTOCONNECT	= "autoconnect";
+	public static final String SERVER_IDPROFILE		= "idProfile";
 
 	public static final String[] SERVER_ALL = {
 		SERVER_ID,
@@ -22,7 +23,8 @@ public interface DBConstants extends BaseColumns {
 		SERVER_PASSWORD,
 		SERVER_USE_SSL,
 		SERVER_CHARSET,
-		SERVER_AUTOCONNECT
+		SERVER_AUTOCONNECT,
+		SERVER_IDPROFILE
 	};
 
 	public static final String PROFILE_TABLE_NAME 		= "profiles";
@@ -33,7 +35,6 @@ public interface DBConstants extends BaseColumns {
 	public static final String PROFILE_THIRD_NICKNAME 	= "third_nickname";
 	public static final String PROFILE_USERNAME 		= "username";
 	public static final String PROFILE_REALNAME 		= "realname";
-	public static final String DEFAULT_PROFILE			= "profile_by_default";
 
 	public static final String[] PROFILE_ALL = {
 		PROFILE_ID,
@@ -43,15 +44,6 @@ public interface DBConstants extends BaseColumns {
 		PROFILE_THIRD_NICKNAME,
 		PROFILE_USERNAME,
 		PROFILE_REALNAME,
-		DEFAULT_PROFILE,
 	};
 
-	public static final String LINKED_SERVERS_TO_PROFILE_NAME	= "servers_linked_to_profile";
-	public static final String LINKED_SERVER_ID 				= "idServer";
-	public static final String LINKED_PROFILE_ID				= "idProfile";
-	
-	public static final String [] LINKED_SERVERS_TO_PROFILE_ALL = {
-		LINKED_PROFILE_ID,
-		LINKED_SERVER_ID
-	};
 }

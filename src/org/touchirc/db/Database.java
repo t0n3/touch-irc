@@ -1,5 +1,6 @@
 package org.touchirc.db;
 
+import org.touchirc.TouchIrc;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
@@ -30,7 +31,8 @@ public class Database extends SQLiteOpenHelper {
 				+ DBConstants.SERVER_PASSWORD + " TEXT, "
 				+ DBConstants.SERVER_USE_SSL + " BOOLEAN, "
 				+ DBConstants.SERVER_CHARSET + " TEXT,"
-				+ DBConstants.SERVER_AUTOCONNECT + " BOOLEAN );");
+				+ DBConstants.SERVER_AUTOCONNECT + " BOOLEAN,"
+				+ DBConstants.SERVER_IDPROFILE + " INTEGER DEFAULT '0' );");
 
 		db.execSQL("CREATE TABLE " + DBConstants.PROFILE_TABLE_NAME + "(" + DBConstants.PROFILE_ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -39,16 +41,7 @@ public class Database extends SQLiteOpenHelper {
 				+ DBConstants.PROFILE_SCD_NICKNAME + " TEXT,"
 				+ DBConstants.PROFILE_THIRD_NICKNAME + " TEXT,"
 				+ DBConstants.PROFILE_USERNAME + " TEXT NOT NULL,"
-				+ DBConstants.PROFILE_REALNAME + " TEXT NOT NULL,"
-				+ DBConstants.DEFAULT_PROFILE + " BOOLEAN );");
-		
-		db.execSQL("CREATE TABLE " + DBConstants.LINKED_SERVERS_TO_PROFILE_NAME + "("
-				+ DBConstants.LINKED_PROFILE_ID + " INTEGER,"
-				+ DBConstants.LINKED_SERVER_ID + " INTEGER PRIMARY KEY,"
-				+ " FOREIGN KEY (" + DBConstants.LINKED_PROFILE_ID + ") REFERENCES " 
-					+ DBConstants.PROFILE_TABLE_NAME + "(" + DBConstants.PROFILE_ID + "),"
-				+ " FOREIGN KEY (" + DBConstants.LINKED_SERVER_ID + ") REFERENCES " 
-					+ DBConstants.SERVER_TABLE_NAME + "(" + DBConstants.SERVER_ID + "));");
+				+ DBConstants.PROFILE_REALNAME + " TEXT NOT NULL );");
 		
 	}
 
@@ -75,7 +68,9 @@ public class Database extends SQLiteOpenHelper {
 		values.put(DBConstants.SERVER_USE_SSL, server.useSSL());
 		values.put(DBConstants.SERVER_CHARSET, server.getEncoding());
 		values.put(DBConstants.SERVER_AUTOCONNECT, server.isAutoConnect());
-
+		if(server.hasAssociatedProfile())
+			values.put(DBConstants.SERVER_IDPROFILE, TouchIrc.getInstance().getAvailableProfiles().indexOfValue(server.getProfile()));
+		
 		this.getWritableDatabase().insert(
 											DBConstants.SERVER_TABLE_NAME,
 											null,
@@ -118,7 +113,11 @@ public class Database extends SQLiteOpenHelper {
 		newValues.put(DBConstants.SERVER_USE_SSL, server.useSSL());
 		newValues.put(DBConstants.SERVER_CHARSET, server.getEncoding());
 		newValues.put(DBConstants.SERVER_AUTOCONNECT, server.isAutoConnect());
-		
+		if(server.getProfile() == null){
+			newValues.put(DBConstants.SERVER_IDPROFILE, "0");
+		}else{
+			newValues.put(DBConstants.SERVER_IDPROFILE, TouchIrc.getInstance().getAvailableProfiles().indexOfValue(server.getProfile()));
+		}
 		if(this.getWritableDatabase().update(	
 											DBConstants.SERVER_TABLE_NAME,
 											newValues, 
@@ -176,6 +175,10 @@ public class Database extends SQLiteOpenHelper {
 			cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_PORT))),
 			cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_PASSWORD)),
 			cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_CHARSET)));
+			
+			int idProfile = cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_IDPROFILE)));
+			if(idProfile != 0)
+				server.setProfile(TouchIrc.getInstance().getAvailableProfiles().get(idProfile));
 
 		// TODO SSL Support
 
@@ -199,7 +202,6 @@ public class Database extends SQLiteOpenHelper {
 		values.put(DBConstants.PROFILE_THIRD_NICKNAME, profile.getThirdNick());
 		values.put(DBConstants.PROFILE_USERNAME, profile.getUsername());
 		values.put(DBConstants.PROFILE_REALNAME, profile.getRealname());
-		values.put(DBConstants.DEFAULT_PROFILE, "false");
 
 		this.getWritableDatabase().insert(
 										DBConstants.PROFILE_TABLE_NAME,
