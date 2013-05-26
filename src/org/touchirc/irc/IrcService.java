@@ -8,6 +8,7 @@ import java.util.Set;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.touchirc.TouchIrc;
+import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
 import android.app.Service;
@@ -28,9 +29,11 @@ public class IrcService extends Service {
 	
 	public IrcService(){
 		super();
+		
 		this.ircBinder = new IrcBinder(this);
 		this.botsConnected = new HashMap<Server, IrcBot>();
-		this.availableServers = TouchIrc.getInstance(this).getAvailableServers(); 
+		TouchIrc.getInstance().load(this);
+		this.availableServers = TouchIrc.getInstance().getAvailableServers(); 
 	}
 	
 	@Override
@@ -50,7 +53,7 @@ public class IrcService extends Service {
 	}
 	
 	public void reloadAvailableServers(){
-		this.availableServers = TouchIrc.getInstance(this).getAvailableServers();
+		this.availableServers = TouchIrc.getInstance().getAvailableServers();
 	}
 	
 	// return null if the idServer isn't in the Hashmap servers
@@ -70,26 +73,40 @@ public class IrcService extends Service {
 			@Override
 			public void run(){
 				System.out.println(" Thread for the server : " + server.getName());
+				Profile profile = (server.hasAssociatedProfile() ? server.getProfile() : TouchIrc.getInstance().getDefaultProfile());
+				bot.setNickName(profile.getFirstNick());
+				bot.setIdent(profile.getUsername());
+				bot.setRealName(profile.getRealname());
+				
+				int connected = -1;
+				while(connected != 0){
+					System.out.println("while");
 
-				bot.setNickName("Toto1234");
-				bot.setIdent("BouletIdent");
-				bot.setRealName("BouletRealName");
-				
-				
-				try {
-					bot.setEncoding(server.getEncoding());
-					bot.connect(server.getHost(),server.getPort(),server.getPassword());
-					
-					bot.joinChannel("#Boulet");
-				} catch (NickAlreadyInUseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IrcException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					try {
+						bot.setEncoding(server.getEncoding());
+						bot.connect(server.getHost(),server.getPort(),server.getPassword());
+						
+						bot.joinChannel("#Boulet");
+					} catch (NickAlreadyInUseException e) {
+						if(connected == -1){ // First Time so go test with secondNick
+							bot.setNickName(profile.getSecondNick());
+							connected = 1;
+							continue;
+						}
+						if(connected == 1){ // second error so go to thirdNick
+							bot.setNickName(profile.getThirdNick());
+							connected = 2;
+							continue;
+						}
+
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IrcException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					connected = 0;
 				}
 			}
 		}.start();

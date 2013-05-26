@@ -45,7 +45,7 @@ public class ServerAdapter extends BaseAdapter {
 		TextView autoConnect_TV = (TextView) v.findViewById(R.id.textView_DEFAULT);
 		
 		// Checking if the current server is auto-connected
-		if(s.hasAutoConnect()){
+		if(s.isAutoConnect()){
 			autoConnect_TV.setBackgroundResource(R.drawable.object_border);
 			autoConnect_TV.setText(R.string.AUTO);
 		}

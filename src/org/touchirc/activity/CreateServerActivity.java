@@ -1,13 +1,8 @@
 package org.touchirc.activity;
 
 import org.touchirc.R;
-
-import org.touchirc.db.Database;
+import org.touchirc.TouchIrc;
 import org.touchirc.model.Server;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.MenuItem;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,8 +14,14 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
 public class CreateServerActivity extends SherlockActivity {
 
@@ -116,82 +117,32 @@ public class CreateServerActivity extends SherlockActivity {
 						serverName_ET.getText().length() != 0 && 
 						serverHostname_ET.getText().length() != 0 &&
 						serverPort_ET.getText().length() != 0)) {
-
-					// the Server is created with the datas given by the user
-					int port = Integer.parseInt(serverPort_ET.getText().toString());
-
-					serv = new Server(serverName_ET.getText().toString(),
-							serverHostname_ET.getText().toString(),
-							port,
-							serverPassword_ET.getText().toString()
-							);
-
-					Database db = new Database(getApplicationContext());
-					Intent i;
-					Bundle b;
-
-					if(bundleEdit != null){
-						// Update the Server in the database
-						db.updateServer(serv, bundleEdit.getString("ServerName"));
-						Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been modified !", Toast.LENGTH_SHORT).show();
-
-						i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
-						// Use a Bundle to transfer the Server modified
-						b = new Bundle();
-						b.putString("NewNameServer", serv.getName());
-						i.putExtra("NewValue", b);
-						startActivity(i);
-					}
-					else{
-						// Add the Server just created into the database
-						db.addServer(serv);
-						Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been added !", Toast.LENGTH_SHORT).show();
-						
-						// We go back to the ExistingServersActivity and transmit the new server
-						if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingServersActivity")){
-							i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
-							// Use a Bundle to transfer the Server created
-							b = new Bundle();
-							b.putString("NameServer", serv.getName());
-							b.putString("HostnameServer", serv.getHost());
-							b.putInt("PortServer", serv.getPort());
-							if(serv.isProtected()){
-								b.putString("PasswordServer", serv.getPassword());
-							}
-							i.putExtra("NewServer", b);
-							startActivity(i);
-						}
-					}
-
-					db.close();
-
-					handled = true;					
-					finish(); // close the activity
+					addServer();
+					
+					handled = true;
+					finish();
+					
 				}
 				else{
-					// We alarm the user of missing informations
-					Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
-
-					// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
-					if(serverPort_ET.getText().length() == 0){
-						server_port_TV.setTextColor(Color.RED);
-						server_port_TV.invalidate();
-						serverPort_ET.requestFocus();
-					}
-					if(serverHostname_ET.getText().length() == 0){
-						server_Hostname_TV.setTextColor(Color.RED);
-						server_Hostname_TV.invalidate();
-						serverHostname_ET.requestFocus();
-					}
-					if(serverName_ET.getText().length() == 0){
-						server_Name_TV.setTextColor(Color.RED);
-						server_Name_TV.invalidate();
-						serverName_ET.requestFocus();
-					}
+					missingInformation();
 				}
 				return handled;
 			}
 		});
+	}
+	
+	/**
+	 * Define the display of the actionBar
+	 * 
+	 * @param menu
+	 * @return true
+	 */
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu){
+		MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.create_object_activity, menu);
+		return true;
 	}
 	
 	/**
@@ -215,11 +166,91 @@ public class CreateServerActivity extends SherlockActivity {
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			return true;
+		
+		case R.id.save :
+			
+			if (serverName_ET.getText().length() != 0 && 
+				serverHostname_ET.getText().length() != 0 &&
+				serverPort_ET.getText().length() != 0) {
+				
+				addServer();
+				finish();
+				
+			}
+			else{
+				missingInformation();
+			}
+			
+			return true;
+			
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 	
+	private void missingInformation() {
+		
+		// We alarm the user of missing informations
+		Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
+
+		// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
+		if(serverPort_ET.getText().length() == 0){
+			server_port_TV.setTextColor(Color.RED);
+			server_port_TV.invalidate();
+			serverPort_ET.requestFocus();
+		}
+		if(serverHostname_ET.getText().length() == 0){
+			server_Hostname_TV.setTextColor(Color.RED);
+			server_Hostname_TV.invalidate();
+			serverHostname_ET.requestFocus();
+		}
+		if(serverName_ET.getText().length() == 0){
+			server_Name_TV.setTextColor(Color.RED);
+			server_Name_TV.invalidate();
+			serverName_ET.requestFocus();
+		}
+		
+	}
+
+	private void addServer() {
+		
+		// the Server is created with the datas given by the user
+		int port = Integer.parseInt(serverPort_ET.getText().toString());
+
+		serv = new Server(serverName_ET.getText().toString(),
+				serverHostname_ET.getText().toString(),
+				port,
+				serverPassword_ET.getText().toString()
+				);
+
+		Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
+
+
+		if(bundleEdit != null){
+			/*
+			// Update the Server in the database
+			db.updateServer(serv, bundleEdit.getString("ServerName"));
+			Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been modified !", Toast.LENGTH_SHORT).show();
+
+			// Use a Bundle to transfer the Server modified
+			b = new Bundle();
+			b.putString("NewNameServer", serv.getName());
+			i.putExtra("NewValue", b);
+			startActivity(i);
+			*/
+		}
+		else{
+			// Add the Server just created into the database
+			TouchIrc.getInstance().addServer(serv, this);
+			Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been added !", Toast.LENGTH_SHORT).show();
+			
+			// We go back to the ExistingServersActivity and transmit the new server
+			if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingServersActivity")){
+				startActivity(i);
+			}
+		}
+	}
+
 	/**
 	 * 
 	 * This method allows you to configure the behavior of the physical button 

@@ -65,7 +65,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		// Collect the context
 		c = this;
-		touchIrc = TouchIrc.getInstance(c);
+		touchIrc = TouchIrc.getInstance();
 
 		// Collect the server widgets ListView (LV)
 		this.servers_LV = (ListView) findViewById(android.R.id.list);
@@ -140,12 +140,11 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			inflater.inflate(R.menu.context_menu_server, menu);
 
 			// if the server is already the auto-connected one, we cannot set it
-			if(servers.get(indexSelectedItem).hasAutoConnect()){
-				menu.getItem(2).setTitle(R.string.AUTO);
-				menu.getItem(2).setEnabled(false);
+			if(servers.get(indexSelectedItem).isAutoConnect()){
+				menu.getItem(2).setTitle(R.string.disAUTO);
 			}
 			else{
-				menu.getItem(2).setTitle(R.string.AUTO);;
+				menu.getItem(2).setTitle(R.string.AUTO);
 			} 
 
 			return true;
@@ -167,12 +166,17 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			// ########## if the item "AutoConnect" is selected ##########
 			case R.id.autoConnect :
 
-				// The selected server is now the auto-connected one
-				servers.get(indexSelectedItem).enableAutoConnect();
-				mode.getMenu().getItem(2).setTitle(R.string.AUTO);
-				mode.getMenu().getItem(2).setEnabled(false);
-				Toast.makeText(c, servers.get(indexSelectedItem).getName() + " is now used for autoconnection !", Toast.LENGTH_LONG).show();
-				
+				if(servers.get(indexSelectedItem).isAutoConnect()){
+					// The selected server loose its status of auto-connected server
+					servers.get(indexSelectedItem).disableAutoConnect();
+					mode.getMenu().getItem(2).setTitle(R.string.AUTO);
+				}
+				else{
+					// The selected server is now the auto-connected one
+					servers.get(indexSelectedItem).enableAutoConnect();
+					mode.getMenu().getItem(2).setTitle(R.string.disAUTO);
+					Toast.makeText(c, servers.get(indexSelectedItem).getName() + R.string.nowUsedForAutoConnection, Toast.LENGTH_LONG).show();
+				}				
 
 				// Notifying the adapter to update the display
 				adapterServer.notifyDataSetInvalidated();
@@ -223,7 +227,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 					public void onClick(DialogInterface dialog, int id) {
 						
 						// Removal throughout the db
-						if (touchIrc.deleteServer(indexSelectedItem)){ // if the deletion is successful
+						if (touchIrc.deleteServer(indexSelectedItem, getApplicationContext())){ // if the deletion is successful
 							// Reload the new server list
 							servers = touchIrc.getAvailableServers();
 							// Notify the adapter that the list's state has changed
@@ -288,22 +292,10 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	@ Override
 	protected void onResume(){
 		super.onResume();
-		// Use a Bundle to collect the new name of the server or the new Server
-		Bundle bundleEdit = this.getIntent().getBundleExtra("NewValue");
-		Bundle bundleAdd = this.getIntent().getBundleExtra("NewServer");
-
-		// We come from CreateServerActivity and the server's name has changed
-		if(bundleEdit != null && bundleEdit.containsKey("NewValue")){
-			String nameServer = bundleEdit.getString("NewNameServer");
-			this.servers.get(indexSelectedItem).setName(nameServer);
-		}
-
-		// We come from CreateServerActivity and a new server has been added
-		if(bundleAdd != null && bundleAdd.containsKey("NewServer")){
-
-			// We reload the server list
-			servers = touchIrc.getAvailableServers();
-		}
+		
+		touchIrc = TouchIrc.getInstance();
+		servers = touchIrc.getAvailableServers();
+		
 
 		// Update the list and its display
 		this.adapterServer.notifyDataSetChanged();

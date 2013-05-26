@@ -4,33 +4,28 @@ import org.touchirc.db.Database;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.SparseArray;
 
-public class TouchIrc extends Activity{
+public class TouchIrc{
 	
 	private static TouchIrc instance;
-	
-	private Context context;
 	
 	private SparseArray<Server> availableServers;
 	private SparseArray<Profile> availableProfiles;
 	
 	private int idDefaultProfile;
+	private boolean loaded;
 	
-	public TouchIrc(Context c){
+	public TouchIrc(){
 		idDefaultProfile = -1; // set to null
-
-		loadProfiles(c);
-		loadServers(c);
-			
+		loaded = false;
 	}
 	
 
-	public static TouchIrc getInstance(Context c){
+	public static TouchIrc getInstance(){
 		if(instance == null)
-			instance = new TouchIrc(c);
+			instance = new TouchIrc();
 		
 		return instance;
 	}
@@ -57,17 +52,24 @@ public class TouchIrc extends Activity{
 		return availableServers;
 	}
 	
-	public void addServer(Server server){
-		Database db = new Database(context);
+	public void addServer(Server server, Context c){
+		Database db = new Database(c);
 		db.addServer(server);
-		loadServers(context);
+		loadServers(c);
 		db.close();		
 	}
 	
-	public boolean deleteServer(int idServer){
-		Database db = new Database(context);
+	public void updateServer(int idServer, Server server, Context c){
+		Database db = new Database(c);
+		db.updateServer(idServer, server);
+		loadServers(c);
+		db.close();	
+	}
+	
+	public boolean deleteServer(int idServer, Context c){
+		Database db = new Database(c);
 		boolean b = db.deleteServer(idServer);
-		loadServers(context);
+		loadServers(c);
 		db.close();	
 		return b;
 	}
@@ -77,22 +79,33 @@ public class TouchIrc extends Activity{
 		return availableProfiles;
 	}
 	
-	public void addProfile(Profile profile){
-		Database db = new Database(context);
+	public void addProfile(Profile profile, Context c){
+		Database db = new Database(c);
 		db.addProfile(profile);
-		loadServers(context);
+		loadProfiles(c);
 		db.close();		
 	}
 	
-	public void deleteProfile(int idProfile){
-		Database db = new Database(context);
+	public void updateProfile(int idProfile, Profile profile, Context c){
+		Database db = new Database(c);
+		db.updateProfile(idProfile, profile);
+		loadProfiles(c);
+		db.close();		
+	}
+	
+	public void deleteProfile(int idProfile, Context c){
+		Database db = new Database(c);
 		db.deleteProfile(idProfile);
-		loadServers(context);
+		loadServers(c);
 		db.close();	
 	}
 	
-	public int getDefaultProfile(){
+	public int getIdDefaultProfile(){
 		return (idDefaultProfile != -1) ? idDefaultProfile : 1;
+	}
+	
+	public Profile getDefaultProfile(){
+		return this.availableProfiles.get(getIdDefaultProfile());
 	}
 
 
@@ -100,5 +113,14 @@ public class TouchIrc extends Activity{
 		idDefaultProfile = id;
 		// TODO 
 		return true;
+	}
+
+
+	public void load(Context c) {
+		if(!loaded){
+			loadProfiles(c);
+			loadServers(c);
+			loaded = true;
+		}
 	}
 }

@@ -74,7 +74,7 @@ public class Database extends SQLiteOpenHelper {
 		values.put(DBConstants.SERVER_PASSWORD, server.getPassword());
 		values.put(DBConstants.SERVER_USE_SSL, server.useSSL());
 		values.put(DBConstants.SERVER_CHARSET, server.getEncoding());
-		values.put(DBConstants.SERVER_AUTOCONNECT, false);
+		values.put(DBConstants.SERVER_AUTOCONNECT, server.isAutoConnect());
 
 		this.getWritableDatabase().insert(
 											DBConstants.SERVER_TABLE_NAME,
@@ -107,17 +107,22 @@ public class Database extends SQLiteOpenHelper {
 	 * @return if the update succeeds
 	 */
 
-	public boolean updateServer(Server s, String oldNameServer){
+	public boolean updateServer(int idServ, Server server){
+		
+		
 		ContentValues newValues = new ContentValues();
-		newValues.put(DBConstants.SERVER_TITLE, s.getName());
-		newValues.put(DBConstants.SERVER_HOST, s.getHost());
-		newValues.put(DBConstants.SERVER_PORT, s.getPort());
-		newValues.put(DBConstants.SERVER_PASSWORD, s.getPassword());
-
+		newValues.put(DBConstants.SERVER_TITLE, server.getName());
+		newValues.put(DBConstants.SERVER_HOST, server.getHost());
+		newValues.put(DBConstants.SERVER_PORT, server.getPort());
+		newValues.put(DBConstants.SERVER_PASSWORD, server.getPassword());
+		newValues.put(DBConstants.SERVER_USE_SSL, server.useSSL());
+		newValues.put(DBConstants.SERVER_CHARSET, server.getEncoding());
+		newValues.put(DBConstants.SERVER_AUTOCONNECT, server.isAutoConnect());
+		
 		if(this.getWritableDatabase().update(	
 											DBConstants.SERVER_TABLE_NAME,
 											newValues, 
-											DBConstants.SERVER_TITLE + "=" + "\"" + oldNameServer + "\"",
+											DBConstants.SERVER_ID + "=" + idServ,
 											null
 		) > 0){
 			return true;
@@ -227,20 +232,21 @@ public class Database extends SQLiteOpenHelper {
 	 * @return if the update has succeeded
 	 */
 
-	public boolean updateProfile(Profile p, String oldeNameProfile){
+	public boolean updateProfile(int idProfile, Profile profile){
 		
 		ContentValues newValues = new ContentValues();
-		newValues.put(DBConstants.PROFILE_NAME, p.getProfile_name());
-		newValues.put(DBConstants.PROFILE_FIRST_NICKNAME, p.getFirstNick());
-		newValues.put(DBConstants.PROFILE_SCD_NICKNAME, p.getSecondNick());
-		newValues.put(DBConstants.PROFILE_THIRD_NICKNAME, p.getThirdNick());
-		newValues.put(DBConstants.PROFILE_USERNAME, p.getUsername());
-		newValues.put(DBConstants.PROFILE_REALNAME, p.getRealname());
+		newValues.put(DBConstants.PROFILE_NAME, profile.getProfile_name());
+		newValues.put(DBConstants.PROFILE_FIRST_NICKNAME, profile.getFirstNick());
+		newValues.put(DBConstants.PROFILE_SCD_NICKNAME, profile.getSecondNick());
+		newValues.put(DBConstants.PROFILE_THIRD_NICKNAME, profile.getThirdNick());
+		newValues.put(DBConstants.PROFILE_USERNAME, profile.getUsername());
+		newValues.put(DBConstants.PROFILE_REALNAME, profile.getRealname());
+		
 		
 		if(this.getWritableDatabase().update(	
 												DBConstants.PROFILE_TABLE_NAME,
 												newValues, 
-												DBConstants.PROFILE_NAME + "=" + "\"" + oldeNameProfile + "\"",
+												DBConstants.PROFILE_NAME + "=" + idProfile,
 												null
 		) > 0){
 			return true;
@@ -300,7 +306,7 @@ public class Database extends SQLiteOpenHelper {
 				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_SCD_NICKNAME)),
 				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_THIRD_NICKNAME)),
 				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_USERNAME)),
-				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_USERNAME))
+				cursor.getString(cursor.getColumnIndex(DBConstants.PROFILE_REALNAME))
 				);
 		return profile;
 	}
