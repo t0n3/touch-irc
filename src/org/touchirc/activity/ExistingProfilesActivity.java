@@ -134,7 +134,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 			// if the profile is already by default, we cannot set it by default
 			// the icon is updated
-			if(touchIrc.getDefaultProfile() == indexSelectedItem){
+			if(touchIrc.getIdDefaultProfile() == indexSelectedItem){
 				menu.getItem(2).setIcon(android.R.drawable.star_on);
 				menu.getItem(2).setEnabled(false);
 			}
@@ -277,7 +277,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 				// This condition is specified to avoid the fact that 
 				// the list becomes longer by multiplying the click on the item
 				if(item.getSubMenu().size() < servers.size()){
-					for(int j = 0 ; j < servers.size() ; j++){
+					for(int j = 1 ; j < servers.size() ; j++){
 
 						// We add the server's name to the subMenu and allow it to be checked
 						item.getSubMenu().add(servers.get(j).getName());
@@ -349,7 +349,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 	 */
 
 	public void checkingLinkBetweenProfileAndServers(Menu menu){
-		for(int s = 0 ; s < servers.size() ; s++){
+		for(int s = 1 ; s < servers.size() ; s++){
 			if(servers.get(s).getProfile().equals(profiles.get(indexSelectedItem))){
 				menu.getItem(3).getSubMenu().getItem(s).setChecked(true);
 			}

@@ -100,8 +100,12 @@ public class TouchIrc{
 		db.close();	
 	}
 	
-	public int getDefaultProfile(){
+	public int getIdDefaultProfile(){
 		return (idDefaultProfile != -1) ? idDefaultProfile : 1;
+	}
+	
+	public Profile getDefaultProfile(){
+		return this.availableProfiles.get(getIdDefaultProfile());
 	}
 
 
