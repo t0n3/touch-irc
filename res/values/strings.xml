@@ -36,5 +36,6 @@
     <string name="Quit">Quit</string>
     <string name="QuitAppQuestion">Quit the TouchIRC App ?</string>
     <string name="nowUsedForAutoConnection"> is now used for autoconnection !</string>
+    <string name="nowLinkToTheProfile"> is now link to the profile </string>
     
 </resources>
