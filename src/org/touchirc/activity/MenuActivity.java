@@ -1,6 +1,7 @@
 package org.touchirc.activity;
 
 import org.touchirc.R;
+import org.touchirc.TouchIrc;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -23,6 +24,9 @@ public class MenuActivity extends SherlockActivity{
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// Load 
+		TouchIrc.getInstance().load(this);
 
 		setContentView(R.layout.menu);
 
