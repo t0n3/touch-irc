@@ -6,6 +6,7 @@ import org.touchirc.model.Message;
 import org.touchirc.model.Server;
 
 import android.content.Intent;
+import android.util.Log;
 
 public class IrcBot extends PircBot {
 	
@@ -60,6 +61,15 @@ public class IrcBot extends PircBot {
     public void setRealName(String realName)
     {
         this.setVersion(realName);
+    }
+    
+    
+    protected void onConnect(){
+    	Log.i("[IrbBOT]", "Connected");
+    }
+    
+    protected void onDisconnect(){
+    	Log.i("[IrbBOT]", "Disonnected");
     }
 
 }
