@@ -99,6 +99,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long arg3) {
 
+				
 				idSelectedServer = (int) adapterServer.getItemId(position);
 				selectedServer = adapterServer.getItem(position);
 				currentView = v;
@@ -276,10 +277,10 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id){
 		super.onListItemClick(l, v, position, id);
-		position++;
+		
 		if(mActionMode == null){
-			Log.i("TouchIRC ", "Attempt to connect to the server " + this.servers.get(position).getName() +" !");
-			ircService.connect(position);
+			Log.i("TouchIRC ", "Attempt to connect to the server " + this.servers.get((int)adapterServer.getItemId(position)).getName() +" !");
+			ircService.connect((int)adapterServer.getItemId(position));
 		}
 	}
 
