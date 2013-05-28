@@ -1,101 +1,84 @@
 package org.touchirc.activity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 
 import org.touchirc.R;
 import org.touchirc.fragments.ConversationFragment;
 import org.touchirc.irc.IrcBinder;
-import org.touchirc.model.Conversation;
+import org.touchirc.irc.IrcService;
 import org.touchirc.model.Server;
 
-import com.slidingmenu.lib.SlidingMenu;
-import com.slidingmenu.lib.app.SlidingFragmentActivity;
-
-import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-
+import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 
-public class ConversationActivity extends SlidingFragmentActivity implements ServiceConnection {
+import com.slidingmenu.lib.SlidingMenu;
 
-    private IrcBinder ircServiceBind;
+public class ConversationActivity extends BaseSlidingActivity implements ServiceConnection {
+
+    private IrcService ircService;
     private Server currentServer;
+    private ViewPager vp;
+    
+    public ConversationActivity() {
+		super(R.string.titleConversationDefault);
+	}
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Retrieve the currently connected server
-        this.currentServer = this.ircServiceBind.getService().getCurrentServer();
+        this.ircService = null;
+        Intent intent = new Intent(this, IrcService.class);
+        //  getApplicationContext().startService(intent);
+        if(getApplicationContext().bindService(intent, this, Context.BIND_AUTO_CREATE)){
+            System.out.println("OK SERVICE BINDÉ");
+        }
+
         
-        // set the content view
-        setContentView(R.layout.conversation_display);
-        
+        setBehindContentView(R.layout.conversation_display);
         // set the viewpager
-        ViewPager vp = new ViewPager(this);
-		vp.setId("VP".hashCode());
-		vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer.getAllConversations()));
-		setContentView(vp);
+        this.vp = new ViewPager(this);
+        this.vp.setId("VP".hashCode());
+        setContentView(this.vp);
+        this.vp.setOnPageChangeListener(new OnPageChangeListener() {
+            @Override
+            public void onPageScrollStateChanged(int arg0) { }
 
-		vp.setOnPageChangeListener(new OnPageChangeListener() {
-			@Override
-			public void onPageScrollStateChanged(int arg0) { }
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) { }
 
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) { }
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                case 0:
+                    getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+                    break;
+                default:
+                    getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+                    break;
+                }
+            }
 
-			@Override
-			public void onPageSelected(int position) {
-				switch (position) {
-				case 0:
-					getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-					break;
-				default:
-					getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
-					break;
-				}
-			}
+        });
+        this.vp.setCurrentItem(0);
 
-		});
-		
-		vp.setCurrentItem(0);
-        
-        // configure the SlidingMenu
-        getSlidingMenu().setMode(SlidingMenu.LEFT);
-        getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
-        getSlidingMenu().setShadowWidthRes(R.dimen.sliding_shadow_width);
-        getSlidingMenu().setShadowDrawable(R.drawable.shadow);
-        getSlidingMenu().setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        getSlidingMenu().setFadeDegree(0.35f);
-        getSlidingMenu().attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
-		getSlidingMenu().setMenu(R.layout.connected_servers);
-		
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-    }
-        
-    /**
-     * Initialize TabView for a specified server
-     */
-    public void initConversation(Server s){
-    	if(s.hasConversation()){
-    		
-    	}
     }
     
+    // TODO
     public void updateConversation(){
     	
     }
     
+    // TODO
     public void sendMessage(){
         
     }
@@ -103,19 +86,23 @@ public class ConversationActivity extends SlidingFragmentActivity implements Ser
     
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        this.ircServiceBind = null;
+        this.ircService = null;        
     }
 
-
     @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        this.ircServiceBind = (IrcBinder) service;
+    public void onServiceConnected(ComponentName name, IBinder binder) {
+        this.ircService = ((IrcBinder) binder).getService();
+        System.out.println("T'AS LE SERVICE MOFO");
+
+         // Retrieve the currently connected server
+        this.currentServer = this.ircService.getCurrentServer();
+
+        this.vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer.getAllConversations()));
     }
 
     /**
      * ConversationPagerAdapter
      * In charge to handle conversation fragment for swiping in ConversationActivity
-     * @author tone
      */
     public class ConversationPagerAdapter extends FragmentPagerAdapter {
         
