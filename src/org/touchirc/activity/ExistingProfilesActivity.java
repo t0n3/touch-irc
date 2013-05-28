@@ -17,7 +17,7 @@ import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -72,8 +72,6 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 		// the LV is always focused on its last item
 		this.profiles_LV.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
-		
-
 		this.actionBar.setTitle("Profiles  (" + this.profiles.size() + ")");
 
 		// Put an ProfileAdapter so that the LV and the profiles list be linked
@@ -87,9 +85,9 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 		 * 
 		 */
 
-		profiles_LV.setOnItemClickListener(new OnItemClickListener() {
+		profiles_LV.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View v,
+			public boolean onItemLongClick(AdapterView<?> arg0, View v,
 					int position, long arg3) {
 
 				idSelectedProfile = (int) adapterProfile.getItemId(position);
@@ -113,8 +111,44 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 					v.setSelected(true);
 					v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
 				}
+				return true;
 			}
 		});
+	}
+	
+	/**
+	 * 
+	 * Does the same that the setOnItemLongClickListener() but it is triggered when
+	 * the user simple click
+	 * 
+	 */
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id){
+		super.onListItemClick(l, v, position, id);
+		if(mActionMode == null){
+			idSelectedProfile = (int) adapterProfile.getItemId(position);
+			selectedProfile = adapterProfile.getItem(position);
+			currentView = v;
+
+			// if the ActionMode is already displayed
+			if (mActionMode != null) {
+
+				oldView.setBackgroundColor(profiles_LV.getCacheColorHint());
+				mActionMode.finish(); // closing it
+				mActionMode = startActionMode(new ActionModeProfileSettings()); // and launching it to update values
+				v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
+				oldView = v;
+			}
+			else{
+
+				// Start the CallBackActionBar using the ActionMode.Callback defined below
+				mActionMode = startActionMode(new ActionModeProfileSettings()); // launching the ActionMode
+				oldView = v;
+				v.setSelected(true);
+				v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
+			}
+		}
 	}
 
 	/**
@@ -274,16 +308,18 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 				// This condition is specified to avoid the fact that 
 				// the list becomes longer by multiplying the click on the item
 				if(item.getSubMenu().size() < servers.size()){
-					for(int j = 1 ; j < servers.size() ; j++){
+
+					for(int j = 0 ; j < servers.size() ; j++){
+						
+						final int indexServer = j;
 
 						// We add the server's name to the subMenu and allow it to be checked
-						item.getSubMenu().add(servers.get(j).getName());
+						item.getSubMenu().add(servers.valueAt(j).getName());
 						item.getSubMenu().getItem(j).setCheckable(true);
-
 						
-						if(servers.get(j).hasAssociatedProfile()){
+						if(servers.valueAt(j).hasAssociatedProfile()){
 							// if the link already exists, we check the box
-							if(servers.get(j).getProfile().equals(selectedProfile)){
+							if(servers.valueAt(j).getProfile().equals(selectedProfile)){
 								item.getSubMenu().getItem(j).setChecked(true);
 							}
 							else { // if the server is already linked to another profile, we cannot link it
@@ -296,19 +332,17 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 							@Override
 							public boolean onMenuItemClick(MenuItem item) {
-								Server serverToLink = servers.get(item.getItemId()); // TODO CHECK
 
 								if(!item.isChecked()){
-									serverToLink.setProfile(selectedProfile);
+									touchIrc.setProfile(servers.keyAt(indexServer), idSelectedProfile, c);
 									item.setChecked(true);
-									Toast.makeText(c,serverToLink.getName() + " is now link to the profile " + selectedProfile.getProfile_name(), Toast.LENGTH_LONG).show();
+									Toast.makeText(c, servers.valueAt(indexServer).getName() + " is now link to the profile " + selectedProfile.getProfile_name(), Toast.LENGTH_LONG).show();
 								}
 								else{
 									// Delete the existing link
-									serverToLink.setProfile(null);
+									touchIrc.setProfile(servers.keyAt(indexServer), 0, c);
 									item.setChecked(false);
-								}
-
+								}								
 								return true;
 							}
 						});
@@ -347,7 +381,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 	public void checkingLinkBetweenProfileAndServers(Menu menu){
 		for(int s = 1 ; s < servers.size() ; s++){
-			if(servers.get(s).getProfile().equals(selectedProfile)){
+			if(servers.valueAt(s).getProfile().equals(selectedProfile)){
 				menu.getItem(3).getSubMenu().getItem(s).setChecked(true);
 			}
 		}
