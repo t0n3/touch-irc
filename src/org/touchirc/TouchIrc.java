@@ -25,8 +25,14 @@ public class TouchIrc{
 	public void load(Context c) {
 		// always load Profiles before Servers !
 		if(!loaded){
-			loadProfiles(c);
-			loadServers(c);
+			Database db = new Database(c);
+			// Profiles have to be load before Servers (linkedProfile in Servers)
+			availableProfiles = db.getProfileList();
+			availableServers = db.getServerList();
+			db.close();		
+
+			// TODO Load default profile
+			
 			loaded = true;
 		}
 	}
@@ -39,22 +45,6 @@ public class TouchIrc{
 	}
 	
 
-
-	private void loadServers(Context c) {
-		Database db = new Database(c);
-		availableServers = db.getServerList();
-		db.close();		
-
-	}
-	
-	private void loadProfiles(Context c) {
-		Database db = new Database(c);
-		availableProfiles = db.getProfileList();
-		db.close();		
-
-		// TODO Load default profile
-	}
-	
 	/*   SERVERS   */
 	public SparseArray<Server> getAvailableServers(){
 		return availableServers;
@@ -66,26 +56,26 @@ public class TouchIrc{
 					return false;
 		}
 		Database db = new Database(c);
-		db.addServer(server);
-		loadServers(c);
+		int idServer = db.addServer(server);
 		db.close();
-		
+		availableServers.put(idServer, server);
 		return true;
 	}
 	
 	public void updateServer(int idServer, Server server, Context c){
 		Database db = new Database(c);
-		db.updateServer(idServer, server);
-		loadServers(c);
+		if(db.updateServer(idServer, server))
+			System.out.println("Update success");
 		db.close();	
+		availableServers.put(idServer,server);
 	}
 	
 	public boolean deleteServer(int idServer, Context c){
 		Database db = new Database(c);
 		if(!db.deleteServer(idServer))
 			return false;
-		loadServers(c);
 		db.close();	
+		availableServers.remove(idServer);
 		return true;
 	}
 	
@@ -99,26 +89,29 @@ public class TouchIrc{
 			if(availableProfiles.valueAt(i).equals(profile))
 				return false;
 		}
+		
 		Database db = new Database(c);
-		db.addProfile(profile);
-		loadProfiles(c);
+		int idProfile = db.addProfile(profile);
 		db.close();
+		availableProfiles.put(idProfile, profile);
 		return true;
 	}
 	
 	public void updateProfile(int idProfile, Profile profile, Context c){
 		Database db = new Database(c);
 		db.updateProfile(idProfile, profile);
-		loadProfiles(c);
-		db.close();		
+		db.close();	
+		availableProfiles.put(idProfile, profile);
+			
 	}
 	
 	public boolean deleteProfile(int idProfile, Context c){
 		Database db = new Database(c);
 		if(!db.deleteProfile(idProfile))
 			return false;
-		loadProfiles(c);
 		db.close();	
+		this.availableProfiles.delete(idProfile);
+		
 		return true;
 	}
 	
@@ -134,6 +127,7 @@ public class TouchIrc{
 		}else{
 			server.setProfile(availableProfiles.get(idProfile));
 		}
+		System.out.println("New profile linked = " + server.getProfile());
 		updateServer(idServer, server, c);
 	}
 	
