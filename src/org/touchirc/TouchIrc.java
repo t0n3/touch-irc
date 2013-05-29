@@ -82,10 +82,11 @@ public class TouchIrc{
 	
 	public boolean deleteServer(int idServer, Context c){
 		Database db = new Database(c);
-		boolean b = db.deleteServer(idServer);
+		if(!db.deleteServer(idServer))
+			return false;
 		loadServers(c);
 		db.close();	
-		return b;
+		return true;
 	}
 	
 	/*   PROFILES   */
@@ -112,11 +113,13 @@ public class TouchIrc{
 		db.close();		
 	}
 	
-	public void deleteProfile(int idProfile, Context c){
+	public boolean deleteProfile(int idProfile, Context c){
 		Database db = new Database(c);
-		db.deleteProfile(idProfile);
-		loadServers(c);
+		if(!db.deleteProfile(idProfile))
+			return false;
+		loadProfiles(c);
 		db.close();	
+		return true;
 	}
 	
 	public int getIdDefaultProfile(){
