@@ -57,7 +57,7 @@ public class Database extends SQLiteOpenHelper {
 	 * @param server
 	 */
 
-	public void addServer(Server server) {
+	public int addServer(Server server) {
 
 		ContentValues values = new ContentValues();
 
@@ -75,6 +75,11 @@ public class Database extends SQLiteOpenHelper {
 											DBConstants.SERVER_TABLE_NAME,
 											null,
 											values);
+		
+		// return the id of the new 
+		Cursor c = this.getReadableDatabase().rawQuery("select seq from sqlite_sequence where name='servers';",null);
+		c.moveToNext();
+		return c.getInt(0);
 
 	}
 	
@@ -87,10 +92,9 @@ public class Database extends SQLiteOpenHelper {
 	 */
 
 	public boolean deleteServer(int idServer){
-		
 		return this.getWritableDatabase().delete(
 												DBConstants.SERVER_TABLE_NAME, 
-												DBConstants.SERVER_ID + "=\"" + idServer + "\"", 
+												DBConstants.SERVER_ID + "=" + idServer, 
 												null
 			) > 0;
 	}
@@ -116,7 +120,8 @@ public class Database extends SQLiteOpenHelper {
 		if(server.getProfile() == null){
 			newValues.put(DBConstants.SERVER_IDPROFILE, "0");
 		}else{
-			newValues.put(DBConstants.SERVER_IDPROFILE, TouchIrc.getInstance().getAvailableProfiles().indexOfValue(server.getProfile()));
+			SparseArray<Profile> profiles = TouchIrc.getInstance().getAvailableProfiles();
+			newValues.put(DBConstants.SERVER_IDPROFILE, profiles.keyAt(profiles.indexOfValue(server.getProfile())));
 		}
 		if(this.getWritableDatabase().update(	
 											DBConstants.SERVER_TABLE_NAME,
@@ -190,9 +195,10 @@ public class Database extends SQLiteOpenHelper {
 	 * Add the given profile to the database
 	 * 
 	 * @param profile
+	 * @return 
 	 */
 
-	public void addProfile(Profile profile) {
+	public int addProfile(Profile profile) {
 
 		ContentValues values = new ContentValues();
 
@@ -207,7 +213,11 @@ public class Database extends SQLiteOpenHelper {
 										DBConstants.PROFILE_TABLE_NAME,
 										null,
 										values);
-
+		
+		// return the id of the new 
+		Cursor c = this.getReadableDatabase().rawQuery("select seq from sqlite_sequence where name='profiles';",null);
+		c.moveToNext();
+		return c.getInt(0);
 	}
 	
 	/**
