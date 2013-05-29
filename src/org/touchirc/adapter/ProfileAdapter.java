@@ -47,7 +47,7 @@ public class ProfileAdapter extends BaseAdapter {
 		
 		// Checking if the current profile is by default
 		Database db = new Database(c);
-		if(TouchIrc.getInstance().getIdDefaultProfile() == position){
+		if(TouchIrc.getInstance().getIdDefaultProfile() == getItemId(position)){
 			default_TV.setBackgroundResource(R.drawable.object_border);
 			default_TV.setText(R.string.DEFAULT);
 		}
