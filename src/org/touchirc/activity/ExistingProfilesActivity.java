@@ -253,15 +253,12 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 				builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						// Removal throughout the db
-						if (touchIrc.deleteServer(idSelectedProfile, getApplicationContext())){ // if the deletion is successful
+						if (touchIrc.deleteProfile(idSelectedProfile, getApplicationContext())){ // if the deletion is successful
 							// Notify the user thanks to a Toast
 							Toast.makeText(c, "Profile " + selectedProfile.getProfile_name() + " deleted.", Toast.LENGTH_LONG).show();
 
-							profiles = touchIrc.getAvailableProfiles();
 							// Notify the adapter that the list's state has changed
 							adapterProfile.notifyDataSetChanged();
-							// Notifying the adapter to update the display
-							adapterProfile.notifyDataSetInvalidated();
 							// Update the number of available profiles in the actionBar
 							actionBar.setTitle("Profiles  (" + profiles.size() + ")");
 						}
@@ -289,13 +286,15 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 					mode.getMenu().getItem(2).setIcon(android.R.drawable.star_on);
 					mode.getMenu().getItem(2).setEnabled(false);
 					Toast.makeText(c, selectedProfile.getProfile_name() + " is now the profile by default !", Toast.LENGTH_LONG).show();
+					
+					// Notifying the adapter to update the display
+					adapterProfile.notifyDataSetInvalidated();
 				}
 				else{
 					Toast.makeText(c, "An error occurred while setting the profile by default :(", Toast.LENGTH_LONG).show();
 				}
 
-				// Notifying the adapter to update the display
-				adapterProfile.notifyDataSetInvalidated();
+				
 
 				return true;
 
@@ -342,7 +341,10 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 									// Delete the existing link
 									touchIrc.setProfile(servers.keyAt(indexServer), 0, c);
 									item.setChecked(false);
-								}								
+								}
+								// Notify the adapter that the list's state has changed
+								adapterProfile.notifyDataSetChanged();
+								
 								return true;
 							}
 						});
@@ -381,7 +383,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 	public void checkingLinkBetweenProfileAndServers(Menu menu){
 		for(int s = 1 ; s < servers.size() ; s++){
-			if(servers.valueAt(s).getProfile().equals(selectedProfile)){
+			if(servers.valueAt(s).hasAssociatedProfile() && servers.valueAt(s).getProfile().equals(selectedProfile)){
 				menu.getItem(3).getSubMenu().getItem(s).setChecked(true);
 			}
 		}
