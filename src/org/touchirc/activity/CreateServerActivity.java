@@ -4,17 +4,19 @@ import org.touchirc.R;
 import org.touchirc.TouchIrc;
 import org.touchirc.model.Server;
 
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -36,6 +38,12 @@ public class CreateServerActivity extends SherlockActivity {
 
 	private TextView server_password_TV;
 	private EditText serverPassword_ET;
+	
+	private CheckBox useSSL_CB;
+	private String [] charsetArray;
+	private int selectedCharsetPosition = -1;
+	
+	private Button charset_BT;
 
 	private Server serv;
 	private Bundle bundleEdit = null;
@@ -98,35 +106,39 @@ public class CreateServerActivity extends SherlockActivity {
 			this.serverPassword_ET.setText(bundleEdit.getString("ServerPassword"));
 		}
 
-		/**
-		 * Create an OnEditorActionListener Object :
-		 * When the Key "Done" is pressed on the server_password EditText : a Server is created.
-		 */
-
-		this.serverPassword_ET.setOnEditorActionListener(new OnEditorActionListener() {
-
+		// Checkbox : using SSL
+		
+		this.useSSL_CB = (CheckBox) findViewById(R.id.checkBox_SSL_use);
+		
+		// Button : charset
+		
+		this.charsetArray = getResources().getStringArray(R.array.charset_array_name);
+		
+		this.charset_BT = (Button) findViewById(R.id.button_select_charset);
+		this.charset_BT.setOnClickListener(new OnClickListener() {
+			
 			@Override
-			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
-				boolean handled = false;
+			public void onClick(View v) {
+				// Instantiate an AlertDialog.Builder with its constructor
+				AlertDialog.Builder builder = new AlertDialog.Builder(CreateServerActivity.this);
 
-				// the keyboard disappears
-				InputMethodManager mngr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-				mngr.hideSoftInputFromWindow(serverPassword_ET.getWindowToken(), 0);
+				// Chain together various setter methods to set the dialog characteristics
+				builder.setTitle(R.string.charsetTitle);
+				// Integrate the charsetArray inside the Pop-up
+				builder.setItems(charsetArray, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						selectedCharsetPosition = which; // we collect the position to use it again later
+						charset_BT.setText(charsetArray[which]);
+						dialog.dismiss();
+					}
+				});
 
-				if (arg1 == EditorInfo.IME_ACTION_DONE && (
-						serverName_ET.getText().length() != 0 && 
-						serverHostname_ET.getText().length() != 0 &&
-						serverPort_ET.getText().length() != 0)) {
-					addServer();
-					
-					handled = true;
-					finish();
-					
-				}
-				else{
-					missingInformation();
-				}
-				return handled;
+				// Get the AlertDialog from create()
+				AlertDialog dialog = builder.create();
+				dialog.show();
+				
 			}
 		});
 	}
@@ -222,6 +234,16 @@ public class CreateServerActivity extends SherlockActivity {
 				port,
 				serverPassword_ET.getText().toString()
 				);
+		
+		// Use SSL
+		if(this.useSSL_CB.isChecked()){
+			serv.setUseSSL(true);
+		}
+		
+		// Charset chosen
+		if(selectedCharsetPosition != -1){
+			serv.setEncoding(this.charsetArray[selectedCharsetPosition]);
+		}
 
 		Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
 

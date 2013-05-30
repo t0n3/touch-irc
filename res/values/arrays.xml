@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="charset_array_name">
+        <item name="utf8" format="string" type="string">UTF-8</item>
+        <item name="windows-iso-1995-7" format="string" type="string">windows-iso-1995-7</item>
+    </string-array>
+
+</resources>
