@@ -82,10 +82,30 @@ public class CreateServerActivity extends SherlockActivity {
 		// EditTexts		
 
 		this.serverName_ET = (EditText) findViewById(R.id.editText_server_name);
+		// if started by ExistingServersActivity, changing the EditText
+		if(bundleEdit != null && bundleEdit.containsKey("ServerName")){
+			this.serverName_ET.setText(bundleEdit.getString("ServerName"));
+		}
+
 		this.serverHostname_ET = (EditText) findViewById(R.id.editText_hostname);
+		// if started by ExistingServersActivity, changing the EditText
+		if(bundleEdit != null && bundleEdit.containsKey("HostName")){
+			this.serverHostname_ET.setText(bundleEdit.getString("HostName"));
+		}
+
 		this.serverPort_ET = (EditText) findViewById(R.id.editText_server_port);
+		// if started by ExistingServersActivity, changing the EditText
+		if(bundleEdit != null && bundleEdit.containsKey("portNumber")){
+			this.serverPort_ET.setText(String.valueOf(bundleEdit.getInt("portNumber")));
+		}
+
 		this.serverPassword_ET = (EditText) findViewById(R.id.editText_server_password);
-		
+		// if started by ExistingServersActivity, changing the EditText
+		if(bundleEdit != null && bundleEdit.containsKey("ServerPassword")){
+			this.server_password_TV.setTextColor(Color.BLACK); // To highlight the fact that a password exists
+			this.serverPassword_ET.setText(bundleEdit.getString("ServerPassword"));
+		}
+
 		// Checkbox : using SSL
 		
 		this.useSSL_CB = (CheckBox) findViewById(R.id.checkBox_SSL_use);
@@ -121,22 +141,6 @@ public class CreateServerActivity extends SherlockActivity {
 				
 			}
 		});
-		
-		// if started by ExistingServersActivity, changing the EditTexts'value
-		if(bundleEdit != null && bundleEdit.containsKey("ServerId")){
-			// We collect the server from available servers list
-			Server serverToEdit = TouchIrc.getInstance().getAvailableServers().valueAt(bundleEdit.getInt("ServerId"));
-
-			// And put values in corresponding editText
-			this.serverName_ET.setText(serverToEdit.getName()); 
-			this.serverHostname_ET.setText(serverToEdit.getHost());
-			this.serverPort_ET.setText(String.valueOf(serverToEdit.getPort()));
-			this.serverPassword_ET.setText(serverToEdit.getPassword());
-			if(serverToEdit.useSSL()){
-				this.useSSL_CB.setChecked(true);
-			}
-			this.charset_BT.setText(serverToEdit.getEncoding());
-		}
 	}
 	
 	/**
@@ -242,16 +246,20 @@ public class CreateServerActivity extends SherlockActivity {
 		}
 
 		Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
-		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
 
 		if(bundleEdit != null){
-			
+			/*
 			// Update the Server in the database
-			TouchIrc.getInstance().updateServer(bundleEdit.getInt("ServerId"), serv, getApplicationContext());
+			db.updateServer(serv, bundleEdit.getString("ServerName"));
 			Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been modified !", Toast.LENGTH_SHORT).show();
 
+			// Use a Bundle to transfer the Server modified
+			b = new Bundle();
+			b.putString("NewNameServer", serv.getName());
+			i.putExtra("NewValue", b);
 			startActivity(i);
-			
+			*/
 		}
 		else{
 			// Add the Server just created into the database
