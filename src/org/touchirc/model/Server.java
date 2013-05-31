@@ -34,6 +34,18 @@ public class Server {
 		this(name, host, port, password, CHARSET_DEFAULT);
 	}
 	
+	public Server(String name, String host, int port, String password, String charset, String useSSL){
+		this.name = name;
+		this.host = host;
+		this.port = port;
+		this.password = password;
+		this.charset = charset;
+		this.useSSL = Boolean.valueOf(useSSL);
+		this.conversations = new HashMap<String, Conversation>();
+		this.profile = null;
+		this.autoConnect = false;
+	}
+	
 	public Server(String name, String host, int port, String password, String charset){
 		this.name = name;
 		this.host = host;
@@ -103,6 +115,10 @@ public class Server {
 
 	public void setEncoding(String newCharset){
 		this.charset = newCharset;
+	}
+	
+	public void setUseSSL(boolean use){
+		this.useSSL = use;
 	}
 	
 	public boolean useSSL(){
