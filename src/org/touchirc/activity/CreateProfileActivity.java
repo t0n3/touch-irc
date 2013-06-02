@@ -3,18 +3,14 @@ package org.touchirc.activity;
 import org.touchirc.R;
 import org.touchirc.TouchIrc;
 import org.touchirc.model.Profile;
-import org.touchirc.utils.Regex;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -85,62 +81,25 @@ public class CreateProfileActivity extends SherlockActivity{
 		// EditTexts		
 
 		this.profileName_ET = (EditText) findViewById(R.id.editText_profile_name);
-		// if started by ExistingProfilesActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("ProfileName")){
-			this.profileName_ET.setText(bundleEdit.getString("ProfileName"));
-		}
-
 		this.firstNickname_ET = (EditText) findViewById(R.id.editText_first_nick);
-		// if started by ExistingProfilesActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("FirstNickName")){
-			this.firstNickname_ET.setText(bundleEdit.getString("FirstNickName"));
-		}
-
 		this.secondNickname_ET = (EditText) findViewById(R.id.editText_second_nick);
-		// if started by ExistingProfilesActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("ScdNickName") && bundleEdit.getString("ScdNickName").length() > 0){
-			this.secondNickname_ET.setText(bundleEdit.getString("ScdNickName"));
-			this.secondNickname_TV.setTextColor(Color.BLACK); // To highlight the fact that a 2nd nick exists
-		}
-
 		this.thirdNickname_ET = (EditText) findViewById(R.id.editText_third_nick);
-		// if started by ExistingProfilesActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("ThdNickName") && bundleEdit.getString("ThdNickName").length() > 0){
-			this.thirdNickname_ET.setText(bundleEdit.getString("ThdNickName"));
-			this.thirdNickname_TV.setTextColor(Color.BLACK); // To highlight the fact that a 3rd nick exists
-		}
-
 		this.userName_ET = (EditText) findViewById(R.id.editText_username);
-		// if started by ExistingProfilesActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("UserName")){
-			this.userName_ET.setText(bundleEdit.getString("UserName"));
-		}
-
 		this.realName_ET = (EditText) findViewById(R.id.editText_realname);
-		// if started by ExistingProfilesActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("RealName")){
-			this.realName_ET.setText(bundleEdit.getString("RealName"));
-		}
-
-		/**
-		 * Create an OnEditorActionListener Object :
-		 * When the Key "Done" is pressed on the Realname EditText : a Profile is created.
-		 */
-
-		this.realName_ET.setOnEditorActionListener(new OnEditorActionListener() {
-
-			@Override
-			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
-				// the keyboard disappears
-				InputMethodManager mngr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-				mngr.hideSoftInputFromWindow(realName_ET.getWindowToken(), 0);
-
-				
-				return addProfile();
-			}
-
+		
+		// if started by ExistingProfilesActivity, changing the EditTexts'value
+		if(bundleEdit != null && bundleEdit.containsKey("ProfileId")){
+			// We collect the profile from available profiles list
+			Profile profileToEdit = TouchIrc.getInstance().getAvailableProfiles().valueAt(bundleEdit.getInt("ProfileId"));
 			
-		});
+			// And put values in corresponding editText
+			this.profileName_ET.setText(profileToEdit.getProfile_name());
+			this.firstNickname_ET.setText(profileToEdit.getFirstNick());
+			this.secondNickname_ET.setText(profileToEdit.getSecondNick());
+			this.thirdNickname_ET.setText(profileToEdit.getThirdNick());
+			this.userName_ET.setText(profileToEdit.getUsername());
+			this.realName_ET.setText(profileToEdit.getRealname());
+		}
 	}
 	
 	/**
@@ -180,7 +139,23 @@ public class CreateProfileActivity extends SherlockActivity{
 			return true;
 
 		case R.id.save :
-			addProfile();
+			
+			if (profileName_ET.getText().length() != 0 && 
+				firstNickname_ET.getText().length() != 0 &&
+				firstNickname_ET.getText().length() <= 9 &&
+				userName_ET.getText().length() != 0 && 
+				realName_ET.getText().length() != 0 &&
+				realName_ET.getText().length() >= 10 &&
+				realName_ET.getText().length() < 20) {
+
+				addProfile();
+				
+				finish(); // close the activity
+			}
+			else{
+				missingInformation();
+			}
+		
 			return true;
 			
 		default:
@@ -195,14 +170,10 @@ public class CreateProfileActivity extends SherlockActivity{
 		// Initialize the color of the TV
 
 		firstNickname_TV.setTextColor(Color.BLACK);
-		secondNickname_TV.setTextColor(Color.GRAY);
-		thirdNickname_TV.setTextColor(Color.GRAY);
 		realName_TV.setTextColor(Color.BLACK);
-		userName_TV.setTextColor(Color.BLACK);
-		profileName_TV.setTextColor(Color.BLACK);
 
 		// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
-		if(realName_ET.getText().length() == 0){
+		if(realName_ET.getText().length() == 0 || realName_ET.getText().length() < 10 || realName_ET.getText().length() > 20){
 			realName_TV.setTextColor(Color.RED);
 			realName_TV.invalidate();
 			realName_ET.requestFocus();
@@ -212,20 +183,10 @@ public class CreateProfileActivity extends SherlockActivity{
 			userName_TV.invalidate();
 			userName_ET.requestFocus();
 		}
-		if(firstNickname_ET.getText().length() == 0 || !Regex.isAValidNickName(firstNickname_ET.getText().toString())){
+		if(firstNickname_ET.getText().length() == 0 || firstNickname_ET.getText().length() > 9){
 			firstNickname_TV.setTextColor(Color.RED);
 			firstNickname_TV.invalidate();
 			firstNickname_ET.requestFocus();
-		}
-		if(secondNickname_ET.getText().length() != 0 && !Regex.isAValidNickName(secondNickname_ET.getText().toString())){
-			secondNickname_TV.setTextColor(Color.RED);
-			secondNickname_TV.invalidate();
-			secondNickname_ET.requestFocus();
-		}
-		if(thirdNickname_ET.getText().length() != 0 && !Regex.isAValidNickName(thirdNickname_ET.getText().toString())){
-			thirdNickname_TV.setTextColor(Color.RED);
-			thirdNickname_TV.invalidate();
-			thirdNickname_ET.requestFocus();
 		}
 		if(profileName_ET.getText().length() == 0){
 			profileName_TV.setTextColor(Color.RED);
@@ -235,60 +196,38 @@ public class CreateProfileActivity extends SherlockActivity{
 		
 	}
 
-	private boolean addProfile() {
-		
-		if (profileName_ET.getText().length() != 0 && 
-			firstNickname_ET.getText().length() != 0 &&
-			userName_ET.getText().length() != 0 && 
-			realName_ET.getText().length() != 0 && 
-			Regex.isAValidNickName(firstNickname_ET.getText().toString()) &&
-			(secondNickname_ET.getText().length() == 0 || Regex.isAValidNickName(secondNickname_ET.getText().toString())) &&
-			(thirdNickname_ET.getText().length() == 0 || Regex.isAValidNickName(thirdNickname_ET.getText().toString()))
-			){
-		
-			// the Profile is created with the datas given by the user
-			prof = new Profile(profileName_ET.getText().toString(),
-					firstNickname_ET.getText().toString(),
-					secondNickname_ET.getText().toString(),
-					thirdNickname_ET.getText().toString(),
-					userName_ET.getText().toString(),
-					realName_ET.getText().toString());
+	private void addProfile() {
+		// the Profile is created with the datas given by the user
+		prof = new Profile(profileName_ET.getText().toString(),
+				firstNickname_ET.getText().toString(),
+				secondNickname_ET.getText().toString(),
+				thirdNickname_ET.getText().toString(),
+				userName_ET.getText().toString(),
+				realName_ET.getText().toString());
 
-			Intent i;
-	
-			if(bundleEdit != null){
-				/*
-				// Update the Profile in the database
-				db.updateProfile(prof, bundleEdit.getString("ProfileName"));
-				Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been modified !", Toast.LENGTH_SHORT).show();
-	
-				i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
-				// Use a Bundle to transfer the profile modified
-				b = new Bundle();
-				b.putString("NewNameProfile", prof.getProfile_name());
-				i.putExtra("NewValue", b);
-				startActivity(i);
-				*/
-			}
-			else{
-				// Add the Profile just created into the database
-				TouchIrc.getInstance().addProfile(prof, this);
-				Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
-				
-				// We go back to the ExistingProfilesActivity and transmit the new profile
-				if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingProfilesActivity")){
-					i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
-					startActivity(i);
-				}
-			}
-								
-			finish(); // close the activity
-			return true;
+		Intent i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		if(bundleEdit != null){
+			
+			// Update the Profile in the database
+			TouchIrc.getInstance().updateProfile(bundleEdit.getInt("ProfileId"), prof, getApplicationContext());
+			Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been modified !", Toast.LENGTH_SHORT).show();
+
+			startActivity(i);
+			
 		}
 		else{
-			missingInformation();
-			return false;
+			// Add the Profile just created into the database
+			TouchIrc.getInstance().addProfile(prof, this);
+			Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
+			
+			// We go back to the ExistingProfilesActivity and transmit the new profile
+			if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingProfilesActivity")){
+				startActivity(i);
+			}
 		}
+		
 	}
 
 	/**
