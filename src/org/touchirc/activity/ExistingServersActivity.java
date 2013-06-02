@@ -82,6 +82,9 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		this.adapterServer =  new ServerAdapter(servers, c);
 		this.setListAdapter(adapterServer);
 		
+		
+		
+		
 		/**
 		 * 
 		 * When the user click on an item an ActionMode Bar appears.
@@ -187,12 +190,18 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			// ########## if the item "Edit" is selected ##########		
 			case R.id.edit : 
 
+				// Collect all the informations concerning the current server
+				Server serverToEdit = selectedServer;
+
 				// Prepare the Intent to switch on the activity which allows to modify the server
 				Intent i = new Intent(ExistingServersActivity.this, CreateServerActivity.class);
 
 				// Put the informations of the current server into a Bundle object
 				Bundle b = new Bundle();
-				b.putInt("ServerId", servers.indexOfValue(selectedServer));
+				b.putString("ServerName", serverToEdit.getName());
+				b.putString("HostName", serverToEdit.getHost());
+				b.putInt("portNumber", serverToEdit.getPort());
+				b.putString("ServerPassword", serverToEdit.getPassword());
 
 				// Assign the Bundle to the Intent
 				i.putExtra("ServerIdentification", b);

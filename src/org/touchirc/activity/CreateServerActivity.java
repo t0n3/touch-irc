@@ -4,19 +4,17 @@ import org.touchirc.R;
 import org.touchirc.TouchIrc;
 import org.touchirc.model.Server;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CheckBox;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -38,12 +36,6 @@ public class CreateServerActivity extends SherlockActivity {
 
 	private TextView server_password_TV;
 	private EditText serverPassword_ET;
-	
-	private CheckBox useSSL_CB;
-	private String [] charsetArray;
-	private int selectedCharsetPosition = -1;
-	
-	private Button charset_BT;
 
 	private Server serv;
 	private Bundle bundleEdit = null;
@@ -82,61 +74,61 @@ public class CreateServerActivity extends SherlockActivity {
 		// EditTexts		
 
 		this.serverName_ET = (EditText) findViewById(R.id.editText_server_name);
+		// if started by ExistingServersActivity, changing the EditText
+		if(bundleEdit != null && bundleEdit.containsKey("ServerName")){
+			this.serverName_ET.setText(bundleEdit.getString("ServerName"));
+		}
+
 		this.serverHostname_ET = (EditText) findViewById(R.id.editText_hostname);
+		// if started by ExistingServersActivity, changing the EditText
+		if(bundleEdit != null && bundleEdit.containsKey("HostName")){
+			this.serverHostname_ET.setText(bundleEdit.getString("HostName"));
+		}
+
 		this.serverPort_ET = (EditText) findViewById(R.id.editText_server_port);
+		// if started by ExistingServersActivity, changing the EditText
+		if(bundleEdit != null && bundleEdit.containsKey("portNumber")){
+			this.serverPort_ET.setText(String.valueOf(bundleEdit.getInt("portNumber")));
+		}
+
 		this.serverPassword_ET = (EditText) findViewById(R.id.editText_server_password);
-		
-		// Checkbox : using SSL
-		
-		this.useSSL_CB = (CheckBox) findViewById(R.id.checkBox_SSL_use);
-		
-		// Button : charset
-		
-		this.charsetArray = getResources().getStringArray(R.array.charset_array_name);
-		
-		this.charset_BT = (Button) findViewById(R.id.button_select_charset);
-		this.charset_BT.setOnClickListener(new OnClickListener() {
-			
+		// if started by ExistingServersActivity, changing the EditText
+		if(bundleEdit != null && bundleEdit.containsKey("ServerPassword")){
+			this.server_password_TV.setTextColor(Color.BLACK); // To highlight the fact that a password exists
+			this.serverPassword_ET.setText(bundleEdit.getString("ServerPassword"));
+		}
+
+		/**
+		 * Create an OnEditorActionListener Object :
+		 * When the Key "Done" is pressed on the server_password EditText : a Server is created.
+		 */
+
+		this.serverPassword_ET.setOnEditorActionListener(new OnEditorActionListener() {
+
 			@Override
-			public void onClick(View v) {
-				// Instantiate an AlertDialog.Builder with its constructor
-				AlertDialog.Builder builder = new AlertDialog.Builder(CreateServerActivity.this);
+			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
+				boolean handled = false;
 
-				// Chain together various setter methods to set the dialog characteristics
-				builder.setTitle(R.string.charsetTitle);
-				// Integrate the charsetArray inside the Pop-up
-				builder.setItems(charsetArray, new DialogInterface.OnClickListener() {
+				// the keyboard disappears
+				InputMethodManager mngr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+				mngr.hideSoftInputFromWindow(serverPassword_ET.getWindowToken(), 0);
+
+				if (arg1 == EditorInfo.IME_ACTION_DONE && (
+						serverName_ET.getText().length() != 0 && 
+						serverHostname_ET.getText().length() != 0 &&
+						serverPort_ET.getText().length() != 0)) {
+					addServer();
 					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						selectedCharsetPosition = which; // we collect the position to use it again later
-						charset_BT.setText(charsetArray[which]);
-						dialog.dismiss();
-					}
-				});
-
-				// Get the AlertDialog from create()
-				AlertDialog dialog = builder.create();
-				dialog.show();
-				
+					handled = true;
+					finish();
+					
+				}
+				else{
+					missingInformation();
+				}
+				return handled;
 			}
 		});
-		
-		// if started by ExistingServersActivity, changing the EditTexts'value
-		if(bundleEdit != null && bundleEdit.containsKey("ServerId")){
-			// We collect the server from available servers list
-			Server serverToEdit = TouchIrc.getInstance().getAvailableServers().valueAt(bundleEdit.getInt("ServerId"));
-
-			// And put values in corresponding editText
-			this.serverName_ET.setText(serverToEdit.getName()); 
-			this.serverHostname_ET.setText(serverToEdit.getHost());
-			this.serverPort_ET.setText(String.valueOf(serverToEdit.getPort()));
-			this.serverPassword_ET.setText(serverToEdit.getPassword());
-			if(serverToEdit.useSSL()){
-				this.useSSL_CB.setChecked(true);
-			}
-			this.charset_BT.setText(serverToEdit.getEncoding());
-		}
 	}
 	
 	/**
@@ -230,28 +222,22 @@ public class CreateServerActivity extends SherlockActivity {
 				port,
 				serverPassword_ET.getText().toString()
 				);
-		
-		// Use SSL
-		if(this.useSSL_CB.isChecked()){
-			serv.setUseSSL(true);
-		}
-		
-		// Charset chosen
-		if(selectedCharsetPosition != -1){
-			serv.setEncoding(this.charsetArray[selectedCharsetPosition]);
-		}
 
 		Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
-		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
 
 		if(bundleEdit != null){
-			
+			/*
 			// Update the Server in the database
-			TouchIrc.getInstance().updateServer(bundleEdit.getInt("ServerId"), serv, getApplicationContext());
+			db.updateServer(serv, bundleEdit.getString("ServerName"));
 			Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been modified !", Toast.LENGTH_SHORT).show();
 
+			// Use a Bundle to transfer the Server modified
+			b = new Bundle();
+			b.putString("NewNameServer", serv.getName());
+			i.putExtra("NewValue", b);
 			startActivity(i);
-			
+			*/
 		}
 		else{
 			// Add the Server just created into the database

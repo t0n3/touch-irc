@@ -67,7 +67,7 @@ public class TouchIrc{
 		if(db.updateServer(idServer, server))
 			System.out.println("Update success");
 		db.close();	
-		availableServers.setValueAt(idServer, server);
+		availableServers.put(idServer,server);
 	}
 	
 	public boolean deleteServer(int idServer, Context c){
@@ -101,7 +101,7 @@ public class TouchIrc{
 		Database db = new Database(c);
 		db.updateProfile(idProfile, profile);
 		db.close();	
-		availableProfiles.setValueAt(idProfile, profile);
+		availableProfiles.put(idProfile, profile);
 			
 	}
 	
