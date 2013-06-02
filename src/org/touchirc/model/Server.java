@@ -1,7 +1,5 @@
 package org.touchirc.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -21,8 +19,7 @@ public class Server {
 	private boolean autoConnect;
 	
 	private boolean skipMOTD = true;
-	// TODO Add SSL support
-	private boolean useSSL = false;
+	private boolean useSSL;
 
 	private HashMap<String, Conversation> conversations;
 	
@@ -34,7 +31,11 @@ public class Server {
 		this(name, host, port, password, CHARSET_DEFAULT);
 	}
 	
-	public Server(String name, String host, int port, String password, String charset, String useSSL){
+	public Server(String name, String host, int port, String password, String charset){
+		this(name, host, port, password, CHARSET_DEFAULT, false);
+	}
+	
+	public Server(String name, String host, int port, String password, String charset, boolean useSSL){
 		this.name = name;
 		this.host = host;
 		this.port = port;
@@ -44,18 +45,10 @@ public class Server {
 		this.conversations = new HashMap<String, Conversation>();
 		this.profile = null;
 		this.autoConnect = false;
+		this.useSSL = useSSL;
 	}
 	
-	public Server(String name, String host, int port, String password, String charset){
-		this.name = name;
-		this.host = host;
-		this.port = port;
-		this.password = password;
-		this.charset = charset;
-		this.conversations = new HashMap<String, Conversation>();
-		this.profile = null;
-		this.autoConnect = false;
-	}
+	
 	
 	public Conversation getConversation(String title){
 		return this.conversations.get(title);
@@ -117,8 +110,8 @@ public class Server {
 		this.charset = newCharset;
 	}
 	
-	public void setUseSSL(boolean use){
-		this.useSSL = use;
+	public void enableSSL(boolean useSSL){
+		this.useSSL = useSSL;
 	}
 	
 	public boolean useSSL(){
