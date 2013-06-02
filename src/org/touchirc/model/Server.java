@@ -110,7 +110,7 @@ public class Server {
 		this.charset = newCharset;
 	}
 	
-	public void enableSSL(boolean useSSL){
+	public void setUseSSL(boolean useSSL){
 		this.useSSL = useSSL;
 	}
 	
