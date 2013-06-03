@@ -1,6 +1,10 @@
 package org.touchirc.irc;
 
 import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.Event;
+import org.pircbotx.hooks.Listener;
+import org.pircbotx.hooks.events.JoinEvent;
+import org.pircbotx.hooks.events.PartEvent;
 import org.touchirc.model.Conversation;
 import org.touchirc.model.Message;
 import org.touchirc.model.Server;
@@ -8,7 +12,7 @@ import org.touchirc.model.Server;
 import android.content.Intent;
 import android.util.Log;
 
-public class IrcBot extends PircBotX {
+public class IrcBot extends PircBotX implements Listener<IrcBot>{
 	
 	private IrcService service;
 	private Server server;
@@ -71,6 +75,25 @@ public class IrcBot extends PircBotX {
     protected void onDisconnect(){
     	Log.i("[IrbBOT]", "Disonnected");
     }
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void onEvent(Event rawevent) throws Exception {
+		
+		if(rawevent instanceof JoinEvent){
+			JoinEvent event = (JoinEvent) rawevent;
+			if(event.getUser().equals(event.getBot().getUserBot()) && this.server.getConversation(event.getChannel().getName()) == null)
+				this.server.addConversation(new Conversation(event.getChannel().getName()));
+			return;
+		}
+		if(rawevent instanceof PartEvent){
+			PartEvent event = (PartEvent) rawevent;
+			if(event.getUser().equals(event.getBot().getUserBot()) && this.server.getConversation(event.getChannel().getName()) != null)
+				this.server.removeConversation(event.getChannel().getName());
+			return;
+		}
+		
+	}
     
     
 

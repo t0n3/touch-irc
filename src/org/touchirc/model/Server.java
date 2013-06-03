@@ -62,6 +62,10 @@ public class Server {
 		this.conversations.put(c.getTitle(),c);
 	}
 	
+	public void removeConversation(String channel) {
+		this.conversations.remove(channel);
+	}
+	
 	public String getName(){
 		return this.name;
 	}
@@ -155,4 +159,6 @@ public class Server {
 	public boolean isAutoConnect(){
 		return this.autoConnect;
 	}
+
+	
 }
