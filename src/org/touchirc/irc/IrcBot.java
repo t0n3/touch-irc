@@ -1,6 +1,6 @@
 package org.touchirc.irc;
 
-import org.jibble.pircbot.PircBot;
+import org.pircbotx.PircBotX;
 import org.touchirc.model.Conversation;
 import org.touchirc.model.Message;
 import org.touchirc.model.Server;
@@ -8,7 +8,7 @@ import org.touchirc.model.Server;
 import android.content.Intent;
 import android.util.Log;
 
-public class IrcBot extends PircBot {
+public class IrcBot extends PircBotX {
 	
 	private IrcService service;
 	private Server server;
@@ -71,5 +71,7 @@ public class IrcBot extends PircBot {
     protected void onDisconnect(){
     	Log.i("[IrbBOT]", "Disonnected");
     }
+    
+    
 
 }

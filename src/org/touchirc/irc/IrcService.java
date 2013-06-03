@@ -5,10 +5,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.jibble.pircbot.IrcException;
-import org.jibble.pircbot.NickAlreadyInUseException;
+import org.pircbotx.Channel;
+import org.pircbotx.User;
 import org.touchirc.TouchIrc;
-import org.touchirc.model.Channel;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
@@ -88,22 +87,13 @@ public class IrcService extends Service {
 						bot.connect(server.getHost(),server.getPort(),server.getPassword());
 						
 						bot.joinChannel("#Boulet");
-					} catch (NickAlreadyInUseException e) {
-						if(connected == -1){ // First Time so go test with secondNick
-							bot.setNickName(profile.getSecondNick());
-							connected = 1;
-							continue;
-						}
-						if(connected == 1){ // second error so go to thirdNick
-							bot.setNickName(profile.getThirdNick());
-							connected = 2;
-							continue;
-						}
-
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-					} catch (IrcException e) {
+					} catch (org.pircbotx.exception.NickAlreadyInUseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (org.pircbotx.exception.IrcException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -146,14 +136,15 @@ public class IrcService extends Service {
 	}
 	
 	public void setCurrentChannel(Channel channel){
-		String[] channels = getBot(currentServer).getChannels();
-		for(String s : channels){
-			if(s.equalsIgnoreCase(channel.getTitle())){
-				currentChannel = channel;
+		Set<Channel> channels = getBot(currentServer).getChannels();
+		for(Channel chan : channels){
+			if(chan.equals(channel)){
+				currentChannel = chan;
 				return;
 			}
 		}
 	}
 	
-	    
+	
+    
 }
