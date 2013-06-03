@@ -8,7 +8,9 @@ import java.util.Set;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.touchirc.TouchIrc;
+import org.touchirc.model.Conversation;
 import org.touchirc.model.Profile;
+import org.touchirc.model.Query;
 import org.touchirc.model.Server;
 
 import android.app.Service;
@@ -143,6 +145,20 @@ public class IrcService extends Service {
 				return;
 			}
 		}
+	}
+	
+	public Conversation join(String chan){
+		Channel channel = getBot(currentServer).getChannel(chan);
+		Conversation conversation = new Conversation(channel.getName());
+		currentServer.addConversation(conversation);
+		return conversation;
+	}
+	
+	public Conversation query(String nickname){
+		User user = getBot(currentServer).getUser(nickname);
+		Conversation query = new Query(user.getNick());
+		currentServer.addConversation(query);
+		return query;
 	}
 	
 	
