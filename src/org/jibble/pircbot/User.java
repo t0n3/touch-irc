@@ -67,6 +67,10 @@ public class User {
         return _prefix.indexOf('@') >= 0;
     }
     
+    public boolean isHalfOp() {
+    	return _prefix.indexOf('%') >= 0;
+    }
+    
     
     /**
      * Returns whether or not the user represented by this object has
