@@ -155,12 +155,5 @@ public class IrcService extends Service {
 		}
 	}
 	
-	public void toto(){
-		for(String s : getBot(currentServer).getChannels())
-			System.out.println(s);
-	}
-
-   
-
-    
+	    
 }
