@@ -1,6 +1,5 @@
 package org.touchirc.model;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 
 public class Conversation {
@@ -12,7 +11,7 @@ public class Conversation {
 	public Conversation(String title){
 		this.messagesBuffer = new LinkedList<Message>();
 		this.messagesHistory = new LinkedList<Message>();
-		this.title = title;
+		this.title = title.toLowerCase();
 	}
 	
 	public void addMessage(Message m){

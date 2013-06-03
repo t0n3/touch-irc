@@ -8,6 +8,7 @@ import java.util.Set;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.touchirc.TouchIrc;
+import org.touchirc.model.Channel;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
@@ -24,6 +25,7 @@ public class IrcService extends Service {
 	private HashMap<Server, IrcBot> botsConnected;
 	
 	private Server currentServer;
+	private Channel currentChannel;
 	
 	// Map of idServer, Server for available servers 
 	private SparseArray<Server> availableServers; // SparseArray = Map<Integer, Object>
@@ -139,7 +141,24 @@ public class IrcService extends Service {
 			currentServer = server;
 	}
 	
-   
+	public Channel getCurrentChannel(){
+		return currentChannel;
+	}
+	
+	public void setCurrentChannel(Channel channel){
+		String[] channels = getBot(currentServer).getChannels();
+		for(String s : channels){
+			if(s.equalsIgnoreCase(channel.getTitle())){
+				currentChannel = channel;
+				return;
+			}
+		}
+	}
+	
+	public void toto(){
+		for(String s : getBot(currentServer).getChannels())
+			System.out.println(s);
+	}
 
    
 
