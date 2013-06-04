@@ -3,6 +3,7 @@ package org.touchirc.activity;
 import org.touchirc.R;
 import org.touchirc.TouchIrc;
 import org.touchirc.model.Profile;
+import org.touchirc.utils.Regex;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -86,12 +87,12 @@ public class CreateProfileActivity extends SherlockActivity{
 		this.thirdNickname_ET = (EditText) findViewById(R.id.editText_third_nick);
 		this.userName_ET = (EditText) findViewById(R.id.editText_username);
 		this.realName_ET = (EditText) findViewById(R.id.editText_realname);
-		
+
 		// if started by ExistingProfilesActivity, changing the EditTexts'value
 		if(bundleEdit != null && bundleEdit.containsKey("ProfileId")){
 			// We collect the profile from available profiles list
 			Profile profileToEdit = TouchIrc.getInstance().getAvailableProfiles().valueAt(bundleEdit.getInt("ProfileId"));
-			
+
 			// And put values in corresponding editText
 			this.profileName_ET.setText(profileToEdit.getProfile_name());
 			this.firstNickname_ET.setText(profileToEdit.getFirstNick());
@@ -101,7 +102,7 @@ public class CreateProfileActivity extends SherlockActivity{
 			this.realName_ET.setText(profileToEdit.getRealname());
 		}
 	}
-	
+
 	/**
 	 * Define the display of the actionBar
 	 * 
@@ -139,30 +140,17 @@ public class CreateProfileActivity extends SherlockActivity{
 			return true;
 
 		case R.id.save :
-			
-			if (profileName_ET.getText().length() != 0 && 
-				firstNickname_ET.getText().length() != 0 &&
-				firstNickname_ET.getText().length() <= 9 &&
-				userName_ET.getText().length() != 0 && 
-				realName_ET.getText().length() != 0 &&
-				realName_ET.getText().length() >= 10 &&
-				realName_ET.getText().length() < 20) {
 
-				addProfile();
-				
+			if(addProfile()){				
 				finish(); // close the activity
 			}
-			else{
-				missingInformation();
-			}
-		
 			return true;
-			
+
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	private void missingInformation() {
 		// We alarm the user of missing informations
 		Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
@@ -173,7 +161,7 @@ public class CreateProfileActivity extends SherlockActivity{
 		realName_TV.setTextColor(Color.BLACK);
 
 		// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
-		if(realName_ET.getText().length() == 0 || realName_ET.getText().length() < 10 || realName_ET.getText().length() > 20){
+		if(realName_ET.getText().length() == 0){
 			realName_TV.setTextColor(Color.RED);
 			realName_TV.invalidate();
 			realName_ET.requestFocus();
@@ -183,7 +171,7 @@ public class CreateProfileActivity extends SherlockActivity{
 			userName_TV.invalidate();
 			userName_ET.requestFocus();
 		}
-		if(firstNickname_ET.getText().length() == 0 || firstNickname_ET.getText().length() > 9){
+		if(firstNickname_ET.getText().length() == 0){
 			firstNickname_TV.setTextColor(Color.RED);
 			firstNickname_TV.invalidate();
 			firstNickname_ET.requestFocus();
@@ -193,41 +181,71 @@ public class CreateProfileActivity extends SherlockActivity{
 			profileName_TV.invalidate();
 			profileName_ET.requestFocus();
 		}
-		
+
 	}
 
-	private void addProfile() {
-		// the Profile is created with the datas given by the user
-		prof = new Profile(profileName_ET.getText().toString(),
-				firstNickname_ET.getText().toString(),
-				secondNickname_ET.getText().toString(),
-				thirdNickname_ET.getText().toString(),
-				userName_ET.getText().toString(),
-				realName_ET.getText().toString());
+	private boolean addProfile() {
 
-		Intent i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
-		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		// Control the validity of the nicknames
+		boolean validFirstNickname = Regex.isAValidNickName(firstNickname_ET.getText().toString());
+		boolean validSecondNickname = Regex.isAValidNickName(secondNickname_ET.getText().toString());
+		boolean validThirdNickname = Regex.isAValidNickName(thirdNickname_ET.getText().toString());
 
-		if(bundleEdit != null){
-			
-			// Update the Profile in the database
-			TouchIrc.getInstance().updateProfile(bundleEdit.getInt("ProfileId"), prof, getApplicationContext());
-			Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been modified !", Toast.LENGTH_SHORT).show();
+		if(validFirstNickname && validSecondNickname && validThirdNickname){
+			// the Profile is created with the datas given by the user
+			prof = new Profile(profileName_ET.getText().toString(),
+					firstNickname_ET.getText().toString(),
+					secondNickname_ET.getText().toString(),
+					thirdNickname_ET.getText().toString(),
+					userName_ET.getText().toString(),
+					realName_ET.getText().toString());
 
-			startActivity(i);
-			
-		}
-		else{
-			// Add the Profile just created into the database
-			TouchIrc.getInstance().addProfile(prof, this);
-			Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
-			
-			// We go back to the ExistingProfilesActivity and transmit the new profile
-			if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingProfilesActivity")){
+			Intent i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
+			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+			if(bundleEdit != null){
+
+				// Update the Profile in the database
+				TouchIrc.getInstance().updateProfile(bundleEdit.getInt("ProfileId"), prof, getApplicationContext());
+				Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been modified !", Toast.LENGTH_SHORT).show();
+
+				startActivity(i);
+
+			}
+			else{
+				// Add the Profile just created into the database
+				TouchIrc.getInstance().addProfile(prof, this);
+				Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
+
+				if(bundleAddFromMenu == null){
+					i.setClass(getApplicationContext(), MenuActivity.class);
+				}
 				startActivity(i);
 			}
+
+			// No problems concerning values
+			return true;
+
 		}
-		
+		else{
+			if(validFirstNickname){
+				this.firstNickname_ET.setTextColor(Color.RED);
+				this.firstNickname_ET.invalidate();
+			}
+			if(validSecondNickname){
+				this.secondNickname_ET.setTextColor(Color.RED);
+				this.secondNickname_ET.invalidate();
+			}
+			if(validThirdNickname){
+				this.thirdNickname_ET.setTextColor(Color.RED);
+				this.thirdNickname_ET.invalidate();
+			}
+
+			missingInformation();
+
+			// Some values are missing/invalids
+			return false;
+		}
 	}
 
 	/**
