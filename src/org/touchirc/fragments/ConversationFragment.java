@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Layout;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,11 +46,18 @@ public class ConversationFragment extends Fragment {
 		// construct the RelativeLayout
 		RelativeLayout v = new RelativeLayout(getActivity());
 		// Construct the TextView
-		this.textView = new TextView(container.getContext());
+		textView = new TextView(container.getContext());
+		textView.setMovementMethod(new ScrollingMovementMethod());
+		textView.setVerticalScrollBarEnabled(true);
+		textView.setVerticalScrollbarPosition(TextView.SCROLLBAR_POSITION_RIGHT);
+		textView.setTextIsSelectable(true);
+		textView.setVerticalFadingEdgeEnabled(false);
+		textView.setScrollBarStyle(TextView.SCROLLBARS_OUTSIDE_INSET);
+		textView.setPadding(5, 0, 5, 5);
 		// Fill the TextView with Conversation
-		this.textView.setText(sConversation);
+		textView.setText(sConversation);
 		// Add the TextView to the layout		
-		v.addView(this.textView);
+		v.addView(textView);
 		
 		this.messageReceiver = new BroadcastReceiver() {
 			@Override
@@ -62,6 +71,7 @@ public class ConversationFragment extends Fragment {
 
 		return v;
 	}
+	
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
