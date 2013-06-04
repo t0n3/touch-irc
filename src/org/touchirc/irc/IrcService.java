@@ -6,11 +6,10 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.pircbotx.Channel;
-import org.pircbotx.User;
+import org.pircbotx.exception.IrcException;
+import org.pircbotx.exception.NickAlreadyInUseException;
 import org.touchirc.TouchIrc;
-import org.touchirc.model.Conversation;
 import org.touchirc.model.Profile;
-import org.touchirc.model.Query;
 import org.touchirc.model.Server;
 
 import android.app.Service;
@@ -89,18 +88,31 @@ public class IrcService extends Service {
 						bot.connect(server.getHost(),server.getPort(),server.getPassword());
 						
 						bot.joinChannel("#Boulet");
+						bot.joinChannel("#Boulet2");
+					} catch (NickAlreadyInUseException e) {
+					} catch (IrcException e) {
+						// TODO Auto-generated catch block
+						
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (org.pircbotx.exception.NickAlreadyInUseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (org.pircbotx.exception.IrcException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						if(e.getCause().toString().startsWith("org.pircbotx.exception.NickAlreadyInUseException")){
+							if(connected == -1){ // First Time so go test with secondNick
+								bot.setNickName(profile.getSecondNick());
+								connected = 1;
+								continue;
+							}else if(connected == 1){ // second error so go to thirdNick
+								bot.setNickName(profile.getThirdNick());
+								connected = 2;
+								continue;
+							}else {
+								e.printStackTrace();
+							}
+						}else{
+							e.printStackTrace();
+						}
 					}
 					connected = 0;
 					currentServer = server;
+					
 				}
 			}
 		}.start();
@@ -146,21 +158,4 @@ public class IrcService extends Service {
 			}
 		}
 	}
-	
-	public Conversation join(String chan){
-		Channel channel = getBot(currentServer).getChannel(chan);
-		Conversation conversation = new Conversation(channel.getName());
-		currentServer.addConversation(conversation);
-		return conversation;
-	}
-	
-	public Conversation query(String nickname){
-		User user = getBot(currentServer).getUser(nickname);
-		Conversation query = new Query(user.getNick());
-		currentServer.addConversation(query);
-		return query;
-	}
-	
-	
-    
 }
