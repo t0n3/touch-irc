@@ -1,10 +1,7 @@
 package org.touchirc.activity;
 
-import java.util.ArrayList;
-import java.util.Set;
-
 import org.touchirc.R;
-import org.touchirc.fragments.ConversationFragment;
+import org.touchirc.adapter.ConversationPagerAdapter;
 import org.touchirc.irc.IrcBinder;
 import org.touchirc.irc.IrcService;
 import org.touchirc.model.Server;
@@ -15,16 +12,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.view.Gravity;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.slidingmenu.lib.SlidingMenu;
 
@@ -104,36 +95,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         this.ircService = ((IrcBinder) binder).getService();
         // Retrieve the currently connected server
         this.currentServer = this.ircService.getCurrentServer();
-        this.vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer.getAllConversations()));
-    }
-
-    /**
-     * ConversationPagerAdapter
-     * In charge to handle conversation fragment for swiping in ConversationActivity
-     */
-    public class ConversationPagerAdapter extends FragmentPagerAdapter {
-        
-        private ArrayList<Fragment> mFragments;
-
-        public ConversationPagerAdapter(FragmentManager fm, ArrayList<String> conv) {
-            super(fm);
-            mFragments = new ArrayList<Fragment>();
-            for(String c : conv) {
-                System.out.println(ConversationActivity.this.currentServer.getConversation(c).getTitle());
-            	mFragments.add(new ConversationFragment(ConversationActivity.this.currentServer.getConversation(c)));
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return mFragments.size();
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragments.get(position);
-        }
-
+        this.vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer));
     }
 
 }
