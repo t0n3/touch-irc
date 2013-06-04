@@ -20,35 +20,51 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.Gravity;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.EditText;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.slidingmenu.lib.SlidingMenu;
 
-public class ConversationActivity extends BaseSlidingActivity implements ServiceConnection {
+public class ConversationActivity extends SherlockFragmentActivity implements ServiceConnection {
 
     private IrcService ircService;
     private Server currentServer;
     private ViewPager vp;
+    private SlidingMenu menu;
     
-    public ConversationActivity() {
-		super(R.string.titleConversationDefault);
-	}
-
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        setTitle(R.string.app_name);
+		
+		// set the content view
+        setContentView(R.layout.conversation_display);
+           
+        // configure the SlidingMenu
+        menu = new SlidingMenu(this);
+        menu.setMode(SlidingMenu.LEFT);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+        menu.setShadowWidthRes(R.dimen.sliding_shadow_width);
+        menu.setShadowDrawable(R.drawable.shadow);
+        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        menu.setFadeDegree(0.35f);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
+		menu.setMenu(R.layout.connected_servers);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         this.ircService = null;
         Intent intent = new Intent(this, IrcService.class);
         //  getApplicationContext().startService(intent);
         if(getApplicationContext().bindService(intent, this, Context.BIND_AUTO_CREATE)){
-            System.out.println("OK SERVICE BINDÉ");
+            System.out.println("Bind to Service");
         }
 
-        
-        setBehindContentView(R.layout.conversation_display);
         // set the viewpager
-        this.vp = new ViewPager(this);
-        this.vp.setId("VP".hashCode());
-        setContentView(this.vp);
+        this.vp = (ViewPager) findViewById(R.id.vp);
         this.vp.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrollStateChanged(int arg0) { }
@@ -60,30 +76,24 @@ public class ConversationActivity extends BaseSlidingActivity implements Service
             public void onPageSelected(int position) {
                 switch (position) {
                 case 0:
-                    getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+                    menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
                     break;
                 default:
-                    getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+                    menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
                     break;
                 }
             }
 
         });
         this.vp.setCurrentItem(0);
+        
+        // Set the EditText
+        EditText e = (EditText) findViewById(R.id.input);
 
-    }
-    
-    // TODO
-    public void updateConversation(){
-    	
-    }
-    
-    // TODO
-    public void sendMessage(){
         
     }
-
     
+
     @Override
     public void onServiceDisconnected(ComponentName name) {
         this.ircService = null;        
@@ -92,11 +102,8 @@ public class ConversationActivity extends BaseSlidingActivity implements Service
     @Override
     public void onServiceConnected(ComponentName name, IBinder binder) {
         this.ircService = ((IrcBinder) binder).getService();
-        System.out.println("T'AS LE SERVICE MOFO");
-
-         // Retrieve the currently connected server
+        // Retrieve the currently connected server
         this.currentServer = this.ircService.getCurrentServer();
-
         this.vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer.getAllConversations()));
     }
 
@@ -108,11 +115,13 @@ public class ConversationActivity extends BaseSlidingActivity implements Service
         
         private ArrayList<Fragment> mFragments;
 
-        public ConversationPagerAdapter(FragmentManager fm, Set<String> conv) {
+        public ConversationPagerAdapter(FragmentManager fm, ArrayList<String> conv) {
             super(fm);
             mFragments = new ArrayList<Fragment>();
-            for(String c : conv)
+            for(String c : conv) {
+                System.out.println(ConversationActivity.this.currentServer.getConversation(c).getTitle());
             	mFragments.add(new ConversationFragment(ConversationActivity.this.currentServer.getConversation(c)));
+            }
         }
 
         @Override
