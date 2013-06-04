@@ -17,24 +17,15 @@ public class Profile {
 	private String thirdNick;
 	private String username;
 	private String realname;
-	
+
 
 	public Profile(String profile_n, String fnick, String snick, String tnick, String uname, String rname){
-		if(!isCorrect(rname)){
-			System.out.println("The realname does not respect the conditions ...");
-		}
-		else if(!isACorrectPseudo(fnick)){
-			System.out.println("The First Nickname does not respect the conditions ...");
-		}
-		else{
-			this.profile_name = profile_n;
-			this.firstNick = fnick;
-			this.secondNick = snick;
-			this.thirdNick = tnick;
-			this.username = uname;
-			this.realname = rname;
-		}
-		
+		this.profile_name = profile_n;
+		this.firstNick = fnick;
+		this.secondNick = snick;
+		this.thirdNick = tnick;
+		this.username = uname;
+		this.realname = rname;		
 	}
 
 	public String getProfile_name() {
@@ -83,21 +74,5 @@ public class Profile {
 
 	public void setRealname(String realname) {
 		this.realname = realname;
-	}
-
-	
-	public boolean isCorrect(String realName){
-		if(realName.length() >= 10 && realName.length() <= 20){
-			for(int i = 0 ;  i < realName.length() ; i++){
-				if((realName.charAt(i) < 65 && realName.charAt(i) > 90) || (realName.charAt(i) < 90 && realName.charAt(i) > 122)){
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	
-	public boolean isACorrectPseudo(String firstNickame){
-		return firstNickame.length() <= 9;
 	}
 }
