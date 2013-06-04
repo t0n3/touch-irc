@@ -1,7 +1,9 @@
 package org.touchirc.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.TreeSet;
 
 
 // TODO Comments :)
@@ -51,11 +53,13 @@ public class Server {
 	
 	
 	public Conversation getConversation(String title){
-		return this.conversations.get(title);
+		return this.conversations.get(title.toLowerCase());
 	}
 	
-	public Set<String> getAllConversations(){
-		return this.conversations.keySet();
+	public ArrayList<String> getAllConversations(){
+		ArrayList<String> a = new ArrayList<String>(conversations.keySet());
+		Collections.sort(a);
+		return a;
 	}
 	
 	public void addConversation(Conversation c){
@@ -63,7 +67,7 @@ public class Server {
 	}
 	
 	public void removeConversation(String channel) {
-		this.conversations.remove(channel);
+		this.conversations.remove(channel.toLowerCase());
 	}
 	
 	public String getName(){
