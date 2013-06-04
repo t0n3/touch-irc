@@ -258,7 +258,7 @@ public class Database extends SQLiteOpenHelper {
 		if(this.getWritableDatabase().update(	
 												DBConstants.PROFILE_TABLE_NAME,
 												newValues, 
-												DBConstants.PROFILE_NAME + "=" + idProfile,
+												DBConstants.PROFILE_ID + "=" + idProfile,
 												null
 		) > 0){
 			return true;
