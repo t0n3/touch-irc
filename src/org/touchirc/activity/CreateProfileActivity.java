@@ -191,7 +191,7 @@ public class CreateProfileActivity extends SherlockActivity{
 		boolean validSecondNickname = Regex.isAValidNickName(secondNickname_ET.getText().toString());
 		boolean validThirdNickname = Regex.isAValidNickName(thirdNickname_ET.getText().toString());
 
-		if(validFirstNickname && validSecondNickname && validThirdNickname){
+		if(validFirstNickname || validSecondNickname || validThirdNickname){
 			// the Profile is created with the datas given by the user
 			prof = new Profile(profileName_ET.getText().toString(),
 					firstNickname_ET.getText().toString(),
@@ -204,9 +204,8 @@ public class CreateProfileActivity extends SherlockActivity{
 			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 			if(bundleEdit != null){
-
-				// Update the Profile in the database
-				TouchIrc.getInstance().updateProfile(bundleEdit.getInt("ProfileId"), prof, getApplicationContext());
+				// Update the Profile in the database (+1 since the ID in Database begins at 0)
+				TouchIrc.getInstance().updateProfile(bundleEdit.getInt("ProfileId")+1, prof, getApplicationContext());
 				Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been modified !", Toast.LENGTH_SHORT).show();
 
 				startActivity(i);
