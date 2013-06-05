@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    
+    <!-- App -->
+     
     <string name="app_name">Touch IRC</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-    <string name="profileName">Profile Name :</string>
-    <string name="firstNick">First Nickname :</string>
-    <string name="secondNick">Second Nickname (optional) :</string>
-    <string name="thirdNick">Third Nickname (optional) :</string>
-    <string name="userName">Username :</string>
-    <string name="realName">Realname :</string>
-    <string name="addAServer">Add a server</string>
-    <string name="serverName">Server\'s name :</string>
-    <string name="hostname">Hostname :</string>
-    <string name="serverPort">Server\'s port :</string>
-    <string name="serverPassword">Server\'s password :</string>
-    <string name="deleteProfile">Delete Profile(s)</string>
-    <string name="deleteServer">Delete Server(s)</string>
+    <string name="QuitAppQuestion">Quit the TouchIRC App ?</string>
+
+    <!-- Generalities -->
+    
     <string name="add">Add</string>
     <string name="delete">Delete</string>
     <string name="clearAll">Clear All</string>
@@ -27,24 +20,47 @@
     <string name="DEFAULT">DEFAULT</string>
     <string name="AUTO">AUTO</string>
     <string name="disAUTO">dis-AUTO</string>
-    <string name="linkAServer">Link a Server</string>
     <string name="search">Search</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="set">Set</string>
     <string name="warning">Warning !</string>
     <string name="Quit">Quit</string>
-    <string name="QuitAppQuestion">Quit the TouchIRC App ?</string>
-    <string name="nowUsedForAutoConnection"> is now used for autoconnection !</string>
+
+    <!-- Profile -->
+    
+    <string name="profileName">Profile Name :</string>
+    <string name="firstNick">First Nickname :</string>
+    <string name="secondNick">Second Nickname (optional) :</string>
+    <string name="thirdNick">Third Nickname (optional) :</string>
+    <string name="userName">Username :</string>
+    <string name="realName">Realname :</string>    
+    
+    <string name="deleteProfile">Delete Profile(s)</string>
+    <string name="linkAServer">Link a Server</string>
     <string name="nowLinkToTheProfile"> is now link to the profile </string>
+
+    <!-- Server -->
+    
+    <string name="serverName">Server\'s name :</string>
+    <string name="hostname">Hostname :</string>
+    <string name="serverPort">Server\'s port :</string>
+    <string name="serverPassword">Server\'s password :</string>
     <string name="usingSSL">Use SSL</string>
+    <string name="associatedChannels">Channel(s) associated :</string>
+
+    <string name="addAServer">Add a server</string>
+    <string name="deleteServer">Delete Server(s)</string>
+    <string name="nowUsedForAutoConnection"> is now used for autoconnection !</string>
     
     <!-- Charset -->
+    
     <string name="charsetDefault">UTF-8</string>
     <string name="charsetTitle">Charset</string>
     <string name="charsetTextView">Charset :</string>
 
     <!-- Conversation -->
+   
     <string name="titleConversationDefault">Conversation Activity</string>
-    
+
 </resources>
