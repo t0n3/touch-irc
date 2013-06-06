@@ -73,6 +73,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
                     menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
                     break;
                 }
+                
+                setTitle(currentServer.getAllConversations().get(position));
             }
 
         });
