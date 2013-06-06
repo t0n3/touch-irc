@@ -109,9 +109,10 @@ public class TouchIrc{
 		Database db = new Database(c);
 		if(!db.deleteProfile(idProfile))
 			return false;
-		db.close();	
+		db.close();
 		this.availableProfiles.delete(idProfile);
-		
+		if (getIdDefaultProfile() == idProfile)
+			setDefaultProfile(this.availableProfiles.keyAt(0));
 		return true;
 	}
 	
