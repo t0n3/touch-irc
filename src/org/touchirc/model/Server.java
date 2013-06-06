@@ -3,7 +3,6 @@ package org.touchirc.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 
 // TODO Comments :)
@@ -49,8 +48,6 @@ public class Server {
 		this.autoConnect = false;
 		this.useSSL = useSSL;
 	}
-	
-	
 	
 	public Conversation getConversation(String title){
 		return this.conversations.get(title.toLowerCase());
@@ -126,6 +123,14 @@ public class Server {
 		return this.useSSL;
 	}
 	
+	public String getCharset() {
+		return this.charset;
+	}
+
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
+
 	public boolean isProtected(){
 		return this.password != null; // != null => a password was setted
 	}

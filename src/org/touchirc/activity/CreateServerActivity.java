@@ -38,11 +38,11 @@ public class CreateServerActivity extends SherlockActivity {
 
 	private TextView server_password_TV;
 	private EditText serverPassword_ET;
-	
+
 	private CheckBox useSSL_CB;
 	private String [] charsetArray;
-	private int selectedCharsetPosition = -1;
-	
+	private String selectedCharset = "";
+
 	private Button charset_BT;
 
 	private Server serv;
@@ -82,41 +82,21 @@ public class CreateServerActivity extends SherlockActivity {
 		// EditTexts		
 
 		this.serverName_ET = (EditText) findViewById(R.id.editText_server_name);
-		// if started by ExistingServersActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("ServerName")){
-			this.serverName_ET.setText(bundleEdit.getString("ServerName"));
-		}
-
 		this.serverHostname_ET = (EditText) findViewById(R.id.editText_hostname);
-		// if started by ExistingServersActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("HostName")){
-			this.serverHostname_ET.setText(bundleEdit.getString("HostName"));
-		}
-
 		this.serverPort_ET = (EditText) findViewById(R.id.editText_server_port);
-		// if started by ExistingServersActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("portNumber")){
-			this.serverPort_ET.setText(String.valueOf(bundleEdit.getInt("portNumber")));
-		}
-
 		this.serverPassword_ET = (EditText) findViewById(R.id.editText_server_password);
-		// if started by ExistingServersActivity, changing the EditText
-		if(bundleEdit != null && bundleEdit.containsKey("ServerPassword")){
-			this.server_password_TV.setTextColor(Color.BLACK); // To highlight the fact that a password exists
-			this.serverPassword_ET.setText(bundleEdit.getString("ServerPassword"));
-		}
 
 		// Checkbox : using SSL
-		
+
 		this.useSSL_CB = (CheckBox) findViewById(R.id.checkBox_SSL_use);
-		
+
 		// Button : charset
-		
+
 		this.charsetArray = getResources().getStringArray(R.array.charset_array_name);
-		
+
 		this.charset_BT = (Button) findViewById(R.id.button_select_charset);
 		this.charset_BT.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				// Instantiate an AlertDialog.Builder with its constructor
@@ -126,11 +106,11 @@ public class CreateServerActivity extends SherlockActivity {
 				builder.setTitle(R.string.charsetTitle);
 				// Integrate the charsetArray inside the Pop-up
 				builder.setItems(charsetArray, new DialogInterface.OnClickListener() {
-					
+
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						selectedCharsetPosition = which; // we collect the position to use it again later
 						charset_BT.setText(charsetArray[which]);
+						selectedCharset = charsetArray[which];
 						dialog.dismiss();
 					}
 				});
@@ -138,11 +118,31 @@ public class CreateServerActivity extends SherlockActivity {
 				// Get the AlertDialog from create()
 				AlertDialog dialog = builder.create();
 				dialog.show();
-				
+
 			}
 		});
+
+		// if started by ExistingServersActivity, changing the EditTexts'value
+		if(bundleEdit != null && bundleEdit.containsKey("ServerId")){
+			// We collect the server from available servers list
+			Server serverToEdit = TouchIrc.getInstance().getAvailableServers().valueAt(bundleEdit.getInt("ServerId"));
+
+			// And put values in corresponding editText
+			this.serverName_ET.setText(serverToEdit.getName());
+			this.serverHostname_ET.setText(serverToEdit.getHost());
+			this.serverPort_ET.setText(String.valueOf(serverToEdit.getPort()));
+			this.serverPassword_ET.setText(serverToEdit.getPassword());
+			
+			if(serverToEdit.useSSL()){
+				this.useSSL_CB.setChecked(true);
+			}
+			selectedCharset = serverToEdit.getCharset();
+			this.charset_BT.setText(selectedCharset);
+		}
+		
+		final EditText e = (EditText) findViewById(R.id.editText_associated_channels);
 	}
-	
+
 	/**
 	 * Define the display of the actionBar
 	 * 
@@ -156,7 +156,7 @@ public class CreateServerActivity extends SherlockActivity {
 		inflater.inflate(R.menu.create_object_activity, menu);
 		return true;
 	}
-	
+
 	/**
 	 * 
 	 * This method allows you to configure the behavior of the icon 
@@ -171,37 +171,28 @@ public class CreateServerActivity extends SherlockActivity {
 		case android.R.id.home:
 			// app icon in action bar clicked; go home
 			Intent intent = new Intent(this, MenuActivity.class);
-            // According to the origin of the triggering of the activity
-            if(bundleEdit != null || bundleAddFromMenu != null){
-	            intent.setClass(this, ExistingServersActivity.class);
-            }
+			// According to the origin of the triggering of the activity
+			if(bundleEdit != null || bundleAddFromMenu != null){
+				intent.setClass(this, ExistingServersActivity.class);
+			}
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			return true;
-		
+
 		case R.id.save :
-			
-			if (serverName_ET.getText().length() != 0 && 
-				serverHostname_ET.getText().length() != 0 &&
-				serverPort_ET.getText().length() != 0) {
-				
-				addServer();
-				finish();
-				
+
+			if(addServer()){				
+				finish(); // close the activity
 			}
-			else{
-				missingInformation();
-			}
-			
 			return true;
-			
+
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	private void missingInformation() {
-		
+
 		// We alarm the user of missing informations
 		Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
 
@@ -221,11 +212,13 @@ public class CreateServerActivity extends SherlockActivity {
 			server_Name_TV.invalidate();
 			serverName_ET.requestFocus();
 		}
-		
+
 	}
 
-	private void addServer() {
+	private boolean addServer() {
 		
+		// TODO Add Regex on hostname, port, password (?)
+
 		// the Server is created with the datas given by the user
 		int port = Integer.parseInt(serverPort_ET.getText().toString());
 
@@ -234,43 +227,38 @@ public class CreateServerActivity extends SherlockActivity {
 				port,
 				serverPassword_ET.getText().toString()
 				);
-		
+
 		// Use SSL
 		if(this.useSSL_CB.isChecked()){
 			serv.setUseSSL(true);
 		}
-		
+
 		// Charset chosen
-		if(selectedCharsetPosition != -1){
-			serv.setEncoding(this.charsetArray[selectedCharsetPosition]);
+		if(selectedCharset != ""){
+			serv.setEncoding(selectedCharset);
 		}
 
 		Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
 
-
 		if(bundleEdit != null){
-			/*
 			// Update the Server in the database
-			db.updateServer(serv, bundleEdit.getString("ServerName"));
+			TouchIrc.getInstance().updateServer(bundleEdit.getInt("ServerId"), serv, getApplicationContext());
 			Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been modified !", Toast.LENGTH_SHORT).show();
 
-			// Use a Bundle to transfer the Server modified
-			b = new Bundle();
-			b.putString("NewNameServer", serv.getName());
-			i.putExtra("NewValue", b);
 			startActivity(i);
-			*/
 		}
 		else{
 			// Add the Server just created into the database
 			TouchIrc.getInstance().addServer(serv, this);
 			Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been added !", Toast.LENGTH_SHORT).show();
-			
+
 			// We go back to the ExistingServersActivity and transmit the new server
 			if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingServersActivity")){
 				startActivity(i);
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -280,21 +268,21 @@ public class CreateServerActivity extends SherlockActivity {
 	 * is removed and the previous activity becomes the current activity
 	 * 
 	 */
-	
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)  {
-	    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-	    	
-            Intent intent = new Intent(this, MenuActivity.class);
-            // According to the origin of the triggering of the activity
-            if(bundleEdit != null || bundleAddFromMenu != null){
-	            intent.setClass(this, ExistingServersActivity.class);
-            }
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            return true;
-	    }
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
 
-	    return super.onKeyDown(keyCode, event);
+			Intent intent = new Intent(this, MenuActivity.class);
+			// According to the origin of the triggering of the activity
+			if(bundleEdit != null || bundleAddFromMenu != null){
+				intent.setClass(this, ExistingServersActivity.class);
+			}
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		}
+
+		return super.onKeyDown(keyCode, event);
 	}
 }
