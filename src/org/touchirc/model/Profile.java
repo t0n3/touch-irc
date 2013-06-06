@@ -19,8 +19,8 @@ public class Profile {
 	private String realname;
 
 
-	public Profile(String profile_n, String fnick, String snick, String tnick, String uname, String rname){
-		this.profile_name = profile_n;
+	public Profile(String pName, String fnick, String snick, String tnick, String uname, String rname){
+		this.profile_name = pName;
 		this.firstNick = fnick;
 		this.secondNick = snick;
 		this.thirdNick = tnick;
