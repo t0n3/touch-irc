@@ -179,7 +179,8 @@ public class Database extends SQLiteOpenHelper {
 			cursor.getString(cursor.getColumnIndex((DBConstants.SERVER_HOST))),
 			cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_PORT))),
 			cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_PASSWORD)),
-			cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_CHARSET)));
+			cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_CHARSET)),
+			Boolean.getBoolean(cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_USE_SSL))));
 			
 			int idProfile = cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_IDPROFILE)));
 			if(idProfile != 0)
