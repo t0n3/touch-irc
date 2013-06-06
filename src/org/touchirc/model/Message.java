@@ -1,6 +1,14 @@
 package org.touchirc.model;
 
+import java.security.Timestamp;
 import java.util.Date;
+
+import android.content.Context;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.format.Time;
+import android.text.util.Linkify;
+import android.widget.TextView;
 
 public class Message {
 
@@ -44,12 +52,48 @@ public class Message {
 		return this.type;
 	}
 	
-	public long getTime(){
-		return this.timestamp;
+	private SpannableString getText(Context c){
+		// TODO Add some colors, timestamp or not, etc
+		
+		String author = "<" + this.author + "> ";
+		String message = content;
+		String time = getTime(true, false);
+		
+		return new SpannableString(time + author + message);
 	}
+	
+	public TextView getTextView(Context c){
+		TextView t = new TextView(c);
+		
+		t.setAutoLinkMask(Linkify.ALL);
+		t.setLinksClickable(true);
+		// TODO Find a color for a link :)
+		// t.setLinkTextColor(color);
+		t.setText(getText(c));
+		
+		return t;
+	}
+	
+	public String getTime(boolean use24, boolean includeSec)
+    {
+        Date date = new Date(timestamp);
 
-	public String toString(){
-		return "<" + this.author + "> " + this.content;
-	}	
+        int hours = date.getHours();
+        int minutes = date.getMinutes();
+        int seconds = date.getSeconds();
+
+        if (!use24) {
+            hours = Math.abs(12 - hours);
+            if (hours == 12) {
+                hours = 0;
+            }
+        }
+
+        if (includeSec) {
+            return String.format("[%02d:%02d:%02d]",hours,minutes,seconds);
+        } else {
+            return String.format("[%02d:%02d]",hours,minutes);
+        }
+    }
 	
 }
