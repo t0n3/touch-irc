@@ -227,15 +227,15 @@ public class CreateProfileActivity extends SherlockActivity{
 
 		}
 		else{
-			if(validFirstNickname){
+			if(!validFirstNickname){
 				this.firstNickname_ET.setTextColor(Color.RED);
 				this.firstNickname_ET.invalidate();
 			}
-			if(validSecondNickname){
+			if(!validSecondNickname){
 				this.secondNickname_ET.setTextColor(Color.RED);
 				this.secondNickname_ET.invalidate();
 			}
-			if(validThirdNickname){
+			if(!validThirdNickname){
 				this.thirdNickname_ET.setTextColor(Color.RED);
 				this.thirdNickname_ET.invalidate();
 			}
