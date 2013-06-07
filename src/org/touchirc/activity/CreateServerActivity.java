@@ -3,6 +3,7 @@ package org.touchirc.activity;
 import org.touchirc.R;
 import org.touchirc.TouchIrc;
 import org.touchirc.model.Server;
+import org.touchirc.view.MultipleChannelTextView;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -44,6 +45,8 @@ public class CreateServerActivity extends SherlockActivity {
 	private String selectedCharset = "";
 
 	private Button charset_BT;
+	
+	private MultipleChannelTextView mu;
 
 	private Server serv;
 	private Bundle bundleEdit = null;
@@ -121,6 +124,8 @@ public class CreateServerActivity extends SherlockActivity {
 
 			}
 		});
+		
+		this.mu = (MultipleChannelTextView) findViewById(R.id.editText_associated_channels);
 
 		// if started by ExistingServersActivity, changing the EditTexts'value
 		if(bundleEdit != null && bundleEdit.containsKey("ServerId")){
@@ -139,8 +144,6 @@ public class CreateServerActivity extends SherlockActivity {
 			selectedCharset = serverToEdit.getCharset();
 			this.charset_BT.setText(selectedCharset);
 		}
-		
-		final EditText e = (EditText) findViewById(R.id.editText_associated_channels);
 	}
 
 	/**
@@ -236,6 +239,11 @@ public class CreateServerActivity extends SherlockActivity {
 		// Charset chosen
 		if(selectedCharset != ""){
 			serv.setEncoding(selectedCharset);
+		}
+		
+		if(mu.getText().toString() != ""){
+			String[] channelArray = mu.getText().toString().split(" ");
+			// TODO What to do with this array of channels ?
 		}
 
 		Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
