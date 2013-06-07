@@ -14,7 +14,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.method.TextKeyListener;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.slidingmenu.lib.SlidingMenu;
@@ -25,6 +30,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     private Server currentServer;
     private ViewPager vp;
     private SlidingMenu menu;
+    private EditText inputMessage;
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,17 +79,32 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
                     menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
                     break;
                 }
-                
-                setTitle(currentServer.getAllConversations().get(position));
+  
+                ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(position)));
             }
 
         });
         this.vp.setCurrentItem(0);
         
         // Set the EditText
-        EditText e = (EditText) findViewById(R.id.input);
-
+        inputMessage = (EditText) findViewById(R.id.input);
+        inputMessage.setOnEditorActionListener(new OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    sendMessage();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
         
+    }
+    
+    public void sendMessage() {
+    	ircService.getBot(currentServer).sendMessage(ircService.getCurrentChannel(), inputMessage.getText().toString());
+    	TextKeyListener.clear(inputMessage.getText());
     }
     
 
@@ -98,6 +119,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         // Retrieve the currently connected server
         this.currentServer = this.ircService.getCurrentServer();
         this.vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer));
+        
+        ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(0)));
     }
 
 }
