@@ -4,6 +4,8 @@ import org.touchirc.R;
 import org.touchirc.adapter.ConversationPagerAdapter;
 import org.touchirc.irc.IrcBinder;
 import org.touchirc.irc.IrcService;
+import org.touchirc.model.Conversation;
+import org.touchirc.model.Message;
 import org.touchirc.model.Server;
 
 import android.content.ComponentName;
@@ -107,8 +109,20 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     }
     
     public void sendMessage() {
-    	ircService.getBot(currentServer).sendMessage(ircService.getCurrentChannel(), inputMessage.getText().toString());
-    	TextKeyListener.clear(inputMessage.getText());
+    	// Variables...okay it's looooonnnng
+    	String mMessage = inputMessage.getText().toString();
+    	Conversation mCurrentConversation = currentServer.getConversation(ircService.getCurrentChannel().getName());
+    	String mAuthor = ircService.getBot(currentServer).getNick();
+    	
+        // First, add message to the app
+        mCurrentConversation.addMessage(new Message(mMessage, mAuthor, Message.TYPE_MESSAGE));
+        // Second, send the message to the network
+        ircService.getBot(currentServer).sendMessage(ircService.getCurrentChannel().getName(), inputMessage.getText().toString());
+        
+        TextKeyListener.clear(inputMessage.getText()); // Clean the edit text, important !
+    	
+    	// Refresh all these things
+        ircService.sendBroadcast(new Intent("org.touchirc.irc.newMessage"));
     }
     
 
