@@ -1,5 +1,7 @@
 package org.touchirc.activity;
 
+import java.util.ArrayList;
+
 import org.touchirc.R;
 import org.touchirc.TouchIrc;
 import org.touchirc.model.Server;
@@ -242,7 +244,7 @@ public class CreateServerActivity extends SherlockActivity {
 		}
 		
 		if(mu.getText().toString() != ""){
-			String[] channelArray = mu.getText().toString().split(" ");
+			ArrayList<String> channelList = this.mu.getChannelList();
 			// TODO What to do with this array of channels ?
 		}
 
