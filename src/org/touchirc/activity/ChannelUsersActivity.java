@@ -49,8 +49,8 @@ public class ChannelUsersActivity extends ListActivity implements ServiceConnect
 	public void onServiceConnected(ComponentName name, IBinder binder) {
 		this.ircService = ((IrcBinder) binder).getService();
 		// Collect all users connected to the current server
-		// TODO getCurrentChannel()
-		this.userSet = this.ircService.getBot(ircService.getCurrentServer()).getChannel("#Boulet").getUsers();
+		this.userSet = this.ircService.getCurrentChannel().getUsers();
+		System.out.println("set'size : " + this.userSet.size()); // the getUsers() method returns 0 (???)
 		this.ulAdapter = new UsersListAdapter(userSet.toArray(new User[0]), getApplicationContext());
 		this.usersLV.setAdapter(this.ulAdapter);
 		
