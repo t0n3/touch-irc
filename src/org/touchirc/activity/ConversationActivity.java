@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.method.TextKeyListener;
@@ -86,6 +87,9 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         });
         this.vp.setCurrentItem(0);
         
+        // Clean if it's useless :)
+        PagerTabStrip vpTabViewer = (PagerTabStrip) findViewById(R.id.vpTabViewer);
+        
         // Set the EditText
         inputMessage = (EditText) findViewById(R.id.input);
         inputMessage.setOnEditorActionListener(new OnEditorActionListener() {
@@ -119,8 +123,10 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         // Retrieve the currently connected server
         this.currentServer = this.ircService.getCurrentServer();
         this.vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer));
-        
+        // Set the Activity title
+        this.setTitle(currentServer.getName());
+        // Set the current channel (by default, when launching it's 0
         ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(0)));
-    }
+    }   
 
 }
