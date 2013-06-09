@@ -11,6 +11,7 @@ import org.pircbotx.exception.NickAlreadyInUseException;
 import org.touchirc.R;
 import org.touchirc.TouchIrc;
 import org.touchirc.activity.ConversationActivity;
+import org.touchirc.activity.ExistingServersActivity;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
@@ -55,7 +56,7 @@ public class IrcService extends Service {
 		builder.setSmallIcon(R.drawable.ic_launcher);
 		builder.setContentTitle("TouchIrc");
 		builder.setContentText("Pas de serveur connecté");
-		Intent intent = new Intent().setClass(getApplicationContext(), ConversationActivity.class);
+		Intent intent = new Intent().setClass(getApplicationContext(), ExistingServersActivity.class);
 		builder.setContentIntent(PendingIntent.getActivity(getApplication(), 0, intent, 0));
 		
 		startForeground(1, builder.build());
@@ -162,6 +163,8 @@ public class IrcService extends Service {
 		for(Server s : this.botsConnected.keySet())
 			message += s.getName() + ", ";
 		builder.setContentText(message.substring(0, message.length()-2));
+		Intent intent = new Intent().setClass(getApplicationContext(), ConversationActivity.class);
+		builder.setContentIntent(PendingIntent.getActivity(getApplication(), 0, intent, 0));
 		notificationManager.notify(1, builder.build());
 	}
 	
