@@ -8,13 +8,20 @@ import java.util.Set;
 import org.pircbotx.Channel;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.exception.NickAlreadyInUseException;
+import org.touchirc.R;
 import org.touchirc.TouchIrc;
+import org.touchirc.activity.ConversationActivity;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.util.SparseArray;
 
 public class IrcService extends Service {
@@ -30,6 +37,9 @@ public class IrcService extends Service {
 	// Map of idServer, Server for available servers 
 	private SparseArray<Server> availableServers; // SparseArray = Map<Integer, Object>
 	
+	private NotificationManager notificationManager;
+	private Builder builder;
+	
 	public IrcService(){
 		super();
 		
@@ -41,14 +51,26 @@ public class IrcService extends Service {
 	
 	@Override
 	public void onCreate(){
-		System.out.println("Service Created");
+		builder = new NotificationCompat.Builder(this);
+		builder.setSmallIcon(R.drawable.ic_launcher);
+		builder.setContentTitle("TouchIrc");
+		builder.setContentText("Pas de serveur connecté");
+		Intent intent = new Intent().setClass(getApplicationContext(), ConversationActivity.class);
+		builder.setContentIntent(PendingIntent.getActivity(getApplication(), 0, intent, 0));
+		
+		startForeground(1, builder.build());
+		
+		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
 		for(int i = 0 ; i < availableServers.size() ; i++)
 			if(!botsConnected.containsKey(availableServers.get(i)))
 				getBot(availableServers.valueAt(i));
+		System.out.println("Service Created");
 	}
 	
 	@Override
 	public void onDestroy(){
+		stopForeground(true);
 		for(Server s : this.botsConnected.keySet())
 			getBot(s).shutdown(true);
 		
@@ -97,16 +119,20 @@ public class IrcService extends Service {
 				while(connected != 0){
 					try {
 						bot.setEncoding(server.getEncoding());
+						bot.setAutoReconnect(true);
 						bot.connect(server.getHost(),server.getPort(),server.getPassword());
 						if(server.getAutoConnectedChannels() != null)
 							for(String s : server.getAutoConnectedChannels())
 								bot.joinChannel(s);
 						
 						bot.joinChannel("#Boulet2"); // TODO Remove it when the tests will be done
+						
+						connected = 0;
 					} catch (NickAlreadyInUseException e) {
 					} catch (IrcException e) {
 						// TODO Auto-generated catch block
-						
+						botsConnected.remove(server);
+						e.printStackTrace();
 					} catch (IOException e) {
 						if(e.getCause().toString().startsWith("org.pircbotx.exception.NickAlreadyInUseException")){
 							if(connected == -1){ // First Time so go test with secondNick
@@ -118,21 +144,25 @@ public class IrcService extends Service {
 								connected = 2;
 								continue;
 							}else {
+								botsConnected.remove(server);
 								e.printStackTrace();
 							}
 						}else{
+							botsConnected.remove(server);
 							e.printStackTrace();
 						}
 					}
-					connected = 0;
 					currentServer = server;
-					
+					botsConnected.put(currentServer, bot);
 				}
 			}
 		}.start();
 		
-		
-		
+		String message = "Connected to : ";
+		for(Server s : this.botsConnected.keySet())
+			message += s.getName() + ", ";
+		builder.setContentText(message.substring(0, message.length()-2));
+		notificationManager.notify(1, builder.build());
 	}
 	
 	/**
