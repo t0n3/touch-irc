@@ -5,8 +5,13 @@ import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.Listener;
 import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.JoinEvent;
+import org.pircbotx.hooks.events.KickEvent;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.ModeEvent;
+import org.pircbotx.hooks.events.NickChangeEvent;
 import org.pircbotx.hooks.events.PartEvent;
+import org.pircbotx.hooks.events.UserListEvent;
+import org.pircbotx.hooks.events.UserModeEvent;
 import org.touchirc.model.Conversation;
 import org.touchirc.model.Message;
 import org.touchirc.model.Server;
@@ -74,14 +79,28 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 			if(event.getUser().equals(event.getBot().getUserBot()) && this.server.getConversation(event.getChannel().getName()) == null){
 				this.server.addConversation(new Conversation(event.getChannel().getName()));
 				System.out.println("JoinEvent "+event.getChannel().getName());
+				return;
 			}
+			Intent intent = new Intent();
+			intent.setAction("org.touchirc.irc.userlistUpdated");
+			service.sendBroadcast(intent);
 			return;
 		}
 		if(rawevent instanceof PartEvent){
 			PartEvent event = (PartEvent) rawevent;
-			if(event.getUser().equals(event.getBot().getUserBot()) && this.server.getConversation(event.getChannel().getName()) != null)
+			if(event.getUser().equals(event.getBot().getUserBot()) && this.server.getConversation(event.getChannel().getName()) != null){
 				this.server.removeConversation(event.getChannel().getName());
+				return;
+			}
+			Intent intent = new Intent();
+			intent.setAction("org.touchirc.irc.userlistUpdated");
+			service.sendBroadcast(intent);
 			return;
+		}
+		if(rawevent instanceof UserListEvent || rawevent instanceof ModeEvent || rawevent instanceof KickEvent || rawevent instanceof NickChangeEvent || rawevent instanceof UserModeEvent){
+			Intent intent = new Intent();
+			intent.setAction("org.touchirc.irc.userlistUpdated");
+			service.sendBroadcast(intent);
 		}
 		if(rawevent instanceof ConnectEvent){
 			ConnectEvent event = (ConnectEvent) rawevent;
