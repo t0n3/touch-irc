@@ -1,5 +1,10 @@
 package org.touchirc.db;
 
+import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.touchirc.TouchIrc;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
@@ -32,6 +37,7 @@ public class Database extends SQLiteOpenHelper {
 				+ DBConstants.SERVER_USE_SSL + " BOOLEAN, "
 				+ DBConstants.SERVER_CHARSET + " TEXT,"
 				+ DBConstants.SERVER_AUTOCONNECT + " BOOLEAN,"
+				+ DBConstants.SERVER_AUTOCONNECTED_CHANNELS + " TEXT,"
 				+ DBConstants.SERVER_IDPROFILE + " INTEGER DEFAULT '0' );");
 
 		db.execSQL("CREATE TABLE " + DBConstants.PROFILE_TABLE_NAME + "(" + DBConstants.PROFILE_ID
@@ -68,6 +74,13 @@ public class Database extends SQLiteOpenHelper {
 		values.put(DBConstants.SERVER_USE_SSL, server.useSSL());
 		values.put(DBConstants.SERVER_CHARSET, server.getEncoding());
 		values.put(DBConstants.SERVER_AUTOCONNECT, server.isAutoConnect());
+		if(server.getAutoConnectedChannels() != null){
+			ArrayList<String> channels = server.getAutoConnectedChannels();
+			String sChannels = "";
+			for(String s : channels)
+				sChannels += s + ",";
+			values.put(DBConstants.SERVER_AUTOCONNECTED_CHANNELS, sChannels);
+		}
 		if(server.hasAssociatedProfile())
 			values.put(DBConstants.SERVER_IDPROFILE, TouchIrc.getInstance().getAvailableProfiles().indexOfValue(server.getProfile()));
 		
@@ -117,6 +130,13 @@ public class Database extends SQLiteOpenHelper {
 		newValues.put(DBConstants.SERVER_USE_SSL, server.useSSL());
 		newValues.put(DBConstants.SERVER_CHARSET, server.getEncoding());
 		newValues.put(DBConstants.SERVER_AUTOCONNECT, server.isAutoConnect());
+		if(server.getAutoConnectedChannels() != null){
+			ArrayList<String> channels = server.getAutoConnectedChannels();
+			String sChannels = "";
+			for(String s : channels)
+				sChannels += s + ",";
+			newValues.put(DBConstants.SERVER_AUTOCONNECTED_CHANNELS, sChannels);
+		}
 		if(server.getProfile() == null){
 			newValues.put(DBConstants.SERVER_IDPROFILE, "0");
 		}else{
@@ -185,6 +205,15 @@ public class Database extends SQLiteOpenHelper {
 			int idProfile = cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_IDPROFILE)));
 			if(idProfile != 0)
 				server.setProfile(TouchIrc.getInstance().getAvailableProfiles().get(idProfile));
+			String sChannels = cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_AUTOCONNECTED_CHANNELS));
+			if(sChannels.length() > 0){
+				String[] tChannels = sChannels.split(",");
+				ArrayList<String> channels = new ArrayList<String>();
+				for(int i = 0 ; i < tChannels.length ; i++)
+					channels.add(tChannels[i]);
+				server.setAutoConnectedChannels(channels);
+			}
+			
 
 		// TODO SSL Support
 

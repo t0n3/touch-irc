@@ -13,6 +13,7 @@ public interface DBConstants extends BaseColumns {
 	public static final String SERVER_USE_SSL 	 	= "useSSL";
 	public static final String SERVER_CHARSET 	 	= "charset";
 	public static final String SERVER_AUTOCONNECT	= "autoconnect";
+	public static final String SERVER_AUTOCONNECTED_CHANNELS = "channels";
 	public static final String SERVER_IDPROFILE		= "idProfile";
 
 	public static final String[] SERVER_ALL = {
@@ -24,7 +25,8 @@ public interface DBConstants extends BaseColumns {
 		SERVER_USE_SSL,
 		SERVER_CHARSET,
 		SERVER_AUTOCONNECT,
-		SERVER_IDPROFILE
+		SERVER_AUTOCONNECTED_CHANNELS,
+		SERVER_IDPROFILE		
 	};
 
 	public static final String PROFILE_TABLE_NAME 		= "profiles";
