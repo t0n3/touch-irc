@@ -42,6 +42,13 @@ public class IrcService extends Service {
 	@Override
 	public void onCreate(){
 	}
+	
+	@Override
+	public void onDestroy(){
+		for(Server s : this.botsConnected.keySet())
+			getBot(s).shutdown(true);
+		System.out.println("[Irc Service] Destroyed !");
+	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
