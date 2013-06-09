@@ -51,9 +51,10 @@ public class TouchIrc{
 	}
 	
 	public boolean addServer(Server server, Context c){
+		// return false, if the ServerName is already in use
 		for(int i = 0 ; i < availableServers.size() ; i++){
-			if(availableServers.valueAt(i).equals(server))
-					return false;
+			if(availableServers.valueAt(i).getName().equals(server.getName()))
+				return false;
 		}
 		Database db = new Database(c);
 		int idServer = db.addServer(server);
@@ -85,8 +86,9 @@ public class TouchIrc{
 	}
 	
 	public boolean addProfile(Profile profile, Context c){
+		// return false, if the ProfileName is already in use
 		for(int i = 0 ; i < availableProfiles.size() ; i++){
-			if(availableProfiles.valueAt(i).equals(profile))
+			if(availableProfiles.valueAt(i).getProfile_name().equals(profile.getProfile_name()))
 				return false;
 		}
 		
