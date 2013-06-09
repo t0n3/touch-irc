@@ -55,7 +55,7 @@ public class IrcService extends Service {
 		builder = new NotificationCompat.Builder(this);
 		builder.setSmallIcon(R.drawable.ic_launcher);
 		builder.setContentTitle("TouchIrc");
-		builder.setContentText("Pas de serveur connecté");
+		builder.setContentText("No connected server");
 		Intent intent = new Intent().setClass(getApplicationContext(), ExistingServersActivity.class);
 		builder.setContentIntent(PendingIntent.getActivity(getApplication(), 0, intent, 0));
 		
@@ -72,6 +72,7 @@ public class IrcService extends Service {
 	@Override
 	public void onDestroy(){
 		stopForeground(true);
+		notificationManager.cancel(1);
 		for(Server s : this.botsConnected.keySet())
 			getBot(s).shutdown(true);
 		
