@@ -64,7 +64,7 @@ public class IrcService extends Service {
 		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 		for(int i = 0 ; i < availableServers.size() ; i++)
-			if(!botsConnected.containsKey(availableServers.get(i)))
+			if(availableServers.valueAt(i).isAutoConnect())
 				getBot(availableServers.valueAt(i));
 		System.out.println("Service Created");
 	}
@@ -105,9 +105,9 @@ public class IrcService extends Service {
 		return this.botsConnected.keySet();
 	}
 	
-	public synchronized void connect(int idServer){
+	public synchronized IrcBot connect(int idServer){
 		final Server server = availableServers.get(idServer);
-		final IrcBot bot = getBot(server);
+		final IrcBot bot = new IrcBot(server, this);
 		new Thread("Thread for the server : " + server.getName()){
 			@Override
 			public void run(){
@@ -128,8 +128,9 @@ public class IrcService extends Service {
 								bot.joinChannel(s);
 						
 						bot.joinChannel("#Boulet2"); // TODO Remove it when the tests will be done
-						
 						connected = 0;
+						currentServer = server;
+						botsConnected.put(currentServer, bot);
 					} catch (NickAlreadyInUseException e) {
 					} catch (IrcException e) {
 						// TODO Auto-generated catch block
@@ -154,21 +155,25 @@ public class IrcService extends Service {
 							e.printStackTrace();
 						}
 					}
-					currentServer = server;
-					botsConnected.put(currentServer, bot);
 				}
+				updateNotification();
 			}
 		}.start();
 		
+		
+		return bot;
+	}
+	
+	private void updateNotification() {
 		String message = "Connected to : ";
 		for(Server s : this.botsConnected.keySet())
 			message += s.getName() + ", ";
 		builder.setContentText(message.substring(0, message.length()-2));
 		Intent intent = new Intent().setClass(getApplicationContext(), ConversationActivity.class);
 		builder.setContentIntent(PendingIntent.getActivity(getApplication(), 0, intent, 0));
-		notificationManager.notify(1, builder.build());
+		notificationManager.notify(1, builder.build());		
 	}
-	
+
 	/**
 	 * Get the Bot/Connection of the server with this idServer
 	 * @param idServer of the server (= id of the Bot)
@@ -177,11 +182,8 @@ public class IrcService extends Service {
 	// If the Bot doesn't exist it will be created and launched !
 	public synchronized IrcBot getBot(Server server){
 		IrcBot ircBot = this.botsConnected.get(server);
-		if(ircBot == null){
-			ircBot = new IrcBot(server,this);
-			this.botsConnected.put(server, ircBot);
-			connect(availableServers.keyAt(availableServers.indexOfValue(server)));
-		}
+		if(ircBot == null)
+			ircBot = connect(availableServers.keyAt(availableServers.indexOfValue(server)));
 		return ircBot;
 	}
 	
