@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import org.pircbotx.Channel;
+
 
 // TODO Comments :)
 
@@ -18,6 +20,7 @@ public class Server {
 	private String password = "";
 	private Profile profile;
 	private boolean autoConnect;
+	private ArrayList<String> autoConnectedChannels;
 	
 	private boolean skipMOTD = true;
 	private boolean useSSL;
@@ -167,6 +170,14 @@ public class Server {
 	
 	public boolean isAutoConnect(){
 		return this.autoConnect;
+	}
+
+	public void setAutoConnectedChannels(ArrayList<String> channelList) {
+		this.autoConnectedChannels = channelList;
+	}
+	
+	public ArrayList<String> getAutoConnectedChannels(){
+		return this.autoConnectedChannels;
 	}
 
 	
