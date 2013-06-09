@@ -202,17 +202,22 @@ public class Database extends SQLiteOpenHelper {
 			cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_CHARSET)),
 			Boolean.getBoolean(cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_USE_SSL))));
 			
-			int idProfile = cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_IDPROFILE)));
-			if(idProfile != 0)
-				server.setProfile(TouchIrc.getInstance().getAvailableProfiles().get(idProfile));
-			String sChannels = cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_AUTOCONNECTED_CHANNELS));
-			if(sChannels.length() > 0){
-				String[] tChannels = sChannels.split(",");
-				ArrayList<String> channels = new ArrayList<String>();
-				for(int i = 0 ; i < tChannels.length ; i++)
-					channels.add(tChannels[i]);
-				server.setAutoConnectedChannels(channels);
-			}
+		int autoConnect = cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_AUTOCONNECT)));
+		if(autoConnect == 1)
+			server.enableAutoConnect();
+
+		int idProfile = cursor.getInt(cursor.getColumnIndex((DBConstants.SERVER_IDPROFILE)));
+		if(idProfile != 0)
+			server.setProfile(TouchIrc.getInstance().getAvailableProfiles().get(idProfile));
+		
+		String sChannels = cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_AUTOCONNECTED_CHANNELS));
+		if(sChannels.length() > 0){
+			String[] tChannels = sChannels.split(",");
+			ArrayList<String> channels = new ArrayList<String>();
+			for(int i = 0 ; i < tChannels.length ; i++)
+				channels.add(tChannels[i]);
+			server.setAutoConnectedChannels(channels);
+		}
 			
 
 		// TODO SSL Support

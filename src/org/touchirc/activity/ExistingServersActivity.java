@@ -170,11 +170,13 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 				if(selectedServer.isAutoConnect()){
 					// The selected server loose its status of auto-connected server
 					selectedServer.disableAutoConnect();
+					touchIrc.updateServer(idSelectedServer, selectedServer, c);
 					mode.getMenu().getItem(2).setTitle(R.string.AUTO);
 				}
 				else{
 					// The selected server is now the auto-connected one
 					selectedServer.enableAutoConnect();
+					touchIrc.updateServer(idSelectedServer, selectedServer, c);
 					mode.getMenu().getItem(2).setTitle(R.string.disAUTO);
 					Toast.makeText(c, selectedServer.getName() + R.string.nowUsedForAutoConnection, Toast.LENGTH_LONG).show();
 				}				
