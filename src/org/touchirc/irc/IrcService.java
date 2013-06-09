@@ -41,12 +41,17 @@ public class IrcService extends Service {
 	
 	@Override
 	public void onCreate(){
+		System.out.println("Service Created");
+		for(int i = 0 ; i < availableServers.size() ; i++)
+			if(!botsConnected.containsKey(availableServers.get(i)))
+				getBot(availableServers.valueAt(i));
 	}
 	
 	@Override
 	public void onDestroy(){
 		for(Server s : this.botsConnected.keySet())
 			getBot(s).shutdown(true);
+		
 		System.out.println("[Irc Service] Destroyed !");
 	}
 
@@ -135,12 +140,13 @@ public class IrcService extends Service {
 	 * @param idServer of the server (= id of the Bot)
 	 * @return the bot
 	 */
-	// If the Bot don't existe it will be created !
+	// If the Bot doesn't exist it will be created and launched !
 	public synchronized IrcBot getBot(Server server){
 		IrcBot ircBot = this.botsConnected.get(server);
 		if(ircBot == null){
 			ircBot = new IrcBot(server,this);
 			this.botsConnected.put(server, ircBot);
+			connect(availableServers.keyAt(availableServers.indexOfValue(server)));
 		}
 		return ircBot;
 	}
