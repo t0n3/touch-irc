@@ -192,7 +192,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 				// Put the informations of the current server into a Bundle object
 				Bundle b = new Bundle();
-				b.putInt("ServerId", servers.indexOfValue(selectedServer));
+				b.putInt("ServerId", servers.keyAt(servers.indexOfValue(selectedServer)));
 
 				// Assign the Bundle to the Intent
 				i.putExtra("ServerIdentification", b);

@@ -132,7 +132,7 @@ public class CreateServerActivity extends SherlockActivity {
 		// if started by ExistingServersActivity, changing the EditTexts'value
 		if(bundleEdit != null && bundleEdit.containsKey("ServerId")){
 			// We collect the server from available servers list
-			Server serverToEdit = TouchIrc.getInstance().getAvailableServers().valueAt(bundleEdit.getInt("ServerId"));
+			Server serverToEdit = TouchIrc.getInstance().getAvailableServers().get(bundleEdit.getInt("ServerId"));
 
 			// And put values in corresponding editText
 			this.serverName_ET.setText(serverToEdit.getName());
