@@ -86,9 +86,9 @@ public class IrcService extends Service {
 					try {
 						bot.setEncoding(server.getEncoding());
 						bot.connect(server.getHost(),server.getPort(),server.getPassword());
-						
-						for(String s : server.getAutoConnectedChannels())
-							bot.joinChannel(s);
+						if(server.getAutoConnectedChannels() != null)
+							for(String s : server.getAutoConnectedChannels())
+								bot.joinChannel(s);
 						
 						bot.joinChannel("#Boulet2"); // TODO Remove it when the tests will be done
 					} catch (NickAlreadyInUseException e) {
