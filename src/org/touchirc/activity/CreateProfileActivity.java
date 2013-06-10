@@ -8,6 +8,10 @@ import org.touchirc.utils.Regex;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -64,8 +68,9 @@ public class CreateProfileActivity extends SherlockActivity{
 		bundleAddFromMenu = i.getBundleExtra("AddingFromExistingProfilesActivity");
 
 		// TextViews : black ones (default color)s are compulsories, gray ones are optionals
+		// Meanwhile, we can set the "default" value of the textView
 
-		this.profileName_TV = (TextView) findViewById(R.id.textView_profile_name);	
+		this.profileName_TV = (TextView) findViewById(R.id.textView_profile_name);
 
 		this.firstNickname_TV = (TextView) findViewById(R.id.textView_first_nick);
 
@@ -141,6 +146,9 @@ public class CreateProfileActivity extends SherlockActivity{
 
 		case R.id.save :
 
+			// If the user push again (after some errors)
+			puttDefaultTextViews();
+
 			if(addProfile()){				
 				finish(); // close the activity
 			}
@@ -151,54 +159,136 @@ public class CreateProfileActivity extends SherlockActivity{
 		}
 	}
 
+	private void puttDefaultTextViews(){
+
+		this.profileName_TV.setText(R.string.profileName);
+		this.firstNickname_TV.setText(R.string.firstNick);
+		this.secondNickname_TV.setText(R.string.secondNick);
+		this.secondNickname_TV.setTextColor(Color.GRAY);
+		this.thirdNickname_TV.setText(R.string.thirdNick);
+		this.thirdNickname_TV.setTextColor(Color.GRAY);
+		this.userName_TV.setText(R.string.userName);
+		this.realName_TV.setText(R.string.realName);
+
+	}
+
 	private void missingInformation() {
-		// We alarm the user of missing informations
-		Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
 
-		// Initialize the color of the TV
-
-		firstNickname_TV.setTextColor(Color.BLACK);
-		realName_TV.setTextColor(Color.BLACK);
-
-		// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
 		if(realName_ET.getText().length() == 0){
-			realName_TV.setTextColor(Color.RED);
-			realName_TV.invalidate();
+
+			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.realNameNotCompleted));
+			ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+			StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+			sb.setSpan(fcs, 8, 22, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			sb.setSpan(bss, 8, 22, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			this.realName_TV.setText(sb);
+
 			realName_ET.requestFocus();
+
 		}
 		if(userName_ET.getText().length() == 0){
-			userName_TV.setTextColor(Color.RED);
-			userName_TV.invalidate();
+
+			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.userNameNotCompleted));
+			ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+			StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+			sb.setSpan(fcs, 8, 22, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			sb.setSpan(bss, 8, 22, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			this.userName_TV.setText(sb);
+
 			userName_ET.requestFocus();
-		}
-		if(firstNickname_ET.getText().length() == 0){
-			firstNickname_TV.setTextColor(Color.RED);
-			firstNickname_TV.invalidate();
-			firstNickname_ET.requestFocus();
-		}
-		if(profileName_ET.getText().length() == 0){
-			profileName_TV.setTextColor(Color.RED);
-			profileName_TV.invalidate();
-			profileName_ET.requestFocus();
+
 		}
 
+		if(firstNickname_ET.getText().length() == 0){
+
+			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.firstNickNameNotCompleted));
+			ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+			StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+			sb.setSpan(fcs, 14, 28, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			sb.setSpan(bss, 14, 28, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			this.firstNickname_TV.setText(sb);
+
+			firstNickname_ET.requestFocus();
+
+		}
+
+		if(profileName_ET.getText().length() == 0){
+
+			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.profileNameNotCompleted));
+			ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+			StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+			sb.setSpan(fcs, 14, 28, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			sb.setSpan(bss, 14, 28, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			this.profileName_TV.setText(sb);
+
+			profileName_ET.requestFocus();
+
+		}
 	}
 
 	private boolean addProfile() {
 
+		String fnn = firstNickname_ET.getText().toString();
+		String snn = secondNickname_ET.getText().toString();
+		String tnn = thirdNickname_ET.getText().toString();
+		
+		// We check if important values are not specified
+		missingInformation();
 		// Control the validity of the nicknames
 		boolean validFirstNickname = Regex.isAValidNickName(firstNickname_ET.getText().toString());
 		boolean validSecondNickname = Regex.isAValidNickName(secondNickname_ET.getText().toString());
 		boolean validThirdNickname = Regex.isAValidNickName(thirdNickname_ET.getText().toString());
 
 		if(validFirstNickname || validSecondNickname || validThirdNickname){
+
+			/** ------------------------------------------------------------------------- **/
+
+			// Check if the nicknames are the same
+
+			if(!snn.equals("") || !tnn.equals("")){
+				boolean sameNickNames = false;
+
+				if(snn.equals(fnn)){
+					SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.secondNickNameAlreadyInUse));
+					ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+					StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+					sb.setSpan(fcs, 16, 30, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+					sb.setSpan(bss, 16, 30, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+					this.secondNickname_TV.setText(sb);
+
+					sameNickNames = true;
+				}
+
+				if(tnn.equals(snn) || tnn.equals(fnn)){
+					SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.thirdNickNameAlreadyInUse));
+					ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+					StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+					sb.setSpan(fcs, 15, 29, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+					sb.setSpan(bss, 15, 29, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+					this.thirdNickname_TV.setText(sb);
+
+					sameNickNames = true;
+				}
+
+				if(sameNickNames == true){
+					return false;
+				}	
+			}
+
+			/** ------------------------------------------------------------------------- **/
+
 			// the Profile is created with the datas given by the user
+
 			prof = new Profile(profileName_ET.getText().toString(),
-					firstNickname_ET.getText().toString(),
-					secondNickname_ET.getText().toString(),
-					thirdNickname_ET.getText().toString(),
+					fnn,
+					snn,
+					tnn,
 					userName_ET.getText().toString(),
 					realName_ET.getText().toString());
+
+			/** ------------------------------------------------------------------------- **/
+
+			// ADD or UPDATE the profile
 
 			Intent i = new Intent(CreateProfileActivity.this, ExistingProfilesActivity.class);
 			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -212,39 +302,79 @@ public class CreateProfileActivity extends SherlockActivity{
 
 			}
 			else{
-				// Add the Profile just created into the database
-				TouchIrc.getInstance().addProfile(prof, this);
-				Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
 
-				if(bundleAddFromMenu == null){
-					i.setClass(getApplicationContext(), MenuActivity.class);
+				if(!TouchIrc.getInstance().addProfile(prof, this)){
+
+					SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.profileNameAlreadyInUse));
+					ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+					StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+					sb.setSpan(fcs, 15, 29, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+					sb.setSpan(bss, 15, 29, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+					this.profileName_TV.setText(sb);
+
+					return false;
 				}
-				startActivity(i);
+				else{
+
+					// Add the Profile just created into the database
+					Toast.makeText(getApplicationContext(), "The profile : " + prof.getProfile_name() + " has been added !", Toast.LENGTH_SHORT).show();
+					if(bundleAddFromMenu == null){
+						i.setClass(getApplicationContext(), MenuActivity.class);
+					}
+					startActivity(i);
+				}
+
 			}
+
+			/** ------------------------------------------------------------ **/
 
 			// No problems concerning values
 			return true;
 
 		}
-		else{
-			if(!validFirstNickname){
-				this.firstNickname_ET.setTextColor(Color.RED);
-				this.firstNickname_ET.invalidate();
-			}
-			if(!validSecondNickname){
-				this.secondNickname_ET.setTextColor(Color.RED);
-				this.secondNickname_ET.invalidate();
-			}
-			if(!validThirdNickname){
-				this.thirdNickname_ET.setTextColor(Color.RED);
-				this.thirdNickname_ET.invalidate();
-			}
 
-			missingInformation();
+		/** ------------------------------------------------------------ **/
+
+		// If some nicknames are invalids
+
+		else{
+			if(!validFirstNickname && !fnn.equals("")){
+
+				SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.firstNickNameInvalid));
+				ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+				StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+				sb.setSpan(fcs, 14, 22, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+				sb.setSpan(bss, 14, 22, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+				this.firstNickname_TV.setText(sb);
+
+			}
+			if(!validSecondNickname && !snn.equals("")){
+
+				SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.secondNickNameInvalid));
+				ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+				StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+				sb.setSpan(fcs, 15, 23, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+				sb.setSpan(bss, 15, 23, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+				this.secondNickname_TV.setText(sb);
+
+			}
+			if(!validThirdNickname && !tnn.equals("")){
+
+				SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.thirdNickNameInvalid));
+				ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+				StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+				sb.setSpan(fcs, 15, 22, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+				sb.setSpan(bss, 15, 22, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+				this.thirdNickname_TV.setText(sb);
+
+			}
 
 			// Some values are missing/invalids
 			return false;
 		}
+
+		/** ------------------------------------------------------------ **/
+
 	}
 
 	/**

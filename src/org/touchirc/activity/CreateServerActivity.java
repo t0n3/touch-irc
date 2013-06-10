@@ -12,6 +12,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,7 +51,7 @@ public class CreateServerActivity extends SherlockActivity {
 	private String selectedCharset = "";
 
 	private Button charset_BT;
-	
+
 	private MultipleChannelTextView mu;
 
 	private Server serv;
@@ -126,7 +130,7 @@ public class CreateServerActivity extends SherlockActivity {
 
 			}
 		});
-		
+
 		this.mu = (MultipleChannelTextView) findViewById(R.id.editText_associated_channels);
 
 		// if started by ExistingServersActivity, changing the EditTexts'value
@@ -139,12 +143,21 @@ public class CreateServerActivity extends SherlockActivity {
 			this.serverHostname_ET.setText(serverToEdit.getHost());
 			this.serverPort_ET.setText(String.valueOf(serverToEdit.getPort()));
 			this.serverPassword_ET.setText(serverToEdit.getPassword());
-			
+
 			if(serverToEdit.useSSL()){
 				this.useSSL_CB.setChecked(true);
 			}
 			selectedCharset = serverToEdit.getCharset();
 			this.charset_BT.setText(selectedCharset);
+
+			/*
+			String s = "";
+			for(int j = 0 ; j <serverToEdit.getAutoConnectedChannels().size() ; j++){
+				s = s + serverToEdit.getAutoConnectedChannels().get(j) + " ";
+			}
+
+			this.mu.setText(s);
+			 */
 		}
 	}
 
@@ -185,6 +198,8 @@ public class CreateServerActivity extends SherlockActivity {
 			return true;
 
 		case R.id.save :
+			
+			puttDefaultTextViews();
 
 			if(addServer()){				
 				finish(); // close the activity
@@ -195,36 +210,72 @@ public class CreateServerActivity extends SherlockActivity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
+	
+	private void puttDefaultTextViews(){
 
-	private void missingInformation() {
-
-		// We alarm the user of missing informations
-		Toast.makeText(getApplicationContext(), "Missing/Invalid informations ...", Toast.LENGTH_SHORT).show();
-
-		// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
-		if(serverPort_ET.getText().length() == 0){
-			server_port_TV.setTextColor(Color.RED);
-			server_port_TV.invalidate();
-			serverPort_ET.requestFocus();
-		}
-		if(serverHostname_ET.getText().length() == 0){
-			server_Hostname_TV.setTextColor(Color.RED);
-			server_Hostname_TV.invalidate();
-			serverHostname_ET.requestFocus();
-		}
-		if(serverName_ET.getText().length() == 0){
-			server_Name_TV.setTextColor(Color.RED);
-			server_Name_TV.invalidate();
-			serverName_ET.requestFocus();
-		}
+		this.server_Name_TV.setText(R.string.serverName);
+		this.server_Hostname_TV.setText(R.string.serverHostname);
+		this.server_port_TV.setText(R.string.serverPort);
 
 	}
 
-	private boolean addServer() {
+	private boolean missingInformation() {
 		
+		boolean b = false;
+
+		// And indicate him of which informations we are lacking of (the color of the corresponding textviews becomes red)
+		if(serverPort_ET.getText().length() == 0){
+
+			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.serverPortNotCompleted));
+			ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+			StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+			sb.setSpan(fcs, 14, 27, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			sb.setSpan(bss, 14, 27, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			this.server_port_TV.setText(sb);
+
+			serverPort_ET.requestFocus();
+			 b = true;
+		}
+		if(serverHostname_ET.getText().length() == 0){
+
+			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.serverHostnameNotCompleted));
+			ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+			StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+			sb.setSpan(fcs, 18, 31, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			sb.setSpan(bss, 18, 31, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			this.server_Hostname_TV.setText(sb);
+
+			serverHostname_ET.requestFocus();
+			b = true;
+		}
+		if(serverName_ET.getText().length() == 0){
+
+			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.serverNameNotCompleted));
+			ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+			StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+			sb.setSpan(fcs, 14, 27, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			sb.setSpan(bss, 14, 27, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			this.server_Name_TV.setText(sb);
+
+			serverName_ET.requestFocus();
+			b = true;
+		}
+		return b;
+	}
+
+	private boolean addServer() {
+
 		// TODO Add Regex on hostname, port, password (?)
+		
+		// Check if all main informations are indicated
+		if(missingInformation()){
+			return false;
+		}
+		
+		/** -------------------------------------------------------- **/
 
 		// the Server is created with the datas given by the user
+		
 		int port = Integer.parseInt(serverPort_ET.getText().toString());
 
 		serv = new Server(serverName_ET.getText().toString(),
@@ -242,11 +293,13 @@ public class CreateServerActivity extends SherlockActivity {
 		if(selectedCharset != ""){
 			serv.setEncoding(selectedCharset);
 		}
-		
+
 		if(mu.getText().toString() != ""){
 			ArrayList<String> channelList = this.mu.getChannelList();
-			// TODO What to do with this array of channels ?
+			serv.setAutoConnectedChannels(channelList);
 		}
+		
+		/** -------------------------------------------------------- **/
 
 		Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
 
@@ -259,15 +312,25 @@ public class CreateServerActivity extends SherlockActivity {
 		}
 		else{
 			// Add the Server just created into the database
-			TouchIrc.getInstance().addServer(serv, this);
-			Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been added !", Toast.LENGTH_SHORT).show();
+			if(!TouchIrc.getInstance().addServer(serv, this)){
 
-			// We go back to the ExistingServersActivity and transmit the new server
-			if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingServersActivity")){
-				startActivity(i);
+				SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.serverNameAlreadyInUse));
+				ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+				StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+				sb.setSpan(fcs, 14, 28, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+				sb.setSpan(bss, 14, 28, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+				this.server_Name_TV.setText(sb);
+
+				return false;
+			}
+			else{
+				Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " has been added !", Toast.LENGTH_SHORT).show();
+				// We go back to the ExistingServersActivity and transmit the new server
+				if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingServersActivity")){
+					startActivity(i);
+				}
 			}
 		}
-
 		return true;
 	}
 
