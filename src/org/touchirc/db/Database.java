@@ -211,7 +211,7 @@ public class Database extends SQLiteOpenHelper {
 			server.setProfile(TouchIrc.getInstance().getAvailableProfiles().get(idProfile));
 		
 		String sChannels = cursor.getString(cursor.getColumnIndex(DBConstants.SERVER_AUTOCONNECTED_CHANNELS));
-		if(sChannels.length() > 0){
+		if(sChannels != null && sChannels.length() > 0){
 			String[] tChannels = sChannels.split(",");
 			ArrayList<String> channels = new ArrayList<String>();
 			for(int i = 0 ; i < tChannels.length ; i++)
