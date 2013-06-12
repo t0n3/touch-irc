@@ -303,13 +303,13 @@ public class CreateServerActivity extends SherlockActivity {
 
 		Intent i = new Intent(CreateServerActivity.this, ExistingServersActivity.class);
 		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		String s;
+		String s, ts = getResources().getString(R.string.theServer);
 
 		if(bundleEdit != null){
 			// Update the Server in the database
 			s = getResources().getString(R.string.hasBeenModified);
 			TouchIrc.getInstance().updateServer(bundleEdit.getInt("ServerId"), serv, getApplicationContext());
-			Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " " + s, Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), ts + serv.getName() + " " + s, Toast.LENGTH_SHORT).show();
 
 			startActivity(i);
 		}
@@ -328,7 +328,7 @@ public class CreateServerActivity extends SherlockActivity {
 			}
 			else{
 				s = getResources().getString(R.string.hasBeenAdded);
-				Toast.makeText(getApplicationContext(), "The server : " + serv.getName() + " " + s, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), ts + serv.getName() + " " + s, Toast.LENGTH_SHORT).show();
 				// We go back to the ExistingServersActivity and transmit the new server
 				if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingServersActivity")){
 					startActivity(i);
