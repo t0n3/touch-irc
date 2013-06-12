@@ -11,44 +11,89 @@
     <!-- Generalities -->
     
     <string name="add">Add</string>
-    <string name="delete">Delete</string>
-    <string name="clearAll">Clear All</string>
-    <string name="cancel">Cancel</string>
     <string name="edit">Edit</string>
-    <string name="exit">Exit</string>
+    <string name="set">Set</string>
+    
+    <string name="delete">Delete</string>
+    <string name="deleted">deleted</string>
+    <string name="clearAll">Clear All</string>
+    
+    <string name="cancel">Cancel</string>
+
+    <string name="hasBeenModified">has been modified.</string>
+    <string name="hasBeenAdded">has been added !</string>
+      
     <string name="setByDefault">Set by Default</string>
     <string name="DEFAULT">DEFAULT</string>
+    
     <string name="AUTO">AUTO</string>
     <string name="disAUTO">dis-AUTO</string>
-    <string name="search">Search</string>
+    
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="set">Set</string>
+    
     <string name="warning">Warning !</string>
+    <string name="somethingWentWrong">Something went wrong :(</string>
+    
+    <string name="exit">Exit</string>
     <string name="Quit">Quit</string>
 
     <!-- Profile -->
     
-    <string name="profileName">Profile Name :</string>
-    <string name="firstNick">First Nickname :</string>
-    <string name="secondNick">Second Nickname (optional) :</string>
-    <string name="thirdNick">Third Nickname (optional) :</string>
-    <string name="userName">Username :</string>
-    <string name="realName">Realname :</string>    
+    <string name="profileName">Profile\'s Name :</string>
+	    <!-- Warnings -->
+	    <string name="profileNameAlreadyInUse">Profile\'s name Already in Use</string>
+	    <string name="profileNameNotCompleted">Profile\'s name Not Completed</string>    
     
+    <string name="firstNick">First Nickname :</string>
+    	<!-- Warnings -->
+    	<string name="firstNickNameNotCompleted">First Nickname Not Completed</string>
+    	<string name="firstNickNameInvalid">First Nickname Invalid</string>
+    
+    <string name="secondNick">Second Nickname (optional) :</string>
+    	<!-- Warnings -->
+    	<string name="secondNickNameInvalid">Second Nickname Invalid</string>
+    	<string name="secondNickNameAlreadyInUse">Second Nickname Already in Use</string>
+    	
+    <string name="thirdNick">Third Nickname (optional) :</string>
+        <!-- Warnings -->
+    	<string name="thirdNickNameInvalid">Third Nickname Invalid</string>
+    	<string name="thirdNickNameAlreadyInUse">Third Nickname Already in Use</string>
+    
+    <string name="userName">Username :</string>
+        <!-- Warnings -->
+    	<string name="userNameNotCompleted">Username Not Completed</string>
+    
+    <string name="realName">Realname :</string>    
+    	<!-- Warnings -->
+    	<string name="realNameNotCompleted">Realname Not Completed</string>
+    
+    <string name="theProfile">The profile : </string>
     <string name="deleteProfile">Delete Profile(s)</string>
     <string name="linkAServer">Link a Server</string>
     <string name="nowLinkToTheProfile"> is now link to the profile </string>
+    <string name="profileByDefault">Profile by default : </string>
 
     <!-- Server -->
     
     <string name="serverName">Server\'s name :</string>
-    <string name="hostname">Hostname :</string>
+	    <!-- Warnings -->
+	    <string name="serverNameAlreadyInUse">Server\'s name Already in Use</string>
+	    <string name="serverNameNotCompleted">Server\'s name Not Completed</string> 
+    
+    <string name="serverHostname">Server\'s Hostname :</string> 
+    	<!-- Warnings -->
+    	<string name="serverHostnameNotCompleted">Server\'s Hostname Not Completed</string> 
+    
     <string name="serverPort">Server\'s port :</string>
+    	<!-- Warnings -->
+    	<string name="serverPortNotCompleted">Server\'s port Not Completed</string>    
+    
     <string name="serverPassword">Server\'s password :</string>
     <string name="usingSSL">Use SSL</string>
     <string name="associatedChannels">Channel(s) associated :</string>
 
+    <string name="theServer">The server : </string>
     <string name="addAServer">Add a server</string>
     <string name="deleteServer">Delete Server(s)</string>
     <string name="nowUsedForAutoConnection"> is now used for autoconnection !</string>
