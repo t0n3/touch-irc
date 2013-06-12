@@ -178,7 +178,8 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 					selectedServer.enableAutoConnect();
 					touchIrc.updateServer(idSelectedServer, selectedServer, c);
 					mode.getMenu().getItem(2).setTitle(R.string.disAUTO);
-					Toast.makeText(c, selectedServer.getName() + R.string.nowUsedForAutoConnection, Toast.LENGTH_LONG).show();
+					String s = getResources().getString(R.string.nowUsedForAutoConnection);
+					Toast.makeText(c, selectedServer.getName() + s, Toast.LENGTH_LONG).show();
 				}				
 
 				// Notifying the adapter to update the display

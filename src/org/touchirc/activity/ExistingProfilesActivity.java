@@ -250,7 +250,8 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 						// Removal throughout the db
 						if (touchIrc.deleteProfile(idSelectedProfile, getApplicationContext())){ // if the deletion is successful
 							// Notify the user thanks to a Toast
-							Toast.makeText(c, "Profile " + selectedProfile.getProfile_name() + " deleted.", Toast.LENGTH_LONG).show();
+							String s = getResources().getString(R.string.deleted);
+							Toast.makeText(c, selectedProfile.getProfile_name() + " " + s + ".", Toast.LENGTH_LONG).show();
 
 							// Notify the adapter that the list's state has changed
 							adapterProfile.notifyDataSetChanged();
@@ -276,17 +277,20 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 			// ########## if the item "Set By Default" is selected ##########
 			case R.id.setByDefault :
 
+				String s;
 				// The selected profile is now the default profile
 				if(touchIrc.setDefaultProfile(idSelectedProfile)){
 					mode.getMenu().getItem(2).setIcon(android.R.drawable.star_on);
 					mode.getMenu().getItem(2).setEnabled(false);
-					Toast.makeText(c, selectedProfile.getProfile_name() + " is now the profile by default !", Toast.LENGTH_LONG).show();
+					s = getResources().getString(R.string.profileByDefault);
+					Toast.makeText(c, s + selectedProfile.getProfile_name(), Toast.LENGTH_LONG).show();
 					
 					// Notifying the adapter to update the display
 					adapterProfile.notifyDataSetInvalidated();
 				}
 				else{
-					Toast.makeText(c, "An error occurred while setting the profile by default :(", Toast.LENGTH_LONG).show();
+					s = getResources().getString(R.string.somethingWentWrong);
+					Toast.makeText(c, s, Toast.LENGTH_LONG).show();
 				}
 
 				
@@ -330,7 +334,9 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 								if(!item.isChecked()){
 									touchIrc.setProfile(servers.keyAt(indexServer), idSelectedProfile, c);
 									item.setChecked(true);
-									Toast.makeText(c, servers.valueAt(indexServer).getName() + " is now link to the profile " + selectedProfile.getProfile_name(), Toast.LENGTH_LONG).show();
+									String s = getResources().getString(R.string.nowLinkToTheProfile);
+									Toast.makeText(c, servers.valueAt(indexServer).getName() + " " + s + 
+											" " + selectedProfile.getProfile_name(), Toast.LENGTH_LONG).show();
 								}
 								else{
 									// Delete the existing link
