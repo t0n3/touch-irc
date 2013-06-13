@@ -21,7 +21,6 @@ public class UsersListAdapter extends BaseAdapter {
 	public UsersListAdapter (IrcService ircService, Context c){
 		this.ircService = ircService;
 		this.c = c;
-		System.out.println("create");
 	}
 
 	@Override
@@ -31,7 +30,6 @@ public class UsersListAdapter extends BaseAdapter {
 
 	@Override
 	public User getItem(int i) {
-		System.out.println("getItem");
 		return ircService.getCurrentChannel().getUsers().toArray(new User[0])[i];
 	}
 
@@ -42,7 +40,6 @@ public class UsersListAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		System.out.println("getView");
 		if (convertView == null)
 			convertView = LayoutInflater.from(c).inflate(R.layout.user_item_list, null);
 		
