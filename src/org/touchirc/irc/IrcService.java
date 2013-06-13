@@ -57,6 +57,7 @@ public class IrcService extends Service {
 		builder.setContentTitle("TouchIrc");
 		builder.setContentText("No connected server");
 		Intent intent = new Intent().setClass(getApplicationContext(), ExistingServersActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
 		builder.setContentIntent(PendingIntent.getActivity(getApplication(), 0, intent, 0));
 		
 		startForeground(1, builder.build());
@@ -170,6 +171,7 @@ public class IrcService extends Service {
 			message += s.getName() + ", ";
 		builder.setContentText(message.substring(0, message.length()-2));
 		Intent intent = new Intent().setClass(getApplicationContext(), ConversationActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 		builder.setContentIntent(PendingIntent.getActivity(getApplication(), 0, intent, 0));
 		notificationManager.notify(1, builder.build());		
 	}
