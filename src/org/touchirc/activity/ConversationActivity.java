@@ -135,15 +135,18 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     public void sendCommand(String command){
     	String[] args = command.split(" ");
     	String cmd = args[0].substring(1, args[0].length()).toLowerCase();
+    	IrcBot bot = ircService.getBot(currentServer);
+    	args = Arrays.copyOfRange(args, 1, args.length);
     	
     	for(String c : IrcCommands.ALL_COMMANDS){
     		if(c.equals(cmd)){
     			System.out.println("Command exists");
+    			// Join Channel
     			if(cmd.equals(IrcCommands.JOIN_CHANNEL)) {
-    				if(args.length < 3){ // Ugly !?
-    					ircService.getBot(currentServer).joinChannel(args[1]);
+    				if(args.length < 2){
+    					bot.joinChannel(args[0]);
     				} else {
-    					ircService.getBot(currentServer).joinChannel(args[1], args[2]);
+    					bot.joinChannel(args[0], args[1]);
     				}
     			}
     		}
