@@ -1,5 +1,7 @@
 package org.touchirc.adapter;
 
+import java.util.Set;
+
 import org.pircbotx.User;
 import org.touchirc.R;
 
@@ -16,8 +18,8 @@ public class UsersListAdapter extends BaseAdapter {
 	private User [] usersList;
 	private Context c;
 
-	public UsersListAdapter (User[] userTab, Context c){
-		this.usersList = userTab;
+	public UsersListAdapter (Set<User> set, Context c){
+		this.usersList = set.toArray(new User[0]);
 		this.c = c;
 	}
 
@@ -27,7 +29,7 @@ public class UsersListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public Object getItem(int i) {
+	public User getItem(int i) {
 		return this.usersList[i];
 	}
 
@@ -38,41 +40,33 @@ public class UsersListAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View v = convertView;
-		User user = this.usersList[position]; // Collect the user concerned
-		if(user == null)
-			return null;
-		if (v == null){
-			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			v = vi.inflate(R.layout.user_item_list, null);
-		}
+		if (convertView == null)
+			convertView = LayoutInflater.from(c).inflate(R.layout.user_item_list, null);
 		
-		ImageView status_ImgView = (ImageView) v.findViewById(R.id.imageViewStatus);
-		TextView userName_TV = (TextView) v.findViewById(R.id.textViewUserName);
+		User user = getItem(position);
+		ImageView status_ImgView = (ImageView) convertView.findViewById(R.id.imageViewStatus);
+		TextView userName_TV = (TextView) convertView.findViewById(R.id.textViewUserName);
 		userName_TV.setText(user.getNick().toString());
 		
 		status_ImgView.setBackgroundResource(0);
 		
 		// TODO Add more status & verify existing ones because not sure about the employed methods
 		
-		// Checking if the current user is not mute
-		if(user.getChannelsVoiceIn().contains(user)){
-			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_online);
-			return v;
-		}
-		
-		if(user.getChannelsHalfOpIn().contains(user)){
-			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_away);
-			return v;
-		}
-		
 		// Checking if the current user is an OP
 		if(user.getChannelsOpIn().contains(user)){
 			status_ImgView.setBackgroundResource(android.R.drawable.presence_online);
-			return v;
+			return convertView;
+		}
+		if(user.getChannelsHalfOpIn().contains(user)){
+			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_away);
+			return convertView;
+		}
+		if(user.getChannelsVoiceIn().contains(user)){
+			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_online);
+			return convertView;
 		}
 		
-		return v;		
+		return convertView;		
 	}
 
 }
