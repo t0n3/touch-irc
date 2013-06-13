@@ -1,11 +1,14 @@
 package org.touchirc.activity;
 
+import java.util.Arrays;
+
 import org.touchirc.R;
 import org.touchirc.adapter.ConversationPagerAdapter;
+import org.touchirc.fragments.ConnectedServersFragment;
 import org.touchirc.fragments.ConnectedUsersFragment;
 import org.touchirc.fragments.ConversationFragment;
-import org.touchirc.fragments.ConnectedServersFragment;
 import org.touchirc.irc.IrcBinder;
+import org.touchirc.irc.IrcBot;
 import org.touchirc.irc.IrcCommands;
 import org.touchirc.irc.IrcService;
 import org.touchirc.model.Conversation;
