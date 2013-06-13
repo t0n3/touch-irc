@@ -283,7 +283,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 					mode.getMenu().getItem(2).setIcon(android.R.drawable.star_on);
 					mode.getMenu().getItem(2).setEnabled(false);
 					s = getResources().getString(R.string.profileByDefault);
-					Toast.makeText(c, s + selectedProfile.getProfile_name(), Toast.LENGTH_LONG).show();
+					Toast.makeText(c, s + " " + selectedProfile.getProfile_name(), Toast.LENGTH_LONG).show();
 					
 					// Notifying the adapter to update the display
 					adapterProfile.notifyDataSetInvalidated();
