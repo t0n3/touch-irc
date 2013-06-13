@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.slidingmenu.lib.SlidingMenu;
 
 public class ConversationActivity extends SherlockFragmentActivity implements ServiceConnection {
@@ -199,6 +200,26 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, connectedServerFragment).commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedUserLayout, connectedUserFragment).commit();
     }  
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+			Intent intent = new Intent(this, MenuActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+    }
+    
+    public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			menu.toggle();
+			return true;
+		}
+		return super.onOptionsItemSelected((android.view.MenuItem) item);
+	}
     
     public void setCurrentConversation(int positon){
     	this.vp.setCurrentItem(positon);
