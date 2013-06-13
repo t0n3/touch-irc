@@ -17,6 +17,7 @@ import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -66,10 +67,20 @@ public class ConversationFragment extends Fragment {
 			}	
 		};
 		getActivity().registerReceiver(this.messageReceiver , new IntentFilter("org.touchirc.irc.newMessage"));
-
+		
 		return v;
 	}
 	
-
+	@Override
+	public void onResume() {
+		super.onResume();
+		getActivity().registerReceiver(this.messageReceiver , new IntentFilter("org.touchirc.irc.newMessage"));
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		getActivity().unregisterReceiver(messageReceiver);
+	}
 	
 }

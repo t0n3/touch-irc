@@ -1,16 +1,23 @@
 package org.touchirc.activity;
 
+import java.util.Locale;
+
 import org.touchirc.R;
 import org.touchirc.adapter.ConversationPagerAdapter;
+import org.touchirc.fragments.ConversationFragment;
 import org.touchirc.irc.IrcBinder;
+import org.touchirc.irc.IrcBot;
+import org.touchirc.irc.IrcCommands;
 import org.touchirc.irc.IrcService;
 import org.touchirc.model.Conversation;
 import org.touchirc.model.Message;
 import org.touchirc.model.Server;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -19,6 +26,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.method.TextKeyListener;
 import android.view.KeyEvent;
+import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -34,6 +42,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     private ViewPager vp;
     private SlidingMenu menu;
     private EditText inputMessage;
+    private ConversationPagerAdapter cPagerAdapter;
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +65,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        this.ircService = null;
+        ircService = null;
         Intent intent = new Intent(this, IrcService.class);
         //  getApplicationContext().startService(intent);
         if(getApplicationContext().bindService(intent, this, Context.BIND_AUTO_CREATE)){
@@ -64,8 +73,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         }
 
         // set the viewpager
-        this.vp = (ViewPager) findViewById(R.id.vp);
-        this.vp.setOnPageChangeListener(new OnPageChangeListener() {
+        vp = (ViewPager) findViewById(R.id.vp);
+        vp.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrollStateChanged(int arg0) { }
 
@@ -82,12 +91,12 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
                     menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
                     break;
                 }
-  
                 ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(position)));
             }
 
         });
-        this.vp.setCurrentItem(0);
+        vp.setCurrentItem(0);
+        
         
         // Clean if it's useless :)
         PagerTabStrip vpTabViewer = (PagerTabStrip) findViewById(R.id.vpTabViewer);
@@ -114,33 +123,73 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     	Conversation mCurrentConversation = currentServer.getConversation(ircService.getCurrentChannel().getName());
     	String mAuthor = ircService.getBot(currentServer).getNick();
     	
-        // First, add message to the app
-        mCurrentConversation.addMessage(new Message(mMessage, mAuthor, Message.TYPE_MESSAGE));
-        // Second, send the message to the network
-        ircService.getBot(currentServer).sendMessage(ircService.getCurrentChannel().getName(), inputMessage.getText().toString());
-        
+    	if(mMessage.charAt(0) == '/') {
+    		sendCommand(mMessage);
+    	} else {
+    		// First, add message to the app
+    		mCurrentConversation.addMessage(new Message(mMessage, mAuthor, Message.TYPE_MESSAGE));
+        	// Second, send the message to the network
+        	ircService.getBot(currentServer).sendMessage(ircService.getCurrentChannel().getName(), inputMessage.getText().toString());
+    	}
+    	
         TextKeyListener.clear(inputMessage.getText()); // Clean the edit text, important !
     	
     	// Refresh all these things
         ircService.sendBroadcast(new Intent("org.touchirc.irc.newMessage"));
     }
     
+    public void sendCommand(String command){
+    	String[] args = command.split(" ");
+    	String cmd = args[0].substring(1, args[0].length()).toLowerCase();
+    	
+    	for(String c : IrcCommands.ALL_COMMANDS){
+    		if(c.equals(cmd)){
+    			System.out.println("Command exists");
+    			if(cmd.equals(IrcCommands.JOIN_CHANNEL)) {
+    				if(args.length < 3){ // Ugly !?
+    					ircService.getBot(currentServer).joinChannel(args[1]);
+    				} else {
+    					ircService.getBot(currentServer).joinChannel(args[1], args[2]);
+    				}
+    			}
+    		}
+    	}
+    	System.out.println("Command : " + cmd);
+    }
+    
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        this.ircService = null;        
+        ircService = null;        
     }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder binder) {
-        this.ircService = ((IrcBinder) binder).getService();
+        ircService = ((IrcBinder) binder).getService();
+        
         // Retrieve the currently connected server
-        this.currentServer = this.ircService.getCurrentServer();
-        this.vp.setAdapter(new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer));
+        currentServer = ircService.getCurrentServer();
+        
+        // Add the pager adapter
+        cPagerAdapter = new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer);
+        vp.setAdapter(cPagerAdapter);
+        
         // Set the Activity title
-        this.setTitle(currentServer.getName());
+        setTitle(currentServer.getName());
+        
         // Set the current channel (by default, when launching it's 0
         ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(0)));
+        
+        // Register a new Broadcast Receiver to update the list of Fragments when channels states change
+        BroadcastReceiver channelReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String lastConv = currentServer.getLastConversationName();
+				cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(lastConv)));
+				ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
+			}	
+		};
+		registerReceiver(channelReceiver , new IntentFilter("org.touchirc.irc.channellistUpdated"));
     }   
 
 }
