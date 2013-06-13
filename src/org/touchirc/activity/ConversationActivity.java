@@ -65,6 +65,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         menu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
 		menu.setMenu(R.layout.connected_servers);
 		menu.setSecondaryMenu(R.layout.connected_users);
+		menu.setSecondaryShadowDrawable(R.drawable.shadow_right);
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
