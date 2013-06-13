@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.pircbotx.Channel;
-
 
 // TODO Comments :)
 
@@ -54,7 +52,7 @@ public class Server {
 	}
 	
 	public Conversation getConversation(String title){
-		return this.conversations.get(title.toLowerCase());
+		return this.conversations.get(title);
 	}
 	
 	public ArrayList<String> getAllConversations(){
@@ -69,7 +67,7 @@ public class Server {
 	}
 	
 	public void removeConversation(String channel) {
-		this.conversations.remove(channel.toLowerCase());
+		this.conversations.remove(channel);
 	}
 	
 	public String getName(){

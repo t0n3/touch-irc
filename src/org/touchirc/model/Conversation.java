@@ -11,7 +11,7 @@ public class Conversation {
 	public Conversation(String title){
 		this.messagesBuffer = new LinkedList<Message>();
 		this.messagesHistory = new LinkedList<Message>();
-		this.title = title.toLowerCase();
+		this.title = title;
 	}
 	
 	public void addMessage(Message m){
