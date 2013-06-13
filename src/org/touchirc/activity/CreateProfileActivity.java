@@ -303,7 +303,7 @@ public class CreateProfileActivity extends SherlockActivity{
 				// Update the Profile in the database (+1 since the ID in Database begins at 0)
 				s = getResources().getString(R.string.hasBeenModified);
 				TouchIrc.getInstance().updateProfile(bundleEdit.getInt("ProfileId")+1, prof, getApplicationContext());
-				Toast.makeText(getApplicationContext(), p + prof.getProfile_name() + " " 
+				Toast.makeText(getApplicationContext(), p + " " + prof.getProfile_name() + " " 
 				+ s, Toast.LENGTH_SHORT).show();
 
 				startActivity(i);
@@ -327,7 +327,7 @@ public class CreateProfileActivity extends SherlockActivity{
 					// Add the Profile just created into the database
 					s = getResources().getString(R.string.hasBeenAdded);
 					System.out.println(s);
-					Toast.makeText(getApplicationContext(), p + prof.getProfile_name() + 
+					Toast.makeText(getApplicationContext(), p + " " + prof.getProfile_name() + 
 							" " + s, Toast.LENGTH_SHORT).show();
 					if(bundleAddFromMenu == null){
 						i.setClass(getApplicationContext(), MenuActivity.class);

@@ -1,12 +1,10 @@
 package org.touchirc.activity;
 
-import java.util.Locale;
-
 import org.touchirc.R;
 import org.touchirc.adapter.ConversationPagerAdapter;
 import org.touchirc.fragments.ConversationFragment;
+import org.touchirc.fragments.ConnectedServersFragment;
 import org.touchirc.irc.IrcBinder;
-import org.touchirc.irc.IrcBot;
 import org.touchirc.irc.IrcCommands;
 import org.touchirc.irc.IrcService;
 import org.touchirc.model.Conversation;
@@ -21,12 +19,10 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.method.TextKeyListener;
 import android.view.KeyEvent;
-import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -96,11 +92,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
 
         });
         vp.setCurrentItem(0);
-        
-        
-        // Clean if it's useless :)
-        PagerTabStrip vpTabViewer = (PagerTabStrip) findViewById(R.id.vpTabViewer);
-        
+                
         // Set the EditText
         inputMessage = (EditText) findViewById(R.id.input);
         inputMessage.setOnEditorActionListener(new OnEditorActionListener() {
@@ -190,6 +182,13 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
 			}	
 		};
 		registerReceiver(channelReceiver , new IntentFilter("org.touchirc.irc.channellistUpdated"));
-    }   
+       
+        getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, new ConnectedServersFragment(ircService)).commit();
+    }  
+    
+    public void setCurrentConversation(int positon){
+    	this.vp.setCurrentItem(positon);
+    	menu.showContent();
+    }
 
 }
