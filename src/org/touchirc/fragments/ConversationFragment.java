@@ -53,6 +53,7 @@ public class ConversationFragment extends Fragment {
 		listView.setVerticalFadingEdgeEnabled(false);
 		listView.setScrollBarStyle(ListView.SCROLLBARS_OUTSIDE_INSET);
 		listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+		listView.setPadding(5, 0, 5, 0);
 		listView.setAdapter(messageAdapter);
 		// TODO Add a on click listener :)		
 		// Add the ListView to the layout		

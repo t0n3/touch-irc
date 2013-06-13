@@ -57,7 +57,7 @@ public class Message {
 		
 		String author = "<" + this.author + "> ";
 		String message = content;
-		String time = getTime(true, false);
+		String time = getTime(true, false) + " ";
 		
 		return new SpannableString(time + author + message);
 	}
