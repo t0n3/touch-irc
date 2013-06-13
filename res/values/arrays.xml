@@ -2,21 +2,21 @@
 <resources>
 
     <string-array name="charset_array_name">
-        <item name="IRC" format="string" type="string">IRC (Latin/Unicode Hybrid)</item>
-        <item name="ISO-8859-15" format="string" type="string">ISO-8859-15 (Western Europe)</item>
-        <item name="ISO-8859-2" format="string" type="string">ISO-8859-2 (Central Europe)</item>
-        <item name="ISO-8859-7" format="string" type="string">ISO-8859-7 (Greek)</item>
-        <item name="ISO-8859-8" format="string" type="string">ISO-8859-8 (Hebrew)</item>
-        <item name="ISO-8859-9" format="string" type="string">ISO-8859-9 (Turkish)</item>
-        <item name="ISO-2022-JP" format="string" type="string">ISO-2022-JP (Japanese)</item>
-        <item name="SJIS" format="string" type="string">SJIS (Japanese)</item>
-        <item name="CP949" format="string" type="string">CP949 (Korean)</item>
-        <item name="KOI8-R" format="string" type="string">KOI8-R (Cyrillic)</item>
-        <item name="CP1251" format="string" type="string">CP1251 (Cyrillic)</item>
-        <item name="CP1256" format="string" type="string">CP1256 (Arabic)</item>
-        <item name="CP1257" format="string" type="string">CP1257 (Baltic)</item>
-        <item name="GB18030" format="string" type="string">GB18030 (Chinese)</item>
-        <item name="TIS-620" format="string" type="string">TIS-620 (Thai)</item>
+        <item name="IRC" format="string" type="string">IRC</item>
+        <item name="ISO-8859-15" format="string" type="string">ISO-8859-15</item>
+        <item name="ISO-8859-2" format="string" type="string">ISO-8859-2</item>
+        <item name="ISO-8859-7" format="string" type="string">ISO-8859-7</item>
+        <item name="ISO-8859-8" format="string" type="string">ISO-8859-8</item>
+        <item name="ISO-8859-9" format="string" type="string">ISO-8859-9</item>
+        <item name="ISO-2022-JP" format="string" type="string">ISO-2022-JP</item>
+        <item name="SJIS" format="string" type="string">SJIS</item>
+        <item name="CP949" format="string" type="string">CP949</item>
+        <item name="KOI8-R" format="string" type="string">KOI8-R</item>
+        <item name="CP1251" format="string" type="string">CP1251</item>
+        <item name="CP1256" format="string" type="string">CP1256</item>
+        <item name="CP1257" format="string" type="string">CP1257</item>
+        <item name="GB18030" format="string" type="string">GB18030</item>
+        <item name="TIS-620" format="string" type="string">TIS-620</item>
         <item name="US-ASCII" format="string" type="string">US-ASCII</item>
         <item name="utf8" format="string" type="string">UTF-8</item>
         <item name="UTF-16" format="string" type="string">UTF-16</item>
