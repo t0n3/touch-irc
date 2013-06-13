@@ -20,8 +20,8 @@ import android.widget.RelativeLayout;
 public class ConnectedServersFragment extends Fragment {
 
 	private static IrcService ircService;
-	private ExpandableListView serversLV;
 	private ExpandableServerAdapter serverAdapter;
+	
 	
 	public ConnectedServersFragment(){
 		
@@ -43,7 +43,7 @@ public class ConnectedServersFragment extends Fragment {
 		// construct the RelativeLayout
 		RelativeLayout v = new RelativeLayout(getActivity());
 		// Construct the ListView
-		serversLV = new ExpandableListView(getActivity());
+		ExpandableListView serversLV = new ExpandableListView(getActivity());
 		//serversLV.setDivider(null);
 		serversLV.setVerticalFadingEdgeEnabled(false);
 		//serversLV.setScrollBarStyle(ListView.SCROLLBARS_OUTSIDE_INSET);
@@ -63,14 +63,16 @@ public class ConnectedServersFragment extends Fragment {
 				return true;
 			}
 		});
-		// TODO Add a on click listener :)		
-		// Add the ListView to the layout	
-		
+				
 		serversLV.setGroupIndicator(new ColorDrawable(android.R.color.transparent));
 		//serversLV.setChildIndicator(getResources().getDrawable(R.drawable.ic_menu_mp_holo_light));
 		
 		v.addView(serversLV);
 		return v;
+	}
+
+	public ExpandableServerAdapter getAdapter() {
+		return serverAdapter;
 	}
 	
 }

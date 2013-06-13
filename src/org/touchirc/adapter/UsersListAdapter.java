@@ -1,7 +1,9 @@
 package org.touchirc.adapter;
 
+import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.touchirc.R;
+import org.touchirc.irc.IrcService;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,22 +15,22 @@ import android.widget.TextView;
 
 public class UsersListAdapter extends BaseAdapter {
 	
-	private User [] usersList;
+	private IrcService ircService;
 	private Context c;
 
-	public UsersListAdapter (User[] userTab, Context c){
-		this.usersList = userTab;
+	public UsersListAdapter (IrcService ircService, Context c){
+		this.ircService = ircService;
 		this.c = c;
 	}
 
 	@Override
 	public int getCount() {
-		return this.usersList.length;
+		return ircService.getCurrentChannel().getUsers().size();
 	}
 
 	@Override
-	public Object getItem(int i) {
-		return this.usersList[i];
+	public User getItem(int i) {
+		return ircService.getCurrentChannel().getUsers().toArray(new User[0])[i];
 	}
 
 	@Override
@@ -38,41 +40,32 @@ public class UsersListAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View v = convertView;
-		User user = this.usersList[position]; // Collect the user concerned
-		if(user == null)
-			return null;
-		if (v == null){
-			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			v = vi.inflate(R.layout.user_item_list, null);
-		}
+		if (convertView == null)
+			convertView = LayoutInflater.from(c).inflate(R.layout.user_item_list, null);
 		
-		ImageView status_ImgView = (ImageView) v.findViewById(R.id.imageViewStatus);
-		TextView userName_TV = (TextView) v.findViewById(R.id.textViewUserName);
+		User user = getItem(position);
+		ImageView status_ImgView = (ImageView) convertView.findViewById(R.id.imageViewStatus);
+		TextView userName_TV = (TextView) convertView.findViewById(R.id.textViewUserName);
 		userName_TV.setText(user.getNick().toString());
 		
 		status_ImgView.setBackgroundResource(0);
 		
-		// TODO Add more status & verify existing ones because not sure about the employed methods
-		
-		// Checking if the current user is not mute
-		if(user.getChannelsVoiceIn().contains(user)){
-			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_online);
-			return v;
-		}
-		
-		if(user.getChannelsHalfOpIn().contains(user)){
-			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_away);
-			return v;
-		}
-		
 		// Checking if the current user is an OP
-		if(user.getChannelsOpIn().contains(user)){
+		Channel channel = ircService.getCurrentChannel();
+		if(user.getChannelsOpIn().contains(channel)){
 			status_ImgView.setBackgroundResource(android.R.drawable.presence_online);
-			return v;
+			return convertView;
+		}
+		if(user.getChannelsHalfOpIn().contains(channel)){
+			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_away);
+			return convertView;
+		}
+		if(user.getChannelsVoiceIn().contains(channel)){
+			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_online);
+			return convertView;
 		}
 		
-		return v;		
+		return convertView;		
 	}
 
 }

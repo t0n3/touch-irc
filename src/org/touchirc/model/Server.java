@@ -26,6 +26,7 @@ public class Server {
 	private boolean useSSL;
 
 	private HashMap<String, Conversation> conversations;
+	private String lastConversationName;
 	
 	public Server(String name, String host, int port){
 		this(name, host, port, null, CHARSET_DEFAULT);
@@ -64,6 +65,7 @@ public class Server {
 	
 	public void addConversation(Conversation c){
 		this.conversations.put(c.getTitle(),c);
+		lastConversationName = c.getTitle();		
 	}
 	
 	public void removeConversation(String channel) {
@@ -180,5 +182,8 @@ public class Server {
 		return this.autoConnectedChannels;
 	}
 
+	public String getLastConversationName(){
+		return lastConversationName;
+	}
 	
 }
