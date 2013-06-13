@@ -2,6 +2,7 @@ package org.touchirc.activity;
 
 import org.touchirc.R;
 import org.touchirc.adapter.ConversationPagerAdapter;
+import org.touchirc.fragments.ConnectedUsersFragment;
 import org.touchirc.fragments.ConversationFragment;
 import org.touchirc.fragments.ConnectedServersFragment;
 import org.touchirc.irc.IrcBinder;
@@ -50,7 +51,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
            
         // configure the SlidingMenu
         menu = new SlidingMenu(this);
-        menu.setMode(SlidingMenu.LEFT);
+        menu.setMode(SlidingMenu.LEFT_RIGHT);
         menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
         menu.setShadowWidthRes(R.dimen.sliding_shadow_width);
         menu.setShadowDrawable(R.drawable.shadow);
@@ -58,6 +59,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         menu.setFadeDegree(0.35f);
         menu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
 		menu.setMenu(R.layout.connected_servers);
+		menu.setSecondaryMenu(R.layout.connected_users);
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -172,18 +174,32 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         // Set the current channel (by default, when launching it's 0
         ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(0)));
         
+        final ConnectedServersFragment connectedServerFragment = new ConnectedServersFragment(ircService);
+        final ConnectedUsersFragment connectedUserFragment = new ConnectedUsersFragment(ircService);
+        
         // Register a new Broadcast Receiver to update the list of Fragments when channels states change
         BroadcastReceiver channelReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				String lastConv = currentServer.getLastConversationName();
 				cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(lastConv)));
+				connectedServerFragment.getAdapter().notifyDataSetChanged();
 				ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
 			}	
 		};
 		registerReceiver(channelReceiver , new IntentFilter("org.touchirc.irc.channellistUpdated"));
+		
+		// Register a new Broadcast Receiver to update the list of Fragments when userList states change
+        BroadcastReceiver userReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				connectedUserFragment.getAdapter().notifyDataSetChanged();
+			}	
+		};
+		registerReceiver(channelReceiver , new IntentFilter("org.touchirc.irc.userlistUpdated"));
        
-        getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, new ConnectedServersFragment(ircService)).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, connectedServerFragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.connectedUserLayout, connectedUserFragment).commit();
     }  
     
     public void setCurrentConversation(int positon){

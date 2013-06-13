@@ -1,9 +1,9 @@
 package org.touchirc.adapter;
 
-import java.util.Set;
-
+import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.touchirc.R;
+import org.touchirc.irc.IrcService;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -15,22 +15,24 @@ import android.widget.TextView;
 
 public class UsersListAdapter extends BaseAdapter {
 	
-	private User [] usersList;
+	private IrcService ircService;
 	private Context c;
 
-	public UsersListAdapter (Set<User> set, Context c){
-		this.usersList = set.toArray(new User[0]);
+	public UsersListAdapter (IrcService ircService, Context c){
+		this.ircService = ircService;
 		this.c = c;
+		System.out.println("create");
 	}
 
 	@Override
 	public int getCount() {
-		return this.usersList.length;
+		return ircService.getCurrentChannel().getUsers().size();
 	}
 
 	@Override
 	public User getItem(int i) {
-		return this.usersList[i];
+		System.out.println("getItem");
+		return ircService.getCurrentChannel().getUsers().toArray(new User[0])[i];
 	}
 
 	@Override
@@ -40,6 +42,7 @@ public class UsersListAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		System.out.println("getView");
 		if (convertView == null)
 			convertView = LayoutInflater.from(c).inflate(R.layout.user_item_list, null);
 		
@@ -50,18 +53,17 @@ public class UsersListAdapter extends BaseAdapter {
 		
 		status_ImgView.setBackgroundResource(0);
 		
-		// TODO Add more status & verify existing ones because not sure about the employed methods
-		
 		// Checking if the current user is an OP
-		if(user.getChannelsOpIn().contains(user)){
+		Channel channel = ircService.getCurrentChannel();
+		if(user.getChannelsOpIn().contains(channel)){
 			status_ImgView.setBackgroundResource(android.R.drawable.presence_online);
 			return convertView;
 		}
-		if(user.getChannelsHalfOpIn().contains(user)){
+		if(user.getChannelsHalfOpIn().contains(channel)){
 			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_away);
 			return convertView;
 		}
-		if(user.getChannelsVoiceIn().contains(user)){
+		if(user.getChannelsVoiceIn().contains(channel)){
 			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_online);
 			return convertView;
 		}
