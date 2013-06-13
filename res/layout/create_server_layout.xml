@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MenuActivity"
-    android:textAlignment="textStart" >
+    android:textAlignment="textStart"
+    tools:context=".MenuActivity" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -82,14 +82,6 @@
             android:inputType="textCapSentences|textPassword"
             android:nextFocusUp="@+id/editText_server_port" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_margin="10dp"
-            android:background="@android:color/black"
-            android:orientation="vertical" >
-        </LinearLayout>
-
         <CheckBox
             android:id="@+id/checkBox_SSL_use"
             android:layout_width="wrap_content"
@@ -128,29 +120,21 @@
                 android:text="@string/charsetDefault" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_margin="10dp"
-            android:background="@android:color/black"
-            android:orientation="vertical" >
-        </LinearLayout>
-        
         <TextView
             android:id="@+id/textView_associated_channels"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/associatedChannels"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-        
-        <org.touchirc.view.MultipleChannelTextView 
-        	android:id="@+id/editText_associated_channels"
+
+        <org.touchirc.view.MultipleChannelTextView
+            android:id="@+id/editText_associated_channels"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="20dp"
             android:ems="10"
             android:imeOptions="actionDone"
-            android:inputType="textUri|textMultiLine"/>
+            android:inputType="textUri|textMultiLine" />
     </LinearLayout>
 
 </ScrollView>

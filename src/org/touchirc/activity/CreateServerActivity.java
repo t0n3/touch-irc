@@ -150,14 +150,13 @@ public class CreateServerActivity extends SherlockActivity {
 			selectedCharset = serverToEdit.getCharset();
 			this.charset_BT.setText(selectedCharset);
 
-			/*
-			String s = "";
-			for(int j = 0 ; j <serverToEdit.getAutoConnectedChannels().size() ; j++){
-				s = s + serverToEdit.getAutoConnectedChannels().get(j) + " ";
+			// if there is an auto-connected channels'list
+			if(serverToEdit.getAutoConnectedChannels() != null){
+				for(String s : serverToEdit.getAutoConnectedChannels()){
+					this.mu.append(s); // Put the channel in the EditText
+					this.mu.append(" "); // Add a space in the EditText to make the bubble appear
+				}
 			}
-
-			this.mu.setText(s);
-			 */
 		}
 	}
 
@@ -294,7 +293,8 @@ public class CreateServerActivity extends SherlockActivity {
 			serv.setEncoding(selectedCharset);
 		}
 
-		if(mu.getText().toString() != ""){
+		// if a channel at least is inputted
+		if(mu.getText().toString().length() > 0){
 			ArrayList<String> channelList = this.mu.getChannelList();
 			serv.setAutoConnectedChannels(channelList);
 		}
@@ -309,7 +309,7 @@ public class CreateServerActivity extends SherlockActivity {
 			// Update the Server in the database
 			s = getResources().getString(R.string.hasBeenModified);
 			TouchIrc.getInstance().updateServer(bundleEdit.getInt("ServerId"), serv, getApplicationContext());
-			Toast.makeText(getApplicationContext(), ts + serv.getName() + " " + s, Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), ts + " " + serv.getName() + " " + s, Toast.LENGTH_SHORT).show();
 
 			startActivity(i);
 		}
@@ -328,7 +328,7 @@ public class CreateServerActivity extends SherlockActivity {
 			}
 			else{
 				s = getResources().getString(R.string.hasBeenAdded);
-				Toast.makeText(getApplicationContext(), ts + serv.getName() + " " + s, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), ts  + " " + serv.getName() + " " + s, Toast.LENGTH_SHORT).show();
 				// We go back to the ExistingServersActivity and transmit the new server
 				if(bundleAddFromMenu != null && bundleAddFromMenu.containsKey("comingFromExistingServersActivity")){
 					startActivity(i);

@@ -44,7 +44,12 @@ public class MultipleChannelTextView extends MultiAutoCompleteTextView{
 	}
 
 	public ArrayList<String> getChannelList() {
-		return channelList;
+		ArrayList<String> list = new ArrayList<String>();
+		String [] tab = getText().toString().trim().split(" ");
+		for(String s : tab){
+			list.add(s);
+		}
+		return list; 
 	}
 
 	public void init(Context context){
@@ -91,13 +96,13 @@ public class MultipleChannelTextView extends MultiAutoCompleteTextView{
 	 * 
 	 * @param channels
 	 */
-	
+
 	public void setChannel(String[] channels){
 		if(getText().toString().charAt(getText().length()-1) == ' '){
-			
+
 			SpannableStringBuilder ssb = new SpannableStringBuilder(getText());
 
-			int x = 0;
+			int x = 0; // position of the cursor
 			for (String c : channels){
 				// Create the textview and add the "#" to signify the channel's label
 				TextView tv = createChannelTextView("#" + c);

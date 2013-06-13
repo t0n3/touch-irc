@@ -1,11 +1,14 @@
 package org.touchirc.activity;
 
+import java.util.Arrays;
+
 import org.touchirc.R;
 import org.touchirc.adapter.ConversationPagerAdapter;
+import org.touchirc.fragments.ConnectedServersFragment;
 import org.touchirc.fragments.ConnectedUsersFragment;
 import org.touchirc.fragments.ConversationFragment;
-import org.touchirc.fragments.ConnectedServersFragment;
 import org.touchirc.irc.IrcBinder;
+import org.touchirc.irc.IrcBot;
 import org.touchirc.irc.IrcCommands;
 import org.touchirc.irc.IrcService;
 import org.touchirc.model.Conversation;
@@ -30,6 +33,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.slidingmenu.lib.SlidingMenu;
 
 public class ConversationActivity extends SherlockFragmentActivity implements ServiceConnection {
@@ -81,17 +85,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
 
             @Override
             public void onPageSelected(int position) {
-                switch (position) {
-                case 0:
-                    menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-                    break;
-                default:
-                    menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
-                    break;
-                }
                 ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(position)));
             }
-
         });
         vp.setCurrentItem(0);
                 
@@ -135,15 +130,18 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     public void sendCommand(String command){
     	String[] args = command.split(" ");
     	String cmd = args[0].substring(1, args[0].length()).toLowerCase();
+    	IrcBot bot = ircService.getBot(currentServer);
+    	args = Arrays.copyOfRange(args, 1, args.length);
     	
     	for(String c : IrcCommands.ALL_COMMANDS){
     		if(c.equals(cmd)){
     			System.out.println("Command exists");
+    			// Join Channel
     			if(cmd.equals(IrcCommands.JOIN_CHANNEL)) {
-    				if(args.length < 3){ // Ugly !?
-    					ircService.getBot(currentServer).joinChannel(args[1]);
+    				if(args.length < 2){
+    					bot.joinChannel(args[0]);
     				} else {
-    					ircService.getBot(currentServer).joinChannel(args[1], args[2]);
+    					bot.joinChannel(args[0], args[1]);
     				}
     			}
     		}
@@ -202,6 +200,26 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, connectedServerFragment).commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedUserLayout, connectedUserFragment).commit();
     }  
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+			Intent intent = new Intent(this, MenuActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+    }
+    
+    public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			menu.toggle();
+			return true;
+		}
+		return super.onOptionsItemSelected((android.view.MenuItem) item);
+	}
     
     public void setCurrentConversation(int positon){
     	this.vp.setCurrentItem(positon);
