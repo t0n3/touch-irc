@@ -196,7 +196,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
 				connectedUserFragment.getAdapter().notifyDataSetChanged();
 			}	
 		};
-		registerReceiver(channelReceiver , new IntentFilter("org.touchirc.irc.userlistUpdated"));
+		registerReceiver(userReceiver , new IntentFilter("org.touchirc.irc.userlistUpdated"));
+		
        
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, connectedServerFragment).commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedUserLayout, connectedUserFragment).commit();
