@@ -44,6 +44,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     private SlidingMenu menu;
     private EditText inputMessage;
     private ConversationPagerAdapter cPagerAdapter;
+	private ConnectedUsersFragment connectedUserFragment;
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +87,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
             @Override
             public void onPageSelected(int position) {
                 ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(position)));
+                connectedUserFragment.getAdapter().notifyDataSetChanged();
             }
         });
         vp.setCurrentItem(0);
@@ -173,7 +175,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(0)));
         
         final ConnectedServersFragment connectedServerFragment = new ConnectedServersFragment(ircService);
-        final ConnectedUsersFragment connectedUserFragment = new ConnectedUsersFragment(ircService);
+        connectedUserFragment = new ConnectedUsersFragment(ircService);
         
         // Register a new Broadcast Receiver to update the list of Fragments when channels states change
         BroadcastReceiver channelReceiver = new BroadcastReceiver() {
@@ -182,6 +184,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
 				String lastConv = currentServer.getLastConversationName();
 				cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(lastConv)));
 				connectedServerFragment.getAdapter().notifyDataSetChanged();
+				connectedUserFragment.getAdapter().notifyDataSetChanged();
 				ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
 			}	
 		};
