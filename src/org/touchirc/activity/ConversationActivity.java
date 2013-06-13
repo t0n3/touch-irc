@@ -2,6 +2,7 @@ package org.touchirc.activity;
 
 import org.touchirc.R;
 import org.touchirc.adapter.ConversationPagerAdapter;
+import org.touchirc.fragments.ConnectedServersFragment;
 import org.touchirc.irc.IrcBinder;
 import org.touchirc.irc.IrcService;
 import org.touchirc.model.Conversation;
@@ -90,7 +91,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         this.vp.setCurrentItem(0);
         
         // Clean if it's useless :)
-        PagerTabStrip vpTabViewer = (PagerTabStrip) findViewById(R.id.vpTabViewer);
+        //PagerTabStrip vpTabViewer = (PagerTabStrip) findViewById(R.id.vpTabViewer);
         
         // Set the EditText
         inputMessage = (EditText) findViewById(R.id.input);
@@ -141,6 +142,13 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         this.setTitle(currentServer.getName());
         // Set the current channel (by default, when launching it's 0
         ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(0)));
-    }   
+       
+        getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, new ConnectedServersFragment(ircService)).commit();
+    }  
+    
+    public void setCurrentConversation(int positon){
+    	this.vp.setCurrentItem(positon);
+    	menu.showContent();
+    }
 
 }

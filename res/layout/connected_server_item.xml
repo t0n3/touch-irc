@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:id="@+id/serverItemTextView"
+    android:gravity="center_vertical"
+    android:drawableLeft="@drawable/ic_menu_server_holo_light"
+    android:background="@android:drawable/screen_background_light"
+    android:textAppearance="@style/TextAppearance.Sherlock.Widget.ActionBar.Title"
+    android:height="@dimen/abs__action_bar_default_height"
+>
+
+</TextView>

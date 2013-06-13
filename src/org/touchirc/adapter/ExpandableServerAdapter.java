@@ -71,21 +71,12 @@ public class ExpandableServerAdapter extends BaseExpandableListAdapter {
 	public View getGroupView(int groupPosition, boolean isExpanded,
 			View convertView, ViewGroup parent) {
 		
-		ServerViewHolder serverHolder;
-		Server server = getGroup(groupPosition);
-		if (convertView == null) {
-			serverHolder = new ServerViewHolder();
+		TextView server;
+		if(convertView == null)
 			convertView = inflater.inflate(R.layout.connected_server_item, null);
-		 
-			serverHolder.serverName = (TextView) convertView.findViewById(R.id.connectedServerName);
-			serverHolder.hostName = (TextView) convertView.findViewById(R.id.connectedServerHostname);
-			convertView.setTag(serverHolder);
-		} else {
-			serverHolder = (ServerViewHolder) convertView.getTag();
-		}
-		 
-		serverHolder.serverName.setText(server.getName());
-		serverHolder.hostName.setText(server.getHost());
+		server = (TextView) convertView.findViewById(R.id.serverItemTextView);
+		server.setText(getGroup(groupPosition).getName());
+
 		return convertView;
 	}
 
@@ -96,11 +87,7 @@ public class ExpandableServerAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public boolean isChildSelectable(int groupPosition, int childPosition) {
-		return false;
+		return true;
 	}
 	
-	class ServerViewHolder {
-		public TextView serverName;
-		public TextView hostName;
-	}
 }
