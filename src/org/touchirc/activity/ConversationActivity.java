@@ -81,17 +81,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
 
             @Override
             public void onPageSelected(int position) {
-                switch (position) {
-                case 0:
-                    menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-                    break;
-                default:
-                    menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
-                    break;
-                }
                 ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(position)));
             }
-
         });
         vp.setCurrentItem(0);
                 
