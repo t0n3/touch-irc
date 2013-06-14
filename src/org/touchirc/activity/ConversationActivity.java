@@ -153,6 +153,9 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
                     } else {
                         bot.joinChannel(args[0], args[1]);
                     }
+                // Action (/me)
+                } else if(cmd.equals(IrcCommands.ACTION)){
+                	bot.sendAction(ircService.getCurrentChannel(), Arrays.toString(args).replaceAll("(\\[)|(,)|(\\])", ""));
                 }
             }
         }

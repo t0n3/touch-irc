@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class IrcCommands {
 
 	// Display a message in action mode on all channels in which I'm connected
-	public static String ACTION_MODE_MSG = "ame";
+	public static String ACTION = "me";
 	// Display a message on all channels in which I'm connected
 	public static String MSG_ALL_CHANNEL = "amsg";
 	// Ban an user
@@ -65,7 +65,7 @@ public class IrcCommands {
 	public static String WHOWAS = "whowas"; // pseudo>
 
 	public static final String[] ALL_COMMANDS = {		
-		ACTION_MODE_MSG,
+		ACTION,
 		BAN,
 		CHANGE_NICK,
 		CHANGE_TOPIC,
