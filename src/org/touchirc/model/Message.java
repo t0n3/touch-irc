@@ -15,6 +15,7 @@ public class Message {
 	public final static int TYPE_MESSAGE = 0;
 	public final static int TYPE_NOTICE = 1;
 	public final static int TYPE_MENTION = 2;
+	public final static int TYPE_ACTION = 3;
 	
 	private String content;
 	private String author;

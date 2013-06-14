@@ -3,8 +3,8 @@ package org.touchirc.irc;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.Listener;
+import org.pircbotx.hooks.events.ActionEvent;
 import org.pircbotx.hooks.events.ConnectEvent;
-import org.pircbotx.hooks.events.DisconnectEvent;
 import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.KickEvent;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -101,6 +101,11 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 			ConnectEvent event = (ConnectEvent) rawevent;
 			Log.i("[IrcBot - " + event.getBot().getName() + "]", "Connected");
 			return;
+		}
+		if(rawevent instanceof ActionEvent){
+			ActionEvent event = (ActionEvent) rawevent;
+			this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick(), Message.TYPE_ACTION));
+    		service.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
 		}
 	}
     
