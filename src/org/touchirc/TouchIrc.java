@@ -96,6 +96,8 @@ public class TouchIrc{
 		int idProfile = db.addProfile(profile);
 		db.close();
 		availableProfiles.put(idProfile, profile);
+		if(getIdDefaultProfile() == -1)
+			setDefaultProfile(idProfile);
 		return true;
 	}
 	
@@ -114,12 +116,12 @@ public class TouchIrc{
 		db.close();
 		this.availableProfiles.delete(idProfile);
 		if (getIdDefaultProfile() == idProfile)
-			setDefaultProfile(this.availableProfiles.keyAt(0));
+			setDefaultProfile(-1);
 		return true;
 	}
 	
 	public int getIdDefaultProfile(){
-		return (idDefaultProfile != -1) ? idDefaultProfile : 1;
+		return (idDefaultProfile != -1) ? idDefaultProfile : availableProfiles.keyAt(0);
 	}
 	
 	// Use idProfile = 0 to unset profile
