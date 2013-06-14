@@ -1,5 +1,9 @@
 package org.touchirc.adapter;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 import org.touchirc.R;
@@ -11,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class UsersListAdapter extends BaseAdapter {
@@ -30,7 +35,29 @@ public class UsersListAdapter extends BaseAdapter {
 
 	@Override
 	public User getItem(int i) {
-		return ircService.getCurrentChannel().getUsers().toArray(new User[0])[i];
+		ArrayList<User> users = new ArrayList<User>(ircService.getCurrentChannel().getUsers());
+		Collections.sort(users, new Comparator<User>() {
+			@Override
+			public int compare(User u1, User u2) {
+				Channel chan = ircService.getCurrentChannel();
+				
+				if(chan.getOps().contains(u1) && !chan.getOps().contains(u2))
+					return -1;
+				if(!chan.getOps().contains(u1) && chan.getOps().contains(u2))
+					return 1;
+				if(chan.getHalfOps().contains(u1) && !chan.getHalfOps().contains(u2))
+					return -1;
+				if(!chan.getHalfOps().contains(u1) && chan.getHalfOps().contains(u2))
+					return 1;
+				if(chan.getVoices().contains(u1) && !chan.getVoices().contains(u2))
+					return -1;
+				if(!chan.getVoices().contains(u1) && chan.getVoices().contains(u2))
+					return 1;
+					
+				return u1.getNick().compareTo(u2.getNick());
+			}
+		});
+		return users.get(i);
 	}
 
 	@Override
@@ -41,27 +68,28 @@ public class UsersListAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null)
-			convertView = LayoutInflater.from(c).inflate(R.layout.user_item_list, null);
+			convertView = LayoutInflater.from(c).inflate(R.layout.connected_user_item, null);
 		
 		User user = getItem(position);
-		ImageView status_ImgView = (ImageView) convertView.findViewById(R.id.imageViewStatus);
-		TextView userName_TV = (TextView) convertView.findViewById(R.id.textViewUserName);
-		userName_TV.setText(user.getNick().toString());
 		
-		status_ImgView.setBackgroundResource(0);
+		TextView userTV = (TextView) convertView.findViewById(R.id.userItemTextView);
 		
-		// Checking if the current user is an OP
+		userTV.setText(user.getNick().toString());
+		
+		// set blank status and override it if the user is more than a normal user
+		userTV.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_status_blank,0,0,0);
+		
 		Channel channel = ircService.getCurrentChannel();
 		if(user.getChannelsOpIn().contains(channel)){
-			status_ImgView.setBackgroundResource(android.R.drawable.presence_online);
+			userTV.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_status_op,0,0,0);
 			return convertView;
 		}
 		if(user.getChannelsHalfOpIn().contains(channel)){
-			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_away);
+			userTV.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_status_hop,0,0,0);
 			return convertView;
 		}
 		if(user.getChannelsVoiceIn().contains(channel)){
-			status_ImgView.setBackgroundResource(android.R.drawable.presence_audio_online);
+			userTV.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_status_voice,0,0,0);
 			return convertView;
 		}
 		
