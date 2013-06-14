@@ -10,6 +10,7 @@ import org.touchirc.R;
 import org.touchirc.irc.IrcService;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,6 +79,14 @@ public class UsersListAdapter extends BaseAdapter {
 		
 		// set blank status and override it if the user is more than a normal user
 		userTV.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_status_blank,0,0,0);
+		
+		if(user.isAway()){
+			userTV.setTextColor(convertView.getResources().getColor(R.color.gray));
+			userTV.setTypeface(null,Typeface.ITALIC);
+		}else{
+			userTV.setTextColor(convertView.getResources().getColor(R.color.black));
+			userTV.setTypeface(Typeface.DEFAULT);
+		}
 		
 		Channel channel = ircService.getCurrentChannel();
 		if(user.getChannelsOpIn().contains(channel)){
