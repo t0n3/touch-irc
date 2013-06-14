@@ -201,6 +201,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         BroadcastReceiver userReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+            	((TextView)findViewById(R.id.connectedUserCount)).setText(getResources().getString(R.string.users) + " (" + ircService.getCurrentChannel().getUsers().size() + ")");
                 connectedUserFragment.getAdapter().notifyDataSetChanged();
             }    
         };

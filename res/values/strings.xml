@@ -73,7 +73,8 @@
     <string name="linkAServer">Link a Server</string>
     <string name="nowLinkToTheProfile"> is now link to the profile </string>
     <string name="profileByDefault">Profile by default : </string>
-
+	<string name="users">Users</string>
+	
     <!-- Server -->
     
     <string name="serverName">Server\'s name :</string>

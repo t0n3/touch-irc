@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 @SuppressLint("ValidFragment")
 public class ConnectedUsersFragment extends Fragment {
@@ -33,17 +34,20 @@ public class ConnectedUsersFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		userListAdapter = new UsersListAdapter(ircService, getActivity());
 		
+		// Set initial connectedUserCount Textview
+    	((TextView)getActivity().findViewById(R.id.connectedUserCount)).setText(getResources().getString(R.string.users) + " (" + ircService.getCurrentChannel().getUsers().size() + ")");
+
 		// construct the RelativeLayout
 		RelativeLayout v = new RelativeLayout(getActivity());
 		
 		// Construct the ListView
-		ListView usersLV = new ListView(getActivity());
+		ListView usersLV = (ListView) getActivity().findViewById(R.id.connectedUserListView);
 		
 		usersLV.setPadding(10, 10, 10, 10);
 		usersLV.setVerticalFadingEdgeEnabled(false);
 		
 		usersLV.setAdapter(userListAdapter);
-		v.addView(usersLV);
+		//v.addView(usersLV);
 		return v;
 	}
 
