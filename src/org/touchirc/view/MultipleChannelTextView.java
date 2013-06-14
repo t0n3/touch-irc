@@ -148,7 +148,7 @@ public class MultipleChannelTextView extends MultiAutoCompleteTextView{
 		tv.setText(channelName);
 		tv.setTextSize(20);
 		// Add a cross at the end of the text
-		tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.abs__ic_clear_normal, 0);
+		tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.abs__ic_clear_holo_light, 0);
 		return tv;
 	}
 

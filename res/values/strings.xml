@@ -93,6 +93,7 @@
     <string name="serverPassword">Server\'s password :</string>
     <string name="usingSSL">Use SSL</string>
     <string name="associatedChannels">Channel(s) associated :</string>
+    <string name="withoutSharp">Without #</string>
 
     <string name="theServer">The server : </string>
     <string name="addAServer">Add a server</string>
