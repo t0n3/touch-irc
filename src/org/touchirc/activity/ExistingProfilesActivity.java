@@ -219,7 +219,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 				// Put the informations of the current profile into a Bundle object
 				Bundle b = new Bundle();
-				b.putInt("ProfileId", profiles.indexOfValue(selectedProfile));
+				b.putInt("ProfileId", profiles.keyAt(profiles.indexOfValue(selectedProfile)));
 
 				// Assign the Bundle to the Intent
 				i.putExtra("ProfileIdentification", b);

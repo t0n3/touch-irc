@@ -96,7 +96,7 @@ public class CreateProfileActivity extends SherlockActivity{
 		// if started by ExistingProfilesActivity, changing the EditTexts'value
 		if(bundleEdit != null && bundleEdit.containsKey("ProfileId")){
 			// We collect the profile from available profiles list
-			Profile profileToEdit = TouchIrc.getInstance().getAvailableProfiles().valueAt(bundleEdit.getInt("ProfileId"));
+			Profile profileToEdit = TouchIrc.getInstance().getAvailableProfiles().get(bundleEdit.getInt("ProfileId"));
 
 			// And put values in corresponding editText
 			this.profileName_ET.setText(profileToEdit.getProfile_name());
@@ -302,7 +302,7 @@ public class CreateProfileActivity extends SherlockActivity{
 			if(bundleEdit != null){
 				// Update the Profile in the database (+1 since the ID in Database begins at 0)
 				s = getResources().getString(R.string.hasBeenModified);
-				TouchIrc.getInstance().updateProfile(bundleEdit.getInt("ProfileId")+1, prof, getApplicationContext());
+				TouchIrc.getInstance().updateProfile(bundleEdit.getInt("ProfileId"), prof, getApplicationContext());
 				Toast.makeText(getApplicationContext(), p + " " + prof.getProfile_name() + " " 
 				+ s, Toast.LENGTH_SHORT).show();
 
