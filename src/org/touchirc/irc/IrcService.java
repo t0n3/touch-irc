@@ -2,6 +2,7 @@ package org.touchirc.irc;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -40,12 +41,15 @@ public class IrcService extends Service {
 	
 	private NotificationManager notificationManager;
 	private Builder builder;
+
+	private ArrayList<Thread> threads;
 	
 	public IrcService(){
 		super();
 		
 		this.ircBinder = new IrcBinder(this);
 		this.botsConnected = new HashMap<Server, IrcBot>();
+		this.threads = new ArrayList<Thread>();
 		TouchIrc.getInstance().load(this);
 		this.availableServers = TouchIrc.getInstance().getAvailableServers();
 	}
@@ -64,9 +68,6 @@ public class IrcService extends Service {
 		
 		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-		for(int i = 0 ; i < availableServers.size() ; i++)
-			if(availableServers.valueAt(i).isAutoConnect())
-				getBot(availableServers.valueAt(i));
 		System.out.println("Service Created");
 	}
 	
@@ -76,6 +77,9 @@ public class IrcService extends Service {
 		notificationManager.cancel(1);
 		for(Server s : this.botsConnected.keySet())
 			getBot(s).shutdown(true);
+		
+		for(Thread t : threads)
+			t.stop();
 		
 		System.out.println("[Irc Service] Destroyed !");
 	}
@@ -101,6 +105,10 @@ public class IrcService extends Service {
 		return this.availableServers.get(idServer);
 	}
 	
+	public ArrayList<Thread> getThreads(){
+		return this.threads;
+	}
+	
 	
 	public Set<Server> getConnectedServers(){
 		return this.botsConnected.keySet();
@@ -109,7 +117,7 @@ public class IrcService extends Service {
 	public synchronized IrcBot connect(int idServer){
 		final Server server = availableServers.get(idServer);
 		final IrcBot bot = new IrcBot(server, this);
-		new Thread("Thread for the server : " + server.getName()){
+		Thread thread = new Thread("Thread for the server : " + server.getName()){
 			@Override
 			public void run(){
 				System.out.println(" Thread for the server : " + server.getName());
@@ -119,7 +127,7 @@ public class IrcService extends Service {
 				bot.setRealName(profile.getRealname());
 				
 				int connected = -1;
-				while(connected != 0){
+				while(connected < 2){ // max 3 tries and die
 					try {
 						bot.setEncoding(server.getEncoding());
 						bot.setAutoReconnect(true);
@@ -129,9 +137,9 @@ public class IrcService extends Service {
 								bot.joinChannel(s);
 						
 						bot.joinChannel("#Boulet2"); // TODO Remove it when the tests will be done
-						connected = 0;
 						currentServer = server;
 						botsConnected.put(currentServer, bot);
+						break; // connected so break the while !
 					} catch (NickAlreadyInUseException e) {
 					} catch (IrcException e) {
 						// TODO Auto-generated catch block
@@ -156,10 +164,13 @@ public class IrcService extends Service {
 							e.printStackTrace();
 						}
 					}
+					connected++;
 				}
 				updateNotification();
 			}
-		}.start();
+		};
+		threads.add(thread);
+		thread.start();
 		
 		
 		return bot;
