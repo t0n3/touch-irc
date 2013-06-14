@@ -44,14 +44,14 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     private SlidingMenu menu;
     private EditText inputMessage;
     private ConversationPagerAdapter cPagerAdapter;
-	private ConnectedUsersFragment connectedUserFragment;
+    private ConnectedUsersFragment connectedUserFragment;
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         setTitle(R.string.app_name);
-		
-		// set the content view
+        
+        // set the content view
         setContentView(R.layout.conversation_display);
            
         // configure the SlidingMenu
@@ -63,20 +63,19 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
         menu.setFadeDegree(0.35f);
         menu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
-		menu.setMenu(R.layout.connected_servers);
-		menu.setSecondaryMenu(R.layout.connected_users);
-		menu.setSecondaryShadowDrawable(R.drawable.shadow_right);
+        menu.setMenu(R.layout.connected_servers);
+        menu.setSecondaryMenu(R.layout.connected_users);
+        menu.setSecondaryShadowDrawable(R.drawable.shadow_right);
 
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Show "home" button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Bind the service
         ircService = null;
         Intent intent = new Intent(this, IrcService.class);
-        //  getApplicationContext().startService(intent);
-        if(getApplicationContext().bindService(intent, this, Context.BIND_AUTO_CREATE)){
-            System.out.println("Bind to Service");
-        }
+        getApplicationContext().bindService(intent, this, Context.BIND_AUTO_CREATE);
 
-        // set the viewpager
+        // Set the viewpager
         vp = (ViewPager) findViewById(R.id.vp);
         vp.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
@@ -88,10 +87,11 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
             @Override
             public void onPageSelected(int position) {
                 ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(position)));
+                // Refresh right menu when changing channel
                 connectedUserFragment.getAdapter().notifyDataSetChanged();
             }
         });
-        vp.setCurrentItem(0);
+        vp.setCurrentItem(0); // Default to 0
                 
         // Set the EditText
         inputMessage = (EditText) findViewById(R.id.input);
@@ -109,47 +109,53 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         
     }
     
+    /**
+     * sendMessage
+     * send the text in the EditText. If the first character is a '/'  the text is passed to sendCommand
+     */
     public void sendMessage() {
-    	// Variables...okay it's looooonnnng
-    	String mMessage = inputMessage.getText().toString();
-    	Conversation mCurrentConversation = currentServer.getConversation(ircService.getCurrentChannel().getName());
-    	String mAuthor = ircService.getBot(currentServer).getNick();
-    	
-    	if(mMessage.charAt(0) == '/') {
-    		sendCommand(mMessage);
-    	} else {
-    		// First, add message to the app
-    		mCurrentConversation.addMessage(new Message(mMessage, mAuthor, Message.TYPE_MESSAGE));
-        	// Second, send the message to the network
-        	ircService.getBot(currentServer).sendMessage(ircService.getCurrentChannel().getName(), inputMessage.getText().toString());
-    	}
-    	
-        TextKeyListener.clear(inputMessage.getText()); // Clean the edit text, important !
-    	
-    	// Refresh all these things
+        String mMessage = inputMessage.getText().toString();
+        Conversation mCurrentConversation = currentServer.getConversation(ircService.getCurrentChannel().getName());
+        String mAuthor = ircService.getBot(currentServer).getNick();
+        
+        if(mMessage.charAt(0) == '/') {
+            sendCommand(mMessage);
+        } else {
+            // First, add message to the app
+            mCurrentConversation.addMessage(new Message(mMessage, mAuthor, Message.TYPE_MESSAGE));
+            // Second, send the message to the network
+            ircService.getBot(currentServer).sendMessage(ircService.getCurrentChannel().getName(), inputMessage.getText().toString());
+        }
+        
+        // Clean the edit text, important !
+        TextKeyListener.clear(inputMessage.getText());
+        
+        // Refresh all these things
         ircService.sendBroadcast(new Intent("org.touchirc.irc.newMessage"));
     }
     
+    /**
+     * sendCommand
+     * detect if the string is a command and send it.
+     */
     public void sendCommand(String command){
-    	String[] args = command.split(" ");
-    	String cmd = args[0].substring(1, args[0].length()).toLowerCase();
-    	IrcBot bot = ircService.getBot(currentServer);
-    	args = Arrays.copyOfRange(args, 1, args.length);
-    	
-    	for(String c : IrcCommands.ALL_COMMANDS){
-    		if(c.equals(cmd)){
-    			System.out.println("Command exists");
-    			// Join Channel
-    			if(cmd.equals(IrcCommands.JOIN_CHANNEL)) {
-    				if(args.length < 2){
-    					bot.joinChannel(args[0]);
-    				} else {
-    					bot.joinChannel(args[0], args[1]);
-    				}
-    			}
-    		}
-    	}
-    	System.out.println("Command : " + cmd);
+        String[] args = command.split(" ");
+        String cmd = args[0].substring(1, args[0].length()).toLowerCase();
+        IrcBot bot = ircService.getBot(currentServer);
+        args = Arrays.copyOfRange(args, 1, args.length);
+        
+        for(String c : IrcCommands.ALL_COMMANDS){
+            if(c.equals(cmd)){
+                // Join Channel
+                if(cmd.equals(IrcCommands.JOIN_CHANNEL)) {
+                    if(args.length < 2){
+                        bot.joinChannel(args[0]);
+                    } else {
+                        bot.joinChannel(args[0], args[1]);
+                    }
+                }
+            }
+        }
     }
     
 
@@ -180,54 +186,61 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         
         // Register a new Broadcast Receiver to update the list of Fragments when channels states change
         BroadcastReceiver channelReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				String lastConv = currentServer.getLastConversationName();
-				cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(lastConv)));
-				connectedServerFragment.getAdapter().notifyDataSetChanged();
-				connectedUserFragment.getAdapter().notifyDataSetChanged();
-				ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
-			}	
-		};
-		registerReceiver(channelReceiver , new IntentFilter("org.touchirc.irc.channellistUpdated"));
-		
-		// Register a new Broadcast Receiver to update the list of Fragments when userList states change
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String lastConv = currentServer.getLastConversationName();
+                cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(lastConv)));
+                connectedServerFragment.getAdapter().notifyDataSetChanged();
+                connectedUserFragment.getAdapter().notifyDataSetChanged();
+                ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
+            }    
+        };
+        registerReceiver(channelReceiver , new IntentFilter("org.touchirc.irc.channellistUpdated"));
+        
+        // Register a new Broadcast Receiver to update the list of Fragments when userList states change
         BroadcastReceiver userReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				connectedUserFragment.getAdapter().notifyDataSetChanged();
-			}	
-		};
-		registerReceiver(userReceiver , new IntentFilter("org.touchirc.irc.userlistUpdated"));
-		
-       
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                connectedUserFragment.getAdapter().notifyDataSetChanged();
+            }    
+        };
+        registerReceiver(userReceiver , new IntentFilter("org.touchirc.irc.userlistUpdated"));
+        
+        // Replace the left and right menu of slidingMenu by fragments
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, connectedServerFragment).commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedUserLayout, connectedUserFragment).commit();
     }  
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-    	if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-			Intent intent = new Intent(this, MenuActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
+        // Enable the back button
+        // In the future, I think MenuActivity will be removed :)
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            Intent intent = new Intent(this, MenuActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
     
     public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			menu.toggle();
-			return true;
-		}
-		return super.onOptionsItemSelected((android.view.MenuItem) item);
-	}
+        // Toggle slidingMenu left if you click on the "home" icon
+        switch (item.getItemId()) {
+        case android.R.id.home:
+            menu.toggle();
+            return true;
+        }
+        return super.onOptionsItemSelected((android.view.MenuItem) item);
+    }
     
+    /**
+     * Show to fragment with the position given to the user
+     * Used by ConnectedServersFragment
+     */
     public void setCurrentConversation(int positon){
-    	this.vp.setCurrentItem(positon);
-    	menu.showContent();
+        this.vp.setCurrentItem(positon);
+        menu.showContent();
     }
 
 }
