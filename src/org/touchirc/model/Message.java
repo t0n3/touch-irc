@@ -3,10 +3,17 @@ package org.touchirc.model;
 import java.security.Timestamp;
 import java.util.Date;
 
+import org.touchirc.R;
+
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.format.Time;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.text.util.Linkify;
 import android.widget.TextView;
 
@@ -37,7 +44,7 @@ public class Message {
 	public Message(String text, String author, int type) {
 		this.content = text;
 		this.author = author;
-		this.content = text;
+		this.type = type;
 		this.timestamp = new Date().getTime();
 	}
 	
@@ -55,12 +62,19 @@ public class Message {
 	
 	private SpannableString getText(Context c){
 		// TODO Add some colors, timestamp or not, etc
-		
-		String author = "<" + this.author + "> ";
+		String author = (type == TYPE_ACTION) ? this.author + " " : "<" + this.author + "> ";
 		String message = content;
 		String time = getTime(true, false) + " ";
 		
-		return new SpannableString(time + author + message);
+		SpannableString span = new SpannableString(time + author + message);
+
+		if(type == TYPE_ACTION)
+			span.setSpan(new StyleSpan(Typeface.ITALIC), time.length(), span.length(), 0);
+		if(type == TYPE_MENTION){
+			span.setSpan(new ForegroundColorSpan(c.getResources().getColor(R.color.ic_red)), 0, span.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			span.setSpan(new StyleSpan(Typeface.BOLD), 0, span.length(), 0);
+	}
+		return span;
 	}
 	
 	public TextView getTextView(Context c){
