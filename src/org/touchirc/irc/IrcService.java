@@ -222,4 +222,8 @@ public class IrcService extends Service {
 			}
 		}
 	}
+	
+	public boolean isConnected(Server server){
+		return botsConnected.containsKey(server) && botsConnected.get(server).isConnected;
+	}
 }
