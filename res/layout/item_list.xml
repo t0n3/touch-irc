@@ -58,5 +58,21 @@
         android:paddingTop="3dp"
         android:textColor="@color/gray"
         android:textSize="12sp" />
+    
+    <ProgressBar
+        android:id="@+id/serverSpinner"
+        style="?android:attr/spinnerMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:visibility="gone" />
+    
+    <ImageView
+        android:id="@+id/serverConnectedImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:src="@drawable/ic_status_op"
+        android:visibility="gone" />
 
 </LinearLayout>
