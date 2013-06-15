@@ -72,7 +72,7 @@ public class Message {
 			span.setSpan(new StyleSpan(Typeface.ITALIC), time.length(), span.length(), 0);
 		if(type == TYPE_MENTION){
 			span.setSpan(new ForegroundColorSpan(c.getResources().getColor(R.color.ic_red)), 0, span.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			span.setSpan(new StyleSpan(Typeface.BOLD), 0, span.length(), 0);
+			span.setSpan(new StyleSpan(Typeface.BOLD), time.length(), time.length()+author.length(), 0);
 	}
 		return span;
 	}

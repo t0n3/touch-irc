@@ -1,5 +1,7 @@
 package org.touchirc.irc;
 
+import java.util.regex.Pattern;
+
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.Event;
 import org.pircbotx.hooks.Listener;
@@ -25,6 +27,7 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 	private IrcService service;
 	private Server server;
 	public boolean isConnected;
+	private Pattern highlight;
 
 	public IrcBot(Server server, IrcService service) {
 		this.service = service;
@@ -70,7 +73,7 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 		
     	if(rawevent instanceof MessageEvent){
     		MessageEvent event = (MessageEvent) rawevent;
-    		if(event.getMessage().contains(event.getBot().getNick())){
+    		if(highlight.matcher(event.getMessage()).find()){
         		this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick(), Message.TYPE_MENTION));
     		}else{
     			this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick()));
@@ -78,6 +81,11 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
     		service.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
     		return;
     	}
+    	if(rawevent instanceof ActionEvent){
+			ActionEvent event = (ActionEvent) rawevent;
+			this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick(), Message.TYPE_ACTION));
+    		service.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
+		}
 		if(rawevent instanceof JoinEvent){
 			JoinEvent event = (JoinEvent) rawevent;
 			if(event.getUser().equals(event.getBot().getUserBot()) && this.server.getConversation(event.getChannel().getName()) == null){
@@ -105,13 +113,10 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 		if(rawevent instanceof ConnectEvent){
 			ConnectEvent event = (ConnectEvent) rawevent;
 			isConnected = true;
+			// TODO add some highlight preference
+			highlight = Pattern.compile(Pattern.quote(this.getNick()), Pattern.CASE_INSENSITIVE);
 			Log.i("[IrcBot - " + event.getBot().getName() + "]", "Connected");
 			return;
-		}
-		if(rawevent instanceof ActionEvent){
-			ActionEvent event = (ActionEvent) rawevent;
-			this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick(), Message.TYPE_ACTION));
-    		service.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
 		}
 	}
     
