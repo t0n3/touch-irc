@@ -153,7 +153,7 @@ public class CreateServerActivity extends SherlockActivity {
 			// if there is an auto-connected channels'list
 			if(serverToEdit.getAutoConnectedChannels() != null){
 				for(String s : serverToEdit.getAutoConnectedChannels()){
-					this.mu.append(s); // Put the channel in the EditText
+					this.mu.append(s.substring(1)); // Put the channel in the EditText / Remove the # (first char)
 					this.mu.append(" "); // Add a space in the EditText to make the bubble appear
 				}
 			}

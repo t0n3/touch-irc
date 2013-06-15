@@ -47,7 +47,7 @@ public class MultipleChannelTextView extends MultiAutoCompleteTextView{
 		ArrayList<String> list = new ArrayList<String>();
 		String [] tab = getText().toString().trim().split(" ");
 		for(String s : tab){
-			list.add(s);
+			list.add("#"+s);
 		}
 		return list; 
 	}
