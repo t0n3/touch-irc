@@ -25,8 +25,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -260,7 +258,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		
 		if(mActionMode == null){
 
-			if(TouchIrc.getInstance().getAvailableProfiles().size() != 0 || TouchIrc.getInstance().getIdDefaultProfile() != -1){
+			if(TouchIrc.getInstance().getAvailableProfiles().size() != 0){
 				Log.i("TouchIRC ", "Attempt to connect to the server " + this.servers.get((int)adapterServer.getItemId(position)).getName() +" !");
 				IrcBot bot = ircService.getBot(adapterServer.getItem(position));
 				if (bot.isConnected) {
