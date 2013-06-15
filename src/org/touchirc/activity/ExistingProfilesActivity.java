@@ -11,7 +11,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -40,10 +39,9 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 	private Profile selectedProfile;
 	private Context c;
 	private ActionBar actionBar;
+	private View viewItem;
 
 	protected ActionMode mActionMode; // Variable used for triggering the actionMode (ActionBar)
-	private static View oldView; // Variable used to store the old view selected
-	private static View currentView; // Variable used to store the current view selected
 	protected boolean subMenuLinkCreated = false; // Variable used to warn OnPrepare method first display ActionBar
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -92,25 +90,19 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 				idSelectedProfile = (int) adapterProfile.getItemId(position);
 				selectedProfile = adapterProfile.getItem(position);
-				currentView = v;
+				viewItem = v;
 
 				// if the ActionMode is already displayed
 				if (mActionMode != null) {
-
-					oldView.setBackgroundColor(profiles_LV.getCacheColorHint());
 					mActionMode.finish(); // closing it
 					mActionMode = startActionMode(new ActionModeProfileSettings()); // and launching it to update values
-					v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
-					oldView = v;
 				}
 				else{
-
 					// Start the CallBackActionBar using the ActionMode.Callback defined below
 					mActionMode = startActionMode(new ActionModeProfileSettings()); // launching the ActionMode
-					oldView = v;
-					v.setSelected(true);
-					v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
 				}
+				// the item is selected
+				viewItem.setSelected(true);
 				return true;
 			}
 		});
@@ -125,28 +117,22 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id){
+		viewItem.setSelected(true);
 		super.onListItemClick(l, v, position, id);
+		
 		if(mActionMode == null){
 			idSelectedProfile = (int) adapterProfile.getItemId(position);
 			selectedProfile = adapterProfile.getItem(position);
-			currentView = v;
-
+			viewItem = v;
+			
 			// if the ActionMode is already displayed
 			if (mActionMode != null) {
-
-				oldView.setBackgroundColor(profiles_LV.getCacheColorHint());
 				mActionMode.finish(); // closing it
 				mActionMode = startActionMode(new ActionModeProfileSettings()); // and launching it to update values
-				v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
-				oldView = v;
 			}
 			else{
-
 				// Start the CallBackActionBar using the ActionMode.Callback defined below
 				mActionMode = startActionMode(new ActionModeProfileSettings()); // launching the ActionMode
-				oldView = v;
-				v.setSelected(true);
-				v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
 			}
 		}
 	}
@@ -365,11 +351,10 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
-			// the oldView & the currentView loose the "focus"
-			oldView.setBackgroundColor(profiles_LV.getCacheColorHint());
-			currentView.setBackgroundColor(profiles_LV.getCacheColorHint());
 			// the actionMode is destroyed by putting it at null
 			mActionMode = null;
+			// the item is unselected
+			viewItem.setSelected(false);
 		}
 	}
 

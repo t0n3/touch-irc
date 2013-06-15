@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -43,11 +42,10 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	private Context c;
 	private ActionBar actionBar;
 	private TouchIrc touchIrc;
+	private View viewItem;
 	
 	protected ActionMode mActionMode; // Variable used for triggering the actionMode (ActionBar)
 	private IrcService ircService;
-	private static TextView oldView; // Variable used to store the old view selected
-	private static TextView currentView; // Variable used to store the current view selected
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -93,35 +91,21 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long arg3) {
-
-				TextView t = (TextView) v.findViewById(R.id.textView_itemName);
 				
 				idSelectedServer = (int) adapterServer.getItemId(position);
 				selectedServer = adapterServer.getItem(position);
-				currentView = t;
+				viewItem = v;
 
 				// if the ActionMode is already displayed
 				if (mActionMode != null) {
-
-					oldView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-					oldView.setTextAppearance(c, android.R.style.TextAppearance_Holo_Medium);
 					mActionMode.finish(); // closing it
 					mActionMode = startActionMode(new ActionModeServerSettings()); // and launching it to update values
-					// the selected item in the listView is highlighted
-					t.setTextAppearance(c, android.R.style.TextAppearance_Holo_Large);
-					t.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
-					oldView = t;
 				}
 				else{
-
-					// Start the CallBackActionBar using the ActionMode.Callback defined below
 					mActionMode = startActionMode(new ActionModeServerSettings()); // launching the ActionMode
-					oldView = t;
-					// the selected item in the listView is highlighted
-					
-					t.setTextAppearance(c, android.R.style.TextAppearance_Holo_Large);
-					t.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
 				}
+				// the item is selected
+				viewItem.setSelected(true);
 				return false;
 			}
 		});
@@ -262,18 +246,16 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		// Called when the user exits the action mode
 		public void onDestroyActionMode(ActionMode mode) {
-			// the oldView & currentView loose the "focus"
-			oldView.setTextAppearance(c, android.R.style.TextAppearance_Holo_Medium);
-			oldView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-			currentView.setTextAppearance(c, android.R.style.TextAppearance_Holo_Medium);
-			currentView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
 			// the actionMode is destroyed by putting it at null
 			mActionMode = null;
+			// the item is unselected
+			viewItem.setSelected(false);
 		}
 	}
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id){
+		viewItem.setSelected(true);
 		super.onListItemClick(l, v, position, id);
 		
 		if(mActionMode == null){
