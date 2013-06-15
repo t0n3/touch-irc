@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -24,6 +23,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -43,11 +43,11 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	private Context c;
 	private ActionBar actionBar;
 	private TouchIrc touchIrc;
-
+	
 	protected ActionMode mActionMode; // Variable used for triggering the actionMode (ActionBar)
 	private IrcService ircService;
-	private static View oldView; // Variable used to store the old view selected
-	private static View currentView; // Variable used to store the current view selected
+	private static TextView oldView; // Variable used to store the old view selected
+	private static TextView currentView; // Variable used to store the current view selected
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -91,32 +91,36 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		servers_LV.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-			
-
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long arg3) {
 
+				TextView t = (TextView) v.findViewById(R.id.textView_itemName);
 				
 				idSelectedServer = (int) adapterServer.getItemId(position);
 				selectedServer = adapterServer.getItem(position);
-				currentView = v;
+				currentView = t;
 
 				// if the ActionMode is already displayed
 				if (mActionMode != null) {
 
-					oldView.setBackgroundColor(servers_LV.getCacheColorHint());
+					oldView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
+					oldView.setTextAppearance(c, android.R.style.TextAppearance_Holo_Medium);
 					mActionMode.finish(); // closing it
 					mActionMode = startActionMode(new ActionModeServerSettings()); // and launching it to update values
-					v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
-					oldView = v;
+					// the selected item in the listView is highlighted
+					t.setTextAppearance(c, android.R.style.TextAppearance_Holo_Large);
+					t.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
+					oldView = t;
 				}
 				else{
 
 					// Start the CallBackActionBar using the ActionMode.Callback defined below
 					mActionMode = startActionMode(new ActionModeServerSettings()); // launching the ActionMode
-					oldView = v;
-					v.setSelected(true);
-					v.setBackgroundColor(Color.GRAY); // the selected item in the listView is highlighted
+					oldView = t;
+					// the selected item in the listView is highlighted
+					
+					t.setTextAppearance(c, android.R.style.TextAppearance_Holo_Large);
+					t.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
 				}
 				return false;
 			}
@@ -259,14 +263,14 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		// Called when the user exits the action mode
 		public void onDestroyActionMode(ActionMode mode) {
 			// the oldView & currentView loose the "focus"
-			oldView.setBackgroundColor(servers_LV.getCacheColorHint());
-			currentView.setBackgroundColor(servers_LV.getCacheColorHint());
+			oldView.setTextAppearance(c, android.R.style.TextAppearance_Holo_Medium);
+			oldView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
+			currentView.setTextAppearance(c, android.R.style.TextAppearance_Holo_Medium);
+			currentView.setTextColor(getResources().getColor(android.R.color.primary_text_light));
 			// the actionMode is destroyed by putting it at null
 			mActionMode = null;
 		}
 	}
-
-	// TODO When the user simple click on a server of the list, it connects the user to this server
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id){
@@ -274,7 +278,25 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		
 		if(mActionMode == null){
 			Log.i("TouchIRC ", "Attempt to connect to the server " + this.servers.get((int)adapterServer.getItemId(position)).getName() +" !");
-			ircService.connect((int)adapterServer.getItemId(position));
+
+			if(TouchIrc.getInstance().getAvailableProfiles().size() != 0 || TouchIrc.getInstance().getIdDefaultProfile() != -1){
+				ircService.connect((int)adapterServer.getItemId(position));
+			}
+			else{
+				String msgToast;
+				Intent intent;
+				if(TouchIrc.getInstance().getAvailableProfiles().size() != 0){
+					msgToast = getResources().getString(R.string.youNeedAProfile);
+					Toast.makeText(this, msgToast, Toast.LENGTH_LONG).show();
+					intent = new Intent(this, CreateProfileActivity.class);
+				}
+				else{
+					msgToast = getResources().getString(R.string.chooseADefaultProfile);
+					Toast.makeText(this, msgToast, Toast.LENGTH_LONG).show();
+					intent = new Intent(this, ExistingProfilesActivity.class);
+				}
+				startActivity(intent);
+			}
 		}
 	}
 
