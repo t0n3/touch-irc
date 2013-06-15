@@ -72,9 +72,11 @@
     <string name="deleteProfile">Delete Profile(s)</string>
     <string name="linkAServer">Link a Server</string>
     <string name="nowLinkToTheProfile"> is now link to the profile </string>
+    <string name="youNeedAProfile">You need a profile !</string>
+    
     <string name="profileByDefault">Profile by default : </string>
-	<string name="users">Users</string>
-	
+	<string name="chooseADefaultProfile">Choose a default profile.</string>
+    
     <!-- Server -->
     
     <string name="serverName">Server\'s name :</string>
@@ -108,6 +110,7 @@
 
     <!-- Conversation -->
    
+    <string name="users">Users</string>
     <string name="titleConversationDefault">Conversation Activity</string>
     <string name="joinChannel">Join Channel</string>
     <string name="joinChannelConfirm">Join</string>
