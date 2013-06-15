@@ -28,7 +28,6 @@ import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.method.TextKeyListener;
-import android.view.LayoutInflater;
 
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -36,7 +35,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -173,21 +171,47 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     public void onServiceDisconnected(ComponentName name) {
         ircService = null;        
     }
-
+    
+    /**
+     * Called after onCreate and when the service is binded
+     */
     @Override
     public void onServiceConnected(ComponentName name, IBinder binder) {
         ircService = ((IrcBinder) binder).getService();
         
         // Retrieve the currently connected server
-        currentServer = ircService.getCurrentServer();
+        if(ircService.getCurrentServer() == null){
+            AlertDialog.Builder notConnected = new AlertDialog.Builder(this,AlertDialog.THEME_HOLO_DARK);
+        	notConnected.setMessage(R.string.notConnected);
+        	notConnected.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                	finish();
+                }
+            });
+        	notConnected.setTitle(R.string.notConnectedTitle);
+        	notConnected.setIcon(android.R.drawable.ic_dialog_alert);
+        	notConnected.show();
+        	
+        } else {
+        	currentServer = ircService.getCurrentServer();
         
-        // Add the pager adapter
-        cPagerAdapter = new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer);
-        vp.setAdapter(cPagerAdapter);
-        
-        // Set the Activity title
+	        // Add the pager adapter
+	        cPagerAdapter = new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer);
+	        vp.setAdapter(cPagerAdapter);
+	        
+	        if(currentServer.getAllConversations().size()==0){
+	        	joinChannel(false);
+	        } else {
+	        	init();
+	        }
+        }
+    }
+    
+    private void init(){
+    	// Set the Activity title
         setTitle(currentServer.getName());
-        
+
         // Set the current channel (by default, when launching it's 0
         ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(0)));
         
@@ -220,7 +244,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         // Replace the left and right menu of slidingMenu by fragments
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, connectedServerFragment).commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedUserLayout, connectedUserFragment).commit();
-    } 
+
+    }
     
     @Override
 	public boolean onCreateOptionsMenu(Menu menu){
@@ -242,31 +267,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
             return true;
             
         case R.id.itemJoin:
-        	AlertDialog.Builder joinChannel = new AlertDialog.Builder(this);
-
-            final EditText channel = new EditText(this);
-
-        	joinChannel.setView(channel)
-        	.setPositiveButton(R.string.joinChannelConfirm, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                	String sChannel = channel.getText().toString();
-                	if(sChannel.isEmpty()) {
-                		dialog.dismiss(); // For the moment dispatch the dialog window
-                	}
-                    ircService.getBot(currentServer).joinChannel("#" + sChannel);
-                }
-            })
-            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
-   
-        	joinChannel.setTitle(R.string.joinChannel);
-        	
-        	joinChannel.show();
-        	
+        	joinChannel(false);
         	return true;
         }
         return super.onOptionsItemSelected((android.view.MenuItem) item);
@@ -279,6 +280,38 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     public void setCurrentConversation(int positon){
         this.vp.setCurrentItem(positon);
         menu.showContent();
+    }
+    
+    public void joinChannel(final boolean exist){
+    	AlertDialog.Builder joinChannel = new AlertDialog.Builder(this);
+        final EditText channel = new EditText(this);
+    	joinChannel.setView(channel)
+    	.setPositiveButton(R.string.joinChannelConfirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+            	String sChannel = channel.getText().toString();
+            	if(sChannel.isEmpty()) {
+            		dialog.dismiss(); // For the moment dispatch the dialog window
+            	}
+                ircService.getBot(currentServer).joinChannel("#" + sChannel);
+                if(currentServer.getAllConversations().size() == 0) {
+                    while(currentServer.getAllConversations().size() == 0){}
+                    cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(currentServer.getLastConversationName())));
+                    init();
+                }
+            }
+        })
+        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            	if(exist){
+            		dialog.dismiss();
+            	} else {
+            		finish();
+            	}
+            }
+        });
+    	joinChannel.setTitle(R.string.joinChannel);
+    	joinChannel.show();
     }
 
 }
