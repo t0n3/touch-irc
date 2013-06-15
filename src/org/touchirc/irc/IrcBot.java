@@ -70,7 +70,11 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 		
     	if(rawevent instanceof MessageEvent){
     		MessageEvent event = (MessageEvent) rawevent;
-    		this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick()));
+    		if(event.getMessage().contains(event.getBot().getNick())){
+        		this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick(), Message.TYPE_MENTION));
+    		}else{
+    			this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick()));
+    		}
     		service.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
     		return;
     	}
