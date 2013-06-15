@@ -109,5 +109,9 @@
     <!-- Conversation -->
    
     <string name="titleConversationDefault">Conversation Activity</string>
+    <string name="joinChannel">Join Channel</string>
+    <string name="joinChannelConfirm">Join</string>
+    <string name="channel">Channel</string>
+    
 
 </resources>
