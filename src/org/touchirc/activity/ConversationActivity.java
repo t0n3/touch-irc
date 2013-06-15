@@ -15,8 +15,10 @@ import org.touchirc.model.Conversation;
 import org.touchirc.model.Message;
 import org.touchirc.model.Server;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,13 +28,18 @@ import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.method.TextKeyListener;
+import android.view.LayoutInflater;
+
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.slidingmenu.lib.SlidingMenu;
 
@@ -106,7 +113,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
                 return handled;
             }
         });
-        
+               
     }
     
     /**
@@ -213,7 +220,14 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         // Replace the left and right menu of slidingMenu by fragments
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedServerLayout, connectedServerFragment).commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.connectedUserLayout, connectedUserFragment).commit();
-    }  
+    } 
+    
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu){
+		MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.conversation_menu, menu);
+		return true;
+	}
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -229,11 +243,39 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     }
     
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Toggle slidingMenu left if you click on the "home" icon
         switch (item.getItemId()) {
+        // Toggle slidingMenu left if you click on the "home" icon
         case android.R.id.home:
             menu.toggle();
             return true;
+            
+        case R.id.itemJoin:
+        	AlertDialog.Builder joinChannel = new AlertDialog.Builder(this);
+
+            final EditText channel = new EditText(this);
+
+        	joinChannel.setView(channel)
+        	.setPositiveButton(R.string.joinChannelConfirm, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                	String sChannel = channel.getText().toString();
+                	if(sChannel.isEmpty()) {
+                		dialog.dismiss(); // For the moment dispatch the dialog window
+                	}
+                    ircService.getBot(currentServer).joinChannel("#" + sChannel);
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+   
+        	joinChannel.setTitle(R.string.joinChannel);
+        	
+        	joinChannel.show();
+        	
+        	return true;
         }
         return super.onOptionsItemSelected((android.view.MenuItem) item);
     }
