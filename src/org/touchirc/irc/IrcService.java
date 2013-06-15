@@ -136,7 +136,6 @@ public class IrcService extends Service {
 							for(String s : server.getAutoConnectedChannels())
 								bot.joinChannel(s);
 						
-						bot.joinChannel("#Boulet2"); // TODO Remove it when the tests will be done
 						currentServer = server;
 						botsConnected.put(currentServer, bot);
 						break; // connected so break the while !
@@ -221,5 +220,9 @@ public class IrcService extends Service {
 				return;
 			}
 		}
+	}
+	
+	public boolean isConnected(Server server){
+		return botsConnected.containsKey(server) && botsConnected.get(server).isConnected;
 	}
 }

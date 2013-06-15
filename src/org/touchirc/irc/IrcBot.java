@@ -24,6 +24,7 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 	
 	private IrcService service;
 	private Server server;
+	public boolean isConnected;
 
 	public IrcBot(Server server, IrcService service) {
 		this.service = service;
@@ -99,6 +100,7 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 		}
 		if(rawevent instanceof ConnectEvent){
 			ConnectEvent event = (ConnectEvent) rawevent;
+			isConnected = true;
 			Log.i("[IrcBot - " + event.getBot().getName() + "]", "Connected");
 			return;
 		}

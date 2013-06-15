@@ -5,6 +5,7 @@ import org.touchirc.R.layout;
 import org.touchirc.TouchIrc;
 import org.touchirc.adapter.ServerAdapter;
 import org.touchirc.irc.IrcBinder;
+import org.touchirc.irc.IrcBot;
 import org.touchirc.irc.IrcService;
 import org.touchirc.model.Server;
 
@@ -14,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -23,6 +25,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -76,10 +80,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		this.actionBar.setTitle("Servers  (" + this.servers.size() + ")");
 
-		// Put an ArrayAdapter so that the LV and the servers list be linked
-		this.adapterServer =  new ServerAdapter(servers, c);
-		this.setListAdapter(adapterServer);
-		
 		/**
 		 * 
 		 * When the user click on an item an ActionMode Bar appears.
@@ -259,10 +259,19 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		super.onListItemClick(l, v, position, id);
 		
 		if(mActionMode == null){
-			Log.i("TouchIRC ", "Attempt to connect to the server " + this.servers.get((int)adapterServer.getItemId(position)).getName() +" !");
 
 			if(TouchIrc.getInstance().getAvailableProfiles().size() != 0 || TouchIrc.getInstance().getIdDefaultProfile() != -1){
-				ircService.connect((int)adapterServer.getItemId(position));
+				Log.i("TouchIRC ", "Attempt to connect to the server " + this.servers.get((int)adapterServer.getItemId(position)).getName() +" !");
+				IrcBot bot = ircService.getBot(adapterServer.getItem(position));
+				if (bot.isConnected) {
+					Intent intentChat = new Intent(getApplicationContext(),	ConversationActivity.class);
+					intentChat.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					intentChat.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intentChat.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+					getApplicationContext().startActivity(intentChat);
+				} else {
+					new ConnectingTask(bot, v).execute();
+				}
 			}
 			else{
 				String msgToast;
@@ -295,11 +304,11 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		touchIrc = TouchIrc.getInstance();
 		servers = touchIrc.getAvailableServers();
 		
-
-		// Update the list and its display
-		this.adapterServer.notifyDataSetChanged();
-		this.adapterServer.notifyDataSetInvalidated();
-
+		if(adapterServer != null){ //TODO Fix it, it's ugly
+			// Update the list and its display
+			this.adapterServer.notifyDataSetChanged();
+			this.adapterServer.notifyDataSetInvalidated();
+		}
 		this.actionBar.setTitle("Servers  (" + this.servers.size() + ")");
 	}
 
@@ -380,6 +389,41 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder binder) {
 		this.ircService = ((IrcBinder) binder).getService();
+		// Put an ArrayAdapter so that the LV and the servers list be linked
+		this.adapterServer =  new ServerAdapter(servers, c, ircService);
+		this.setListAdapter(adapterServer);
+	}
+	
+	private class ConnectingTask extends AsyncTask<Void, Integer, Long> {
+		private View view;
+		private IrcBot bot;
+
+		public ConnectingTask(IrcBot bot, View v) {
+			this.bot = bot;
+			this.view = v;
+		}
+
+		protected Long doInBackground(Void... useless) {
+			while (!bot.isConnected)
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {}
+
+			return (long) 0;
+		}
+
+		protected void onProgressUpdate(Integer... progress) {
+		}
+
+		protected void onPreExecute() {
+			view.findViewById(R.id.serverSpinner).setVisibility(View.VISIBLE);
+		}
+
+		protected void onPostExecute(Long result) {
+			view.findViewById(R.id.serverSpinner).setVisibility(View.GONE);
+			adapterServer.notifyDataSetChanged();
+			//view.findViewById(R.id.serverConnectedImageView).setVisibility(View.VISIBLE);
+		}
 	}
 	
 }

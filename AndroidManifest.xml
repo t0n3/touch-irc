@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="11"
         android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -17,14 +17,26 @@
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="adjustResize" >
     
-        <activity android:name=".activity.BaseSlidingActivity"/>
-        <activity android:name=".activity.ConversationActivity"/>
-        <activity android:name=".activity.CreateProfileActivity"/>
-        <activity android:name=".activity.ExistingProfilesActivity"/>
-        <activity android:name=".activity.CreateServerActivity"/>
-        <activity android:name=".activity.ExistingServersActivity"/>
+        <activity android:name=".activity.ConversationActivity"
+            	  android:screenOrientation="portrait"
+            	  android:launchMode="singleInstance"/>
+        <activity android:name=".activity.CreateProfileActivity"
+            	  android:screenOrientation="portrait" />
+        <activity android:name=".activity.ExistingProfilesActivity"
+            	  android:screenOrientation="portrait" 
+           		  android:launchMode="singleInstance"/>
+        <activity android:name=".activity.CreateServerActivity"
+            	  android:screenOrientation="portrait" />
+        <activity android:name=".activity.ExistingServersActivity"
+            	  android:screenOrientation="portrait"
+           		  android:launchMode="singleInstance"/>
         <activity android:name=".activity.MenuActivity"
-                  android:label="@string/app_name" >
+            	  android:screenOrientation="portrait" 
+            	  android:launchMode="singleInstance"/>
+        <activity android:name=".activity.LauncherActivity"
+            	  android:screenOrientation="portrait" 
+                  android:label="@string/app_name"
+                  android:noHistory="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,7 +45,7 @@
 
         <service
             android:name=".irc.IrcService"
-            android:enabled="true" />
+             />
     </application>
 
 </manifest>

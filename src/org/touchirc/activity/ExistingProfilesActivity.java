@@ -427,6 +427,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 			intent = new Intent(this, MenuActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
+			finish();
 			return true;
 
 		case R.id.add :
@@ -458,6 +459,7 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 			Intent intent = new Intent(this, MenuActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
+			finish();
 			return true;
 		}
 
