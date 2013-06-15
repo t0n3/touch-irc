@@ -90,6 +90,7 @@ public class MenuActivity extends SherlockActivity{
 			@Override
 			public void onClick(View v) {
 				Intent intentChat = new Intent(getApplicationContext(), ConversationActivity.class);
+				intentChat.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				intentChat.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				getApplicationContext().startActivity(intentChat);			
 			}
