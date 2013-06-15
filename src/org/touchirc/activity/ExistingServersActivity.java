@@ -81,10 +81,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		this.actionBar.setTitle("Servers  (" + this.servers.size() + ")");
 
-		// Put an ArrayAdapter so that the LV and the servers list be linked
-		this.adapterServer =  new ServerAdapter(servers, c);
-		this.setListAdapter(adapterServer);
-		
 		/**
 		 * 
 		 * When the user click on an item an ActionMode Bar appears.
@@ -291,7 +287,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 					intentChat.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 					getApplicationContext().startActivity(intentChat);
 				} else {
-					new ConnectingTask(bot,(ProgressBar) findViewById(R.id.serverSpinner)).execute();
+					new ConnectingTask(bot, v).execute();
 				}
 			}
 			else{
@@ -325,11 +321,11 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		touchIrc = TouchIrc.getInstance();
 		servers = touchIrc.getAvailableServers();
 		
-
-		// Update the list and its display
-		this.adapterServer.notifyDataSetChanged();
-		this.adapterServer.notifyDataSetInvalidated();
-
+		if(adapterServer != null){ //TODO Fix it, it's ugly
+			// Update the list and its display
+			this.adapterServer.notifyDataSetChanged();
+			this.adapterServer.notifyDataSetInvalidated();
+		}
 		this.actionBar.setTitle("Servers  (" + this.servers.size() + ")");
 	}
 
@@ -410,6 +406,9 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder binder) {
 		this.ircService = ((IrcBinder) binder).getService();
+		// Put an ArrayAdapter so that the LV and the servers list be linked
+		this.adapterServer =  new ServerAdapter(servers, c, ircService);
+		this.setListAdapter(adapterServer);
 	}
 	
 	private class ConnectingTask extends AsyncTask<Void, Integer, Long> {
@@ -434,12 +433,13 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		}
 
 		protected void onPreExecute() {
-			view.setVisibility(View.VISIBLE);
+			view.findViewById(R.id.serverSpinner).setVisibility(View.VISIBLE);
 		}
 
 		protected void onPostExecute(Long result) {
-			view.setVisibility(View.GONE);
-			findViewById(R.id.serverConnectedImageView).setVisibility(View.VISIBLE);
+			view.findViewById(R.id.serverSpinner).setVisibility(View.GONE);
+			adapterServer.notifyDataSetChanged();
+			//view.findViewById(R.id.serverConnectedImageView).setVisibility(View.VISIBLE);
 		}
 	}
 	

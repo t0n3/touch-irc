@@ -1,6 +1,7 @@
 package org.touchirc.adapter;
 
 import org.touchirc.R;
+import org.touchirc.irc.IrcService;
 import org.touchirc.model.Server;
 
 import android.content.Context;
@@ -15,10 +16,12 @@ public class ServerAdapter extends BaseAdapter {
 
 	private SparseArray<Server> serversList;
 	private Context c;
+	private IrcService ircService;
 
-	public ServerAdapter (SparseArray<Server> servers_AL, Context c){
+	public ServerAdapter (SparseArray<Server> servers_AL, Context c, IrcService service){
 		this.serversList = servers_AL;
 		this.c = c;
+		this.ircService = service;
 	}
 
 	public int getCount() {
@@ -61,6 +64,9 @@ public class ServerAdapter extends BaseAdapter {
 		
 		TextView hostnameServer_TV = (TextView) v.findViewById(R.id.textView_itemSecondInfo);
 		hostnameServer_TV.setText(s.getHost());
+		
+		if(ircService.isConnected(s))
+			convertView.findViewById(R.id.serverConnectedImageView).setVisibility(View.VISIBLE);
 		
 		return v;
 	}
