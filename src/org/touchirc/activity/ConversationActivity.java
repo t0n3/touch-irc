@@ -231,14 +231,6 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // Enable the back button
-        // In the future, I think MenuActivity will be removed :)
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            Intent intent = new Intent(this, MenuActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            return true;
-        }
         return super.onKeyDown(keyCode, event);
     }
     
