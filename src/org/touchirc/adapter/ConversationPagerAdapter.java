@@ -1,16 +1,13 @@
 package org.touchirc.adapter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import org.touchirc.fragments.ConversationFragment;
 import org.touchirc.model.Server;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.view.View.OnFocusChangeListener;
 
 /**
 * ConversationPagerAdapter
@@ -27,7 +24,6 @@ public class ConversationPagerAdapter extends FragmentStatePagerAdapter {
 	    server = s;
 	    mFragments = new ArrayList<ConversationFragment>();
 	    for(String c : server.getAllConversations()) {
-	        System.out.println(server.getConversation(c).getTitle());
 	        mFragments.add(new ConversationFragment(server.getConversation(c)));
 	    }
 	}
