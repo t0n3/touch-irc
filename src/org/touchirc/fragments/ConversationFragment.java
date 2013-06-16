@@ -81,6 +81,8 @@ public class ConversationFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		messageAdapter.addMessages(conversation.getBuffer());
+		conversation.cleanBuffer();
 		getActivity().registerReceiver(this.messageReceiver , new IntentFilter("org.touchirc.irc.newMessage"));
 	}
 	
