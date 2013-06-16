@@ -47,7 +47,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     private Server currentServer;
     private ViewPager vp;
     private SlidingMenu menu;
-    private EditText inputMessage;
+    public EditText inputMessage;
     private ConversationPagerAdapter cPagerAdapter;
     private ConnectedUsersFragment connectedUserFragment;
     
