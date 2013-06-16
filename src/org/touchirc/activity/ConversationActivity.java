@@ -233,11 +233,13 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         BroadcastReceiver channelReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String lastConv = currentServer.getLastConversationName();
-                cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(lastConv)));
+                if(cPagerAdapter.getCount() != currentServer.getAllConversations().size()) {
+                	String lastConv = currentServer.getLastConversationName();
+                	cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(lastConv)));
+                	ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
+                }
                 connectedServerFragment.getAdapter().notifyDataSetChanged();
-                connectedUserFragment.getAdapter().notifyDataSetChanged();
-                ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
+                connectedUserFragment.getAdapter().notifyDataSetChanged();                
             }    
         };
         registerReceiver(channelReceiver , new IntentFilter("org.touchirc.irc.channellistUpdated"));
