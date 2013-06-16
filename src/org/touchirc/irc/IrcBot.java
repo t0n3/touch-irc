@@ -13,6 +13,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.ModeEvent;
 import org.pircbotx.hooks.events.NickChangeEvent;
 import org.pircbotx.hooks.events.PartEvent;
+import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.UserListEvent;
 import org.pircbotx.hooks.events.UserModeEvent;
 import org.touchirc.model.Conversation;
@@ -81,14 +82,27 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
     		service.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
     		return;
     	}
+    	if(rawevent instanceof PrivateMessageEvent){
+    		PrivateMessageEvent event = (PrivateMessageEvent) rawevent;
+    		String user = event.getUser().getNick();
+    		if(!server.hasConversation(user)){
+    			server.addConversation(new Conversation(user));
+    			service.sendBroadcast(new Intent().setAction("org.touchirc.irc.channellistUpdated"));
+    		}
+    		this.server.getConversation(user).addMessage(new Message(event.getMessage(), user));
+    		service.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
+    		return;
+    	}
     	if(rawevent instanceof ActionEvent){
 			ActionEvent event = (ActionEvent) rawevent;
 			this.server.getConversation(event.getChannel().getName()).addMessage(new Message(event.getMessage(), event.getUser().getNick(), Message.TYPE_ACTION));
     		service.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
+    		return;
 		}
 		if(rawevent instanceof JoinEvent){
 			JoinEvent event = (JoinEvent) rawevent;
-			if(event.getUser().equals(event.getBot().getUserBot()) && this.server.getConversation(event.getChannel().getName()) == null){
+			if(event.getUser().equals(event.getBot().getUserBot())){
+				this.server.getConversation(event.getChannel().getName());
 				this.server.addConversation(new Conversation(event.getChannel().getName()));
 				System.out.println("JoinEvent "+event.getChannel().getName());
 				service.sendBroadcast(new Intent().setAction("org.touchirc.irc.channellistUpdated"));
@@ -109,6 +123,7 @@ public class IrcBot extends PircBotX implements Listener<IrcBot>{
 		}
 		if(rawevent instanceof UserListEvent || rawevent instanceof ModeEvent || rawevent instanceof KickEvent || rawevent instanceof NickChangeEvent || rawevent instanceof UserModeEvent){
 			service.sendBroadcast(new Intent().setAction("org.touchirc.irc.userlistUpdated"));
+			return;
 		}
 		if(rawevent instanceof ConnectEvent){
 			ConnectEvent event = (ConnectEvent) rawevent;
