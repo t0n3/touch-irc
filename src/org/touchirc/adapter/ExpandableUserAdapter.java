@@ -31,11 +31,13 @@ public class ExpandableUserAdapter extends BaseExpandableListAdapter {
 	private String [] options = {"OPs Commands","Whois","Send a MP"};
 
 	private LayoutInflater inflater;
+	private TextView countTV;
 
-	public ExpandableUserAdapter (IrcService ircService, Context c){
+	public ExpandableUserAdapter (IrcService ircService, Context c, TextView textView){
 		this.ircService = ircService;
 		this.c = c;
 		inflater = LayoutInflater.from(c);
+		countTV = textView;
 	}
 
 	@Override
@@ -108,8 +110,8 @@ public class ExpandableUserAdapter extends BaseExpandableListAdapter {
 			View convertView, ViewGroup parent) {
 		if (convertView == null)
 			convertView = LayoutInflater.from(c).inflate(R.layout.connected_user_item, null);
-
 		User user = getGroup(groupPosition);
+		
 
 		TextView userTV = (TextView) convertView.findViewById(R.id.userItemTextView);
 
@@ -118,6 +120,9 @@ public class ExpandableUserAdapter extends BaseExpandableListAdapter {
 		// set blank status and override it if the user is more than a normal user
 		userTV.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_status_blank,0,0,0);
 
+		if(groupPosition == 0 )
+			countTV.setText(c.getResources().getString(R.string.users) + " (" + ircService.getCurrentChannel().getUsers().size() + ")");
+		
 		if(user.isAway()){
 			userTV.setTextColor(convertView.getResources().getColor(R.color.gray));
 			userTV.setTypeface(null,Typeface.ITALIC);

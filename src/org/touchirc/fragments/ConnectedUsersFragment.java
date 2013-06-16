@@ -34,10 +34,10 @@ public class ConnectedUsersFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		userAdapter = new ExpandableUserAdapter(ircService, getActivity());
+		userAdapter = new ExpandableUserAdapter(ircService, getActivity(), (TextView)getActivity().findViewById(R.id.connectedUserCount));
 		
 		// Set initial connectedUserCount Textview
-    	((TextView)getActivity().findViewById(R.id.connectedUserCount)).setText(getResources().getString(R.string.users) + " (" + ircService.getCurrentChannel().getUsers().size() + ")");
+    	//((TextView)getActivity().findViewById(R.id.connectedUserCount)).setText(getResources().getString(R.string.users) + " (" + "00" + ")");
 
 		// construct the RelativeLayout
 		RelativeLayout v = new RelativeLayout(getActivity());
@@ -67,7 +67,7 @@ public class ConnectedUsersFragment extends Fragment {
 		// v.addView(usersLV);
 		return v;
 	}
-
+	
 	public ExpandableUserAdapter getAdapter() {
 		return userAdapter;
 	}
