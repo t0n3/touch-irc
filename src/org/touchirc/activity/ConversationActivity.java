@@ -50,6 +50,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     public EditText inputMessage;
     private ConversationPagerAdapter cPagerAdapter;
     private ConnectedUsersFragment connectedUserFragment;
+    private ConnectedServersFragment connectedServerFragment;
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,18 +161,40 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
                     }
                 // Action (/me)
                 } else if(cmd.equals(IrcCommands.ACTION)){
-                	String msg = Arrays.toString(args).replaceAll("(\\[)|(,)|(\\])", "");
-                	currentServer.getConversation(ircService.getCurrentChannel().getName()).addMessage(new Message(msg, bot.getNick(), Message.TYPE_ACTION));
-                	bot.sendAction(ircService.getCurrentChannel(),msg);
-                }else if(cmd.equals(IrcCommands.QUERY)){
-                	String msg = Arrays.toString(Arrays.copyOfRange(args, 1, args.length)).replaceAll("(\\[)|(,)|(\\])", "");
-            		bot.getUser(args[0]).sendMessage(msg);
-            		if(!currentServer.hasConversation(bot.getUser(args[0]).getNick())){
-            			currentServer.addConversation(new Conversation(bot.getUser(args[0]).getNick()));
-            			ircService.sendBroadcast(new Intent().setAction("org.touchirc.irc.channellistUpdated"));
-            		}
-            		currentServer.getConversation(bot.getUser(args[0]).getNick()).addMessage(new Message(msg, bot.getNick()));
-            		ircService.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
+                    String msg = Arrays.toString(args).replaceAll("(\\[)|(,)|(\\])", "");
+                    currentServer.getConversation(ircService.getCurrentChannel().getName()).addMessage(new Message(msg, bot.getNick(), Message.TYPE_ACTION));
+                    bot.sendAction(ircService.getCurrentChannel(),msg);
+                // Send a MP
+                } else if(cmd.equals(IrcCommands.QUERY)){
+                    String msg = Arrays.toString(Arrays.copyOfRange(args, 1, args.length)).replaceAll("(\\[)|(,)|(\\])", "");
+                    bot.getUser(args[0]).sendMessage(msg);
+                    if(!currentServer.hasConversation(bot.getUser(args[0]).getNick())){
+                        currentServer.addConversation(new Conversation(bot.getUser(args[0]).getNick()));
+                        ircService.sendBroadcast(new Intent().setAction("org.touchirc.irc.channellistUpdated"));
+                    }
+                    currentServer.getConversation(bot.getUser(args[0]).getNick()).addMessage(new Message(msg, bot.getNick()));
+                    ircService.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
+                // Quit a Channel
+                // XXX : BUG, PageTitle not refreshed.
+                } else if(cmd.equals(IrcCommands.PART)){
+                    // Get the position of the current Fragment
+                    int position = currentServer.getAllConversations().indexOf(ircService.getCurrentChannel().getName());
+
+                    if(args.length < 1){
+                        bot.partChannel(ircService.getCurrentChannel());
+                    } else {
+                        String reason = Arrays.toString(args).replaceAll("(\\[)|(,)|(\\])", "");
+                        bot.partChannel(ircService.getCurrentChannel(), reason);
+                    }
+
+                    // Refresh ALL
+                    cPagerAdapter.removeFragment(position);
+                    // XXX Handle exceptions if position == 0 and there is no channel
+                    if(position != 0) position --;
+                    vp.setCurrentItem(position);
+                    ircService.setCurrentChannel(bot.getChannel(currentServer.getAllConversations().get(position)));
+                    connectedUserFragment.getAdapter().notifyDataSetChanged();
+                    connectedServerFragment.getAdapter().notifyDataSetChanged();
                 }
             }
         }
@@ -193,50 +216,52 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         // Retrieve the currently connected server
         if(ircService.getCurrentServer() == null){
             AlertDialog.Builder notConnected = new AlertDialog.Builder(this,AlertDialog.THEME_HOLO_DARK);
-        	notConnected.setMessage(R.string.notConnected);
-        	notConnected.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            notConnected.setMessage(R.string.notConnected);
+            notConnected.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
-                	finish();
+                    finish();
                 }
             });
-        	notConnected.setTitle(R.string.notConnectedTitle);
-        	notConnected.setIcon(android.R.drawable.ic_dialog_alert);
-        	notConnected.show();
-        	
+            notConnected.setTitle(R.string.notConnectedTitle);
+            notConnected.setIcon(android.R.drawable.ic_dialog_alert);
+            notConnected.show();
         } else {
-        	currentServer = ircService.getCurrentServer();
-        
-	        // Add the pager adapter
-	        cPagerAdapter = new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer);
-	        vp.setAdapter(cPagerAdapter);
-	        
-	        if(currentServer.getAllConversations().size()==0){
-	        	joinChannel(false);
-	        } else {
-	        	init();
-	        }
+            currentServer = ircService.getCurrentServer();
+
+            // Add the pager adapter
+            cPagerAdapter = new ConversationPagerAdapter(getSupportFragmentManager(), this.currentServer);
+            vp.setAdapter(cPagerAdapter);
+
+            if(currentServer.getAllConversations().size()==0){
+                joinChannel(false);
+            } else {
+                init();
+            }
         }
     }
     
     private void init(){
-    	// Set the Activity title
+        // Set the Activity title
         setTitle(currentServer.getName());
 
         // Set the current channel (by default, when launching it's 0
         ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(currentServer.getAllConversations().get(0)));
         
-        final ConnectedServersFragment connectedServerFragment = new ConnectedServersFragment(ircService);
+        connectedServerFragment = new ConnectedServersFragment(ircService);
         connectedUserFragment = new ConnectedUsersFragment(ircService);
         
         // Register a new Broadcast Receiver to update the list of Fragments when channels states change
         BroadcastReceiver channelReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                // With this, we prevent a new fragment to be added when a joinEvent is sent.
+                // Btw, we loose the focus on a channel just joined :(
                 if(cPagerAdapter.getCount() != currentServer.getAllConversations().size()) {
-                	String lastConv = currentServer.getLastConversationName();
-                	cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(lastConv)));
-                	ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
+                    String lastConv = currentServer.getLastConversationName();
+                    ConversationFragment c = new ConversationFragment(currentServer.getConversation(lastConv));
+                    cPagerAdapter.addFragment(c);
+                    ircService.setCurrentChannel(ircService.getBot(currentServer).getChannel(lastConv));
                 }
                 connectedServerFragment.getAdapter().notifyDataSetChanged();
                 connectedUserFragment.getAdapter().notifyDataSetChanged();                
@@ -248,7 +273,7 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
         BroadcastReceiver userReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-            	((TextView)findViewById(R.id.connectedUserCount)).setText(getResources().getString(R.string.users) + " (" + ircService.getCurrentChannel().getUsers().size() + ")");
+                // ((TextView)findViewById(R.id.connectedUserCount)).setText(getResources().getString(R.string.users) + " (" + ircService.getCurrentChannel().getUsers().size() + ")");
                 connectedUserFragment.getAdapter().notifyDataSetChanged();
             }    
         };
@@ -261,11 +286,11 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     }
     
     @Override
-	public boolean onCreateOptionsMenu(Menu menu){
-		MenuInflater inflater = getSupportMenuInflater();
-		inflater.inflate(R.menu.conversation_menu, menu);
-		return true;
-	}
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.conversation_menu, menu);
+        return true;
+    }
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -280,8 +305,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
             return true;
             
         case R.id.itemJoin:
-        	joinChannel(false);
-        	return true;
+            joinChannel(false);
+            return true;
         }
         return super.onOptionsItemSelected((android.view.MenuItem) item);
     }
@@ -296,35 +321,36 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     }
     
     public void joinChannel(final boolean exist){
-    	AlertDialog.Builder joinChannel = new AlertDialog.Builder(this);
+        AlertDialog.Builder joinChannel = new AlertDialog.Builder(this);
         final EditText channel = new EditText(this);
-    	joinChannel.setView(channel)
-    	.setPositiveButton(R.string.joinChannelConfirm, new DialogInterface.OnClickListener() {
+        joinChannel.setView(channel)
+        .setPositiveButton(R.string.joinChannelConfirm, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-            	String sChannel = channel.getText().toString();
-            	if(sChannel.isEmpty()) {
-            		dialog.dismiss(); // For the moment dispatch the dialog window
-            	}
+                String sChannel = channel.getText().toString();
+                if(sChannel.isEmpty()) {
+                    dialog.dismiss(); // For the moment dispatch the dialog window
+                }
                 ircService.getBot(currentServer).joinChannel("#" + sChannel);
                 if(currentServer.getAllConversations().size() == 0) {
                     while(currentServer.getAllConversations().size() == 0){}
-                    cPagerAdapter.addFragment(new ConversationFragment(currentServer.getConversation(currentServer.getLastConversationName())));
+                    ConversationFragment c = new ConversationFragment(currentServer.getConversation(currentServer.getLastConversationName()));
+                    cPagerAdapter.addFragment(c);
                     init();
                 }
             }
         })
         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-            	if(exist){
-            		dialog.dismiss();
-            	} else {
-            		finish();
-            	}
+                if(exist){
+                    dialog.dismiss();
+                } else {
+                    finish();
+                }
             }
         });
-    	joinChannel.setTitle(R.string.joinChannel);
-    	joinChannel.show();
+        joinChannel.setTitle(R.string.joinChannel);
+        joinChannel.show();
     }
 
 }
