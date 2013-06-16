@@ -24,5 +24,10 @@
         <item name="UTF-16LE" format="string" type="string">UTF-16LE</item>
         <item name="windows-iso-1995-7" format="string" type="string">windows-iso-1995-7</item>
     </string-array>
+    
+    <string-array name="OPs_Commands">
+        <item name="Kick">Kick</item>
+        <item name="Ban">Ban</item>
+    </string-array>
 
 </resources>
