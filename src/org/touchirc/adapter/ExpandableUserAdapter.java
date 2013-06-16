@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 public class ExpandableUserAdapter extends BaseExpandableListAdapter {
@@ -29,12 +30,15 @@ public class ExpandableUserAdapter extends BaseExpandableListAdapter {
 	private IrcService ircService;
 	private Context c;
 	private String [] options = {"OPs Commands","Whois","Send a MP"};
+	private int lastExpandedGroupPosition;
+	private ExpandableListView ELV;
 
 	private LayoutInflater inflater;
 
-	public ExpandableUserAdapter (IrcService ircService, Context c){
+	public ExpandableUserAdapter (ExpandableListView elv, IrcService ircService, Context c){
 		this.ircService = ircService;
 		this.c = c;
+		this.ELV = elv;
 		inflater = LayoutInflater.from(c);
 	}
 
@@ -152,4 +156,18 @@ public class ExpandableUserAdapter extends BaseExpandableListAdapter {
 	public boolean isChildSelectable(int groupPosition, int childPosition) {
 		return true;
 	}
+	
+    @Override
+    public void onGroupExpanded(int groupPosition){
+        //collapse the old expanded group, if not the same
+        //as new group to expand
+    	
+        if(groupPosition != lastExpandedGroupPosition){
+            this.ELV.collapseGroup(lastExpandedGroupPosition);
+        }
+
+        super.onGroupExpanded(groupPosition);           
+        lastExpandedGroupPosition = groupPosition;
+        
+    }
 }

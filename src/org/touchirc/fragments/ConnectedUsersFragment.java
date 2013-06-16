@@ -4,6 +4,7 @@ import org.touchirc.R;
 import org.touchirc.adapter.ExpandableUserAdapter;
 import org.touchirc.irc.IrcService;
 
+
 import android.annotation.SuppressLint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ public class ConnectedUsersFragment extends Fragment {
 
 	private static IrcService ircService;
 	private ExpandableUserAdapter userAdapter;
+	private ExpandableListView usersLV;
 
 	public ConnectedUsersFragment(){}
 		
@@ -34,7 +36,6 @@ public class ConnectedUsersFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		userAdapter = new ExpandableUserAdapter(ircService, getActivity());
 		
 		// Set initial connectedUserCount Textview
     	((TextView)getActivity().findViewById(R.id.connectedUserCount)).setText(getResources().getString(R.string.users) + " (" + ircService.getCurrentChannel().getUsers().size() + ")");
@@ -42,14 +43,15 @@ public class ConnectedUsersFragment extends Fragment {
 		// construct the RelativeLayout
 		RelativeLayout v = new RelativeLayout(getActivity());
 		
-		// Construct the ListView
-		ExpandableListView usersLV = (ExpandableListView) container.findViewById(R.id.connectedUserExpandableListView);
-		
+		// Construct the ExpandableListView
+		this.usersLV = (ExpandableListView) container.findViewById(R.id.connectedUserExpandableListView);
+
 		usersLV.setVerticalFadingEdgeEnabled(false);
 
 		// No child Divider
 		usersLV.setChildDivider(getResources().getDrawable(android.R.color.transparent));
-		
+
+		userAdapter = new ExpandableUserAdapter(usersLV, ircService, getActivity());
 		usersLV.setAdapter(userAdapter);
 		
 		usersLV.setOnChildClickListener(new OnChildClickListener() {
@@ -64,11 +66,11 @@ public class ConnectedUsersFragment extends Fragment {
 		
 		usersLV.setGroupIndicator(new ColorDrawable(android.R.color.transparent));
 		
-		// v.addView(usersLV);
 		return v;
 	}
 
 	public ExpandableUserAdapter getAdapter() {
 		return userAdapter;
 	}
+	
 }
