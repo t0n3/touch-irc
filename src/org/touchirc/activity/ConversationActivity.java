@@ -161,8 +161,17 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
                 // Action (/me)
                 } else if(cmd.equals(IrcCommands.ACTION)){
                 	String msg = Arrays.toString(args).replaceAll("(\\[)|(,)|(\\])", "");
-                	currentServer.getConversation(ircService.getCurrentChannel().getName()).addMessage(new Message(msg, ircService.getBot(currentServer).getNick(), Message.TYPE_ACTION));
+                	currentServer.getConversation(ircService.getCurrentChannel().getName()).addMessage(new Message(msg, bot.getNick(), Message.TYPE_ACTION));
                 	bot.sendAction(ircService.getCurrentChannel(),msg);
+                }else if(cmd.equals(IrcCommands.QUERY)){
+                	String msg = Arrays.toString(Arrays.copyOfRange(args, 1, args.length)).replaceAll("(\\[)|(,)|(\\])", "");
+            		bot.getUser(args[0]).sendMessage(msg);
+            		if(!currentServer.hasConversation(bot.getUser(args[0]).getNick())){
+            			currentServer.addConversation(new Conversation(bot.getUser(args[0]).getNick()));
+            			ircService.sendBroadcast(new Intent().setAction("org.touchirc.irc.channellistUpdated"));
+            		}
+            		currentServer.getConversation(bot.getUser(args[0]).getNick()).addMessage(new Message(msg, bot.getNick()));
+            		ircService.sendBroadcast(new Intent().setAction("org.touchirc.irc.newMessage"));
                 }
             }
         }

@@ -52,7 +52,7 @@ public class Server {
 	}
 	
 	public Conversation getConversation(String title){
-		return this.conversations.get(title);
+		return conversations.get(title);
 	}
 	
 	public ArrayList<String> getAllConversations(){
@@ -64,6 +64,11 @@ public class Server {
 	public void addConversation(Conversation c){
 		this.conversations.put(c.getTitle(),c);
 		lastConversationName = c.getTitle();		
+	}
+	
+	public boolean hasConversation(String title){
+		System.out.println("search : " +title+ " => "+conversations.containsKey(title));
+		return conversations.containsKey(title);
 	}
 	
 	public void removeConversation(String channel) {
