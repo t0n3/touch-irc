@@ -32,6 +32,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     
+    <string name="about">About</string>
     <string name="warning">Warning !</string>
     <string name="somethingWentWrong">Something went wrong :(</string>
     
@@ -90,7 +91,8 @@
     
     <string name="serverPort">Server\'s port :</string>
     	<!-- Warnings -->
-    	<string name="serverPortNotCompleted">Server\'s port Not Completed</string>    
+    	<string name="serverPortNotCompleted">Server\'s port Not Completed</string>
+    	<string name="serverPortInvalid">Server\'s port Invalid</string>
     
     <string name="serverPassword">Server\'s password :</string>
     <string name="usingSSL">Use SSL</string>
@@ -117,7 +119,5 @@
     <string name="channel">Channel</string>
     <string name="notConnectedTitle">Not Connected !</string>
     <string name="notConnected">You are currectly not connected to a server, press OK to go back.</string>
-
-    
 
 </resources>

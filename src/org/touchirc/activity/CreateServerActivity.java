@@ -275,6 +275,18 @@ public class CreateServerActivity extends SherlockActivity {
 
 		// the Server is created with the datas given by the user
 		
+		if(serverPort_ET.getText().toString().length() < 2){
+			
+			SpannableStringBuilder sb = new SpannableStringBuilder(getResources().getText(R.string.serverPortInvalid));
+			ForegroundColorSpan fcs = new ForegroundColorSpan(Color.RED);
+			StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD); 
+			sb.setSpan(fcs, 15, 21, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			sb.setSpan(bss, 15, 21, Spannable.SPAN_INCLUSIVE_INCLUSIVE); 
+			this.server_port_TV.setText(sb);
+			
+			return false;
+		}
+		
 		int port = Integer.parseInt(serverPort_ET.getText().toString());
 
 		serv = new Server(serverName_ET.getText().toString(),
