@@ -119,7 +119,6 @@
     <string name="channel">Channel</string>
     <string name="notConnectedTitle">Not Connected !</string>
     <string name="notConnected">You are currently not connected to a server, press OK to go back.</string>
-    
     <string name="OPsCommands">OPs Commands</string>
 
 </resources>

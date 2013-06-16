@@ -53,7 +53,7 @@ public class ConnectedUsersFragment extends Fragment {
 		// No child Divider
 		usersLV.setChildDivider(getResources().getDrawable(android.R.color.transparent));
 
-		userAdapter = new ExpandableUserAdapter(usersLV, ircService, getActivity());
+		userAdapter = new ExpandableUserAdapter(usersLV, ircService, getActivity(), (TextView)getActivity().findViewById(R.id.connectedUserCount));
 		usersLV.setAdapter(userAdapter);
 
 		usersLV.setOnChildClickListener(new OnChildClickListener() {
@@ -119,7 +119,7 @@ public class ConnectedUsersFragment extends Fragment {
 
 		return v;
 	}
-
+	
 	public ExpandableUserAdapter getAdapter() {
 		return userAdapter;
 	}
