@@ -35,7 +35,7 @@ public class LauncherActivity extends Activity{
 		
 		protected Long doInBackground(Void... useless) {
 			if(isMyServiceRunning()){
-				Intent intent = new Intent(getApplicationContext(), ExistingServersActivity.class);
+				Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				getApplicationContext().startActivity(intent);
