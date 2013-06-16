@@ -63,6 +63,7 @@
             android:ems="10"
             android:imeOptions="actionNext"
             android:inputType="number"
+            android:maxLength="5"
             android:nextFocusDown="@+id/editText_server_password"
             android:nextFocusUp="@+id/editText_hostname" />
 
