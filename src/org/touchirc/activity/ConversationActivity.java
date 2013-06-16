@@ -316,7 +316,8 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
      * Used by ConnectedServersFragment
      */
     public void setCurrentConversation(int positon){
-        this.vp.setCurrentItem(positon);
+        vp.setCurrentItem(positon);
+        setTitle(currentServer.getName());
         menu.showContent();
     }
     
