@@ -43,7 +43,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	private Server selectedServer;
 	private Context c;
 	private ActionBar actionBar;
-	private TouchIrc touchIrc;
 	private View viewItem;
 	
 	protected ActionMode mActionMode; // Variable used for triggering the actionMode (ActionBar)
@@ -65,7 +64,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		// Collect the context
 		c = this;
-		touchIrc = TouchIrc.getInstance();
+		TouchIrc.getInstance();
 
 		// Collect the server widgets ListView (LV)
 		this.servers_LV = (ListView) findViewById(android.R.id.list);
@@ -74,7 +73,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		this.servers_LV.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
 		// Collect the Servers list
-		this.servers = touchIrc.getAvailableServers();
+		this.servers = TouchIrc.getInstance().getAvailableServers();
 
 		this.actionBar.setTitle("Servers  (" + this.servers.size() + ")");
 
@@ -156,13 +155,13 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 				if(selectedServer.isAutoConnect()){
 					// The selected server loose its status of auto-connected server
 					selectedServer.disableAutoConnect();
-					touchIrc.updateServer(idSelectedServer, selectedServer, c);
+					TouchIrc.getInstance().updateServer(idSelectedServer, selectedServer, c);
 					mode.getMenu().getItem(2).setTitle(R.string.AUTO);
 				}
 				else{
 					// The selected server is now the auto-connected one
 					selectedServer.enableAutoConnect();
-					touchIrc.updateServer(idSelectedServer, selectedServer, c);
+					TouchIrc.getInstance().updateServer(idSelectedServer, selectedServer, c);
 					mode.getMenu().getItem(2).setTitle(R.string.disAUTO);
 					String s = getResources().getString(R.string.nowUsedForAutoConnection);
 					Toast.makeText(c, selectedServer.getName() + s, Toast.LENGTH_LONG).show();
@@ -209,9 +208,9 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 					public void onClick(DialogInterface dialog, int id) {
 						
 						// Removal throughout the db
-						if (touchIrc.deleteServer(idSelectedServer, getApplicationContext())){ // if the deletion is successful
+						if (TouchIrc.getInstance().deleteServer(idSelectedServer, getApplicationContext())){ // if the deletion is successful
 							// Reload the new server list
-							servers = touchIrc.getAvailableServers();
+							servers = TouchIrc.getInstance().getAvailableServers();
 							// Notify the adapter that the list's state has changed
 							adapterServer.notifyDataSetChanged();
 							// Update the number of available servers in the TV
@@ -299,8 +298,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	protected void onResume(){
 		super.onResume();
 		
-		touchIrc = TouchIrc.getInstance();
-		servers = touchIrc.getAvailableServers();
+		servers = TouchIrc.getInstance().getAvailableServers();
 		
 		if(adapterServer != null){ //TODO Fix it, it's ugly
 			// Update the list and its display
