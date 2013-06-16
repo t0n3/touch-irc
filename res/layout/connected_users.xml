@@ -18,8 +18,8 @@
     	android:height="@dimen/abs__action_bar_default_height"
     />
 
- 	<ListView
- 	    android:id="@+id/connectedUserListView"
+ 	<ExpandableListView
+ 	    android:id="@+id/connectedUserExpandableListView"
  	    android:layout_width="match_parent"
  	    android:layout_height="wrap_content"
  	    android:layout_below="@+id/connectedUserCount"
