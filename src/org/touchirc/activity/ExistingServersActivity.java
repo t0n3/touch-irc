@@ -101,7 +101,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 					mActionMode = startActionMode(new ActionModeServerSettings()); // launching the ActionMode
 				}
 				// the item is selected
-				viewItem.setSelected(true);
+				v.setSelected(true);
 				return false;
 			}
 		});
@@ -251,8 +251,8 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id){
-		viewItem.setSelected(true);
 		super.onListItemClick(l, v, position, id);
+		v.setSelected(true);
 		
 		if(mActionMode == null){
 
