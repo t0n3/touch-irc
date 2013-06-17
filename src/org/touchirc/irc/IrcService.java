@@ -76,6 +76,7 @@ public class IrcService extends Service {
 	public void onDestroy(){
 		stopForeground(true);
 		notificationManager.cancel(1);
+		
 		for(Server s : this.botsConnected.keySet())
 			getBot(s).shutdown(true);
 		
@@ -157,12 +158,14 @@ public class IrcService extends Service {
 								continue;
 							}else {
 								botsConnected.remove(server);
-								e.printStackTrace();
+								//e.printStackTrace();
 							}
 						}else{
 							botsConnected.remove(server);
-							e.printStackTrace();
+							//e.printStackTrace();
 						}
+					}catch(Exception e){
+						// XXX 
 					}
 					connected++;
 				}
