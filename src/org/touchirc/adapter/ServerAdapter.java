@@ -64,12 +64,9 @@ public class ServerAdapter extends BaseAdapter {
 		TextView hostnameServer_TV = (TextView) convertView.findViewById(R.id.textView_itemSecondInfo);
 		hostnameServer_TV.setText(s.getHost());
 		
-		if(ircService.isConnected(s)){
-			System.out.println(convertView);
-			System.out.println(convertView.findViewById(R.id.serverConnectedImageView));
-		
+		if(ircService.isConnected(s))
 			convertView.findViewById(R.id.serverConnectedImageView).setVisibility(View.VISIBLE);
-		}
+
 		return convertView;
 	}
 }
