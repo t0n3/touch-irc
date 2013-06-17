@@ -58,7 +58,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 		// Allows the icon to do "Previous"
 		this.actionBar = getSupportActionBar();
-		this.actionBar.setDisplayHomeAsUpEnabled(true);
 
 		setContentView(layout.listview_layout);
 
@@ -334,12 +333,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent intent;
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			// app icon in action bar clicked; go home
-			intent = new Intent(this, MenuActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-			return true;
 
 		case R.id.add :
 			intent = new Intent(ExistingServersActivity.this, CreateServerActivity.class);
@@ -364,14 +357,6 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)  {
-		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-
-			Intent intent = new Intent(this, MenuActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-			return true;
-		}
-
 		return super.onKeyDown(keyCode, event);
 	}
 

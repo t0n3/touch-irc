@@ -7,5 +7,14 @@
         android:showAsAction="always"
         android:title="@string/joinChannel">
     </item>
+	<item 
+	    android:id="@+id/itemServersList" 
+	    android:title="@string/serversList">
+	    
+	</item>
+	<item 
+	    android:id="@+id/itemProfilesList" 
+	    android:title="@string/profilesList">
+	</item>
     
 </menu>

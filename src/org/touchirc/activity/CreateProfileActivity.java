@@ -53,7 +53,6 @@ public class CreateProfileActivity extends SherlockActivity{
 
 		// Allows to the actionBar's icon to do "Previous"
 		ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setTitle("Create a Profile");
 
 		// Prevents the keyboard to be displayed when you come on this activity
@@ -133,16 +132,6 @@ public class CreateProfileActivity extends SherlockActivity{
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			// app icon in action bar clicked; go home
-			Intent intent = new Intent(this, MenuActivity.class);
-			// According to the origin of the triggering of the activity
-			if(bundleEdit != null || bundleAddFromMenu != null){
-				intent.setClass(this, ExistingProfilesActivity.class);
-			}
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-			return true;
 
 		case R.id.save :
 
@@ -398,18 +387,6 @@ public class CreateProfileActivity extends SherlockActivity{
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)  {
-		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-
-			Intent intent = new Intent(this, MenuActivity.class);
-			// According to the origin of the triggering of the activity
-			if(bundleEdit != null || bundleAddFromMenu != null){
-				intent.setClass(this, ExistingProfilesActivity.class);
-			}
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-			return true;
-		}
-
 		return super.onKeyDown(keyCode, event);
 	}
 }
