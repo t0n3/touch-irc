@@ -16,5 +16,9 @@
 	    android:id="@+id/itemProfilesList" 
 	    android:title="@string/profilesList">
 	</item>
+	<item 
+	    android:id="@+id/itemExit" 
+	    android:title="@string/exit">
+	</item>
     
 </menu>
