@@ -18,8 +18,8 @@ import org.touchirc.model.Server;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -28,7 +28,6 @@ import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.method.TextKeyListener;
-
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -286,6 +285,16 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     }
     
     @Override
+    protected void onResume() {
+    	// TODO
+       	super.onResume();
+       	if(connectedServerFragment != null && connectedUserFragment != null){
+       		connectedServerFragment.getAdapter().notifyDataSetChanged();
+       		connectedUserFragment.getAdapter().notifyDataSetChanged();
+       	}
+    }
+    
+    @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.conversation_menu, menu);
@@ -298,15 +307,28 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
     }
     
     public boolean onOptionsItemSelected(MenuItem item) {
+    	Intent intent;
         switch (item.getItemId()) {
         // Toggle slidingMenu left if you click on the "home" icon
         case android.R.id.home:
             menu.toggle();
-            return true;
+            return true;                                                    
             
         case R.id.itemJoin:
             joinChannel(false);
             return true;
+        
+        case R.id.itemServersList:
+        	intent = new Intent(this, ExistingServersActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+			startActivity(intent);
+			return true;
+			
+        case R.id.itemProfilesList:
+        	intent = new Intent(this, ExistingProfilesActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+			startActivity(intent);
+			return true;
         }
         return super.onOptionsItemSelected((android.view.MenuItem) item);
     }
