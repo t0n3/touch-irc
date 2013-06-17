@@ -272,7 +272,7 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			else{
 				String msgToast;
 				Intent intent;
-				if(TouchIrc.getInstance().getAvailableProfiles().size() != 0){
+				if(TouchIrc.getInstance().getAvailableProfiles().size() == 0){
 					msgToast = getResources().getString(R.string.youNeedAProfile);
 					Toast.makeText(this, msgToast, Toast.LENGTH_LONG).show();
 					intent = new Intent(this, CreateProfileActivity.class);
@@ -321,6 +321,8 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 		return true;
 	}
 	
+	
+	
 	/**
 	 * 
 	 * This method allows you to configure the behavior of the icon 
@@ -342,6 +344,38 @@ public class ExistingServersActivity extends SherlockListActivity implements Ser
 			intent.putExtra("AddingFromExistingServersActivity", bundle);
 			startActivity(intent);
 			return true;
+		case R.id.itemExit:
+        	// Instantiate an AlertDialog.Builder with its constructor
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+			// Chain together various setter methods to set the dialog characteristics
+			builder.setTitle(R.string.exit)
+			.setMessage(R.string.QuitAppQuestion)
+			.setIcon(android.R.drawable.ic_menu_help);
+
+			builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					stopService(new Intent(getApplicationContext(),IrcService.class));
+					Intent intent = new Intent(Intent.ACTION_MAIN);
+				    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				    intent.addCategory(Intent.CATEGORY_HOME);
+				    startActivity(intent);
+					finish();
+					System.exit(0); // XXX seriously ?!
+					
+				}
+			});
+			builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.dismiss();
+				}
+			});
+
+
+			// Get the AlertDialog from create()
+			AlertDialog dialog = builder.create();
+			dialog.show();
+        	return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}

@@ -342,6 +342,10 @@ public class ConversationActivity extends SherlockFragmentActivity implements Se
 			builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					stopService(new Intent(getApplicationContext(),IrcService.class));
+					Intent intent = new Intent(Intent.ACTION_MAIN);
+				    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				    intent.addCategory(Intent.CATEGORY_HOME);
+				    startActivity(intent);
 					finish();
 					System.exit(0); // XXX seriously ?!
 					

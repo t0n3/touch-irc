@@ -7,4 +7,8 @@
         android:showAsAction="always"
         android:title="@string/add">
     </item>
+    <item 
+	    android:id="@+id/itemExit" 
+	    android:title="@string/exit">
+	</item>
 </menu>

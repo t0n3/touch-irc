@@ -4,6 +4,7 @@ import org.touchirc.R;
 import org.touchirc.R.layout;
 import org.touchirc.TouchIrc;
 import org.touchirc.adapter.ProfileAdapter;
+import org.touchirc.irc.IrcService;
 import org.touchirc.model.Profile;
 import org.touchirc.model.Server;
 
@@ -430,6 +431,37 @@ public class ExistingProfilesActivity extends SherlockListActivity {
 			intent.putExtra("AddingFromExistingProfilesActivity", bundle);
 			startActivity(intent);
 			return true;
+		case R.id.itemExit:
+        	// Instantiate an AlertDialog.Builder with its constructor
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+			// Chain together various setter methods to set the dialog characteristics
+			builder.setTitle(R.string.exit)
+			.setMessage(R.string.QuitAppQuestion)
+			.setIcon(android.R.drawable.ic_menu_help);
+
+			builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					stopService(new Intent(getApplicationContext(),IrcService.class));
+					Intent intent = new Intent(Intent.ACTION_MAIN);
+				    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				    intent.addCategory(Intent.CATEGORY_HOME);
+				    startActivity(intent);
+					finish();
+					System.exit(0); // XXX seriously ?!
+				}
+			});
+			builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.dismiss();
+				}
+			});
+
+
+			// Get the AlertDialog from create()
+			AlertDialog dialog = builder.create();
+			dialog.show();
+        	return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
