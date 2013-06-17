@@ -37,16 +37,15 @@ public class ServerAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View v = convertView;
 		Server s = serversList.valueAt(position); // Collect the server concerned
 		if(s == null)
 			return null;
-		if (v == null){
+		if (convertView == null){
 			LayoutInflater vi = (LayoutInflater) this.c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			v = vi.inflate(R.layout.item_list, null);
+			convertView = vi.inflate(R.layout.item_list, null);
 		}
 		
-		TextView autoConnect_TV = (TextView) v.findViewById(R.id.textView_DEFAULT);
+		TextView autoConnect_TV = (TextView) convertView.findViewById(R.id.textView_DEFAULT);
 		
 		// Checking if the current server is auto-connected
 		if(s.isAutoConnect()){
@@ -59,15 +58,18 @@ public class ServerAdapter extends BaseAdapter {
 			autoConnect_TV.setText("");
 		}
 
-		TextView serverName_TV = (TextView) v.findViewById(R.id.textView_itemName);
+		TextView serverName_TV = (TextView) convertView.findViewById(R.id.textView_itemName);
 		serverName_TV.setText(s.getName());
 		
-		TextView hostnameServer_TV = (TextView) v.findViewById(R.id.textView_itemSecondInfo);
+		TextView hostnameServer_TV = (TextView) convertView.findViewById(R.id.textView_itemSecondInfo);
 		hostnameServer_TV.setText(s.getHost());
 		
-		if(ircService.isConnected(s))
-			convertView.findViewById(R.id.serverConnectedImageView).setVisibility(View.VISIBLE);
+		if(ircService.isConnected(s)){
+			System.out.println(convertView);
+			System.out.println(convertView.findViewById(R.id.serverConnectedImageView));
 		
-		return v;
+			convertView.findViewById(R.id.serverConnectedImageView).setVisibility(View.VISIBLE);
+		}
+		return convertView;
 	}
 }
